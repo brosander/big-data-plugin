@@ -1,0 +1,4 @@
+org/pentaho/bigdata/api/hdfs/HadoopFileSystem.class
+org/pentaho/bigdata/api/hdfs/HadoopFileSystemPath.class
+org/pentaho/bigdata/api/hdfs/HadoopFileStatus.class
+org/pentaho/bigdata/api/hdfs/HadoopFileSystemService.class

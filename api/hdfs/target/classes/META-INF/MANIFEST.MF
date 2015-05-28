@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bnd-LastModified: 1432750655514
+Build-Jdk: 1.7.0_76
+Built-By: bryan
+Bundle-Description: a Pentaho open source project
+Bundle-DocURL: http://www.pentaho.com
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-ManifestVersion: 2
+Bundle-Name: Pentaho Community Edition Project: pentaho-big-data-api-hdf
+ s
+Bundle-SymbolicName: pentaho-big-data-api-hdfs
+Bundle-Vendor: Pentaho Corporation
+Bundle-Version: 6.0.0.SNAPSHOT
+Created-By: Apache Maven Bundle Plugin
+Export-Package: org.pentaho.bigdata.api.hdfs;version="6.0.0.SNAPSHOT"
+Tool: Bnd-1.50.0
