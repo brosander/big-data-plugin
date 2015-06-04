@@ -10,18 +10,10 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>pentaho-big-data-api-hdfs</artifactId>
+  <artifactId>pentaho-big-data-api-configuration</artifactId>
   <packaging>bundle</packaging>
 
   <name>Pentaho Community Edition Project: ${project.artifactId}</name>
   <description>a Pentaho open source project</description>
   <url>http://www.pentaho.com</url>
-
-  <dependencies>
-    <dependency>
-      <groupId>pentaho</groupId>
-      <artifactId>pentaho-big-data-api-configuration</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-  </dependencies>
 </project>

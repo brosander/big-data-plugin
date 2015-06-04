@@ -1,7 +1,5 @@
 package org.pentaho.bigdata.api.hdfs;
 
-import java.beans.FeatureDescriptor;
-
 /**
  * Created by bryan on 5/27/15.
  */

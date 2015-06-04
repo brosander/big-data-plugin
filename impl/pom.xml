@@ -14,5 +14,6 @@
 
   <modules>
     <module>shim</module>
+    <module>vfs</module>
   </modules>
 </project>

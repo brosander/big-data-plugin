@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public interface HadoopFileSystem {
-
   OutputStream append( HadoopFileSystemPath path ) throws IOException;
 
   OutputStream create( HadoopFileSystemPath path ) throws IOException;
@@ -24,5 +23,5 @@ public interface HadoopFileSystem {
 
   HadoopFileStatus[] listStatus( HadoopFileSystemPath path ) throws IOException;
 
-  HadoopFileSystemPath getPath(String path);
+  HadoopFileSystemPath getPath( String path );
 }
