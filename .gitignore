@@ -2,6 +2,7 @@ bin/
 dist/
 lib/
 lib-provided/
+target/
 stage-pmr/
 test-lib/
 eclipse-bin/
