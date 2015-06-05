@@ -75,7 +75,7 @@ public class HadoopConfigurationBootstrapTest {
   @SuppressWarnings( "deprecation" )
   private static URL getPluginURL() {
     try {
-      return new File( "package-res" ).toURL();
+      return new File( "src/main/assembly/resources" ).toURL();
     } catch ( MalformedURLException e ) {
       return null;
     }

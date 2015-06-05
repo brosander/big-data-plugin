@@ -88,8 +88,8 @@ public class JobEntryPigScriptExecutorTest {
   @Before
   public void setup() throws IOException {
     BufferedReader br =
-        new BufferedReader( new InputStreamReader( ClassLoader
-            .getSystemResourceAsStream( "resources/org/pentaho/di/job/entries/pig/JobEntryPigScriptExecutorTest.ref" ) ) );
+        new BufferedReader( new InputStreamReader( JobEntryPigScriptExecutorTest.class.getClassLoader().getResourceAsStream(
+             "org/pentaho/di/job/entries/pig/JobEntryPigScriptExecutorTest.ref" ) ) );
 
     m_reference = readResource( br );
   }
@@ -128,7 +128,7 @@ public class JobEntryPigScriptExecutorTest {
 
     System.setProperty( "KETTLE_PLUGIN_CLASSES", "org.pentaho.di.job.entries.pig.JobEntryPigScriptExecutor" );
     KettleEnvironment.init();
-    JobMeta meta = new JobMeta( "test-res/pig/pigTest.kjb", null );
+    JobMeta meta = new JobMeta( "src/test/resources/pig/pigTest.kjb", null );
 
     Job job = new Job( null, meta );
 
