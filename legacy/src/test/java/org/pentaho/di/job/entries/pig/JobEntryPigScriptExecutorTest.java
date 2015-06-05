@@ -25,6 +25,7 @@ package org.pentaho.di.job.entries.pig;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -35,6 +36,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs.VFS;
 import org.apache.pig.PigServer;
 import org.apache.pig.tools.grunt.GruntParser;
@@ -89,7 +92,7 @@ public class JobEntryPigScriptExecutorTest {
   public void setup() throws IOException {
     BufferedReader br =
         new BufferedReader( new InputStreamReader( JobEntryPigScriptExecutorTest.class.getClassLoader().getResourceAsStream(
-             "org/pentaho/di/job/entries/pig/JobEntryPigScriptExecutorTest.ref" ) ) );
+                "org/pentaho/di/job/entries/pig/JobEntryPigScriptExecutorTest.ref") ) );
 
     m_reference = readResource( br );
   }
@@ -128,14 +131,18 @@ public class JobEntryPigScriptExecutorTest {
 
     System.setProperty( "KETTLE_PLUGIN_CLASSES", "org.pentaho.di.job.entries.pig.JobEntryPigScriptExecutor" );
     KettleEnvironment.init();
-    JobMeta meta = new JobMeta( "src/test/resources/pig/pigTest.kjb", null );
+    new File( "target/pigTest" ).mkdir();
+    FileUtils.copyFile( new File( "src/test/resources/pig/pigTest.kjb") , new File( "target/pigTest/pigTest.kjb" ) );
+    FileUtils.copyFile( new File( "src/test/resources/pig/script1-local-mod.pig") , new File( "target/pigTest/script1-local-mod.pig" ) );
+    FileUtils.copyFile( new File( "src/test/resources/pig/tutorial.jar") , new File( "target/pigTest/tutorial.jar" ) );
+    JobMeta meta = new JobMeta( "target/pigTest/pigTest.kjb", null );
 
     Job job = new Job( null, meta );
 
     job.start();
     job.waitUntilFinished();
 
-    BufferedReader br = new BufferedReader( new FileReader( "bin/test/pig/script1-local-results.txt/part-r-00000" ) );
+    BufferedReader br = new BufferedReader( new FileReader( "target/pigTest/bin/test/pig/script1-local-results.txt/part-r-00000" ) );
     StringBuffer pigOutput = readResource( br );
 
     assertEquals( m_reference.toString(), pigOutput.toString() );

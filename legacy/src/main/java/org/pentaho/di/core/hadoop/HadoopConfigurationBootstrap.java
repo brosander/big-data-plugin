@@ -59,7 +59,7 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
 
   public static final String PROPERTY_HADOOP_CONFIGURATIONS_PATH = "hadoop.configurations.path";
 
-  public static final String DEFAULT_FOLDER_HADOOP_CONFIGURATIONS = "src/main/assembly/resources/hadoop-configurations";
+  public static final String DEFAULT_FOLDER_HADOOP_CONFIGURATIONS = "hadoop-configurations";
 
   private HadoopConfigurationProvider provider;
 

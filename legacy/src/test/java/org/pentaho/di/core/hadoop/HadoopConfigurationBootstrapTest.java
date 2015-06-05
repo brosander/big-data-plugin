@@ -46,6 +46,7 @@ import org.apache.commons.vfs.VFS;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettlePluginException;
 import org.pentaho.di.core.lifecycle.LifecycleException;
@@ -82,7 +83,8 @@ public class HadoopConfigurationBootstrapTest {
   }
 
   @BeforeClass
-  public static void before() throws KettlePluginException {
+  public static void before() throws KettleException {
+    KettleEnvironment.init();
     PluginRegistry.getInstance().registerPlugin( LifecyclePluginType.class, plugin );
   }
 
