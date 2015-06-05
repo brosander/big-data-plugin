@@ -14,10 +14,24 @@
 
     <name>Pentaho Community Edition Project: ${project.artifactId}</name>
 
+    <properties>
+        <kettle-core.version>6.0-SNAPSHOT</kettle-core.version>
+    </properties>
+
     <dependencies>
+        <dependency>
+            <groupId>pentaho-kettle</groupId>
+            <artifactId>kettle-core</artifactId>
+            <version>${kettle-core.version}</version>
+        </dependency>
         <dependency>
             <groupId>pentaho</groupId>
             <artifactId>pentaho-big-data-api-hdfs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>pentaho</groupId>
+            <artifactId>pentaho-big-data-impl-configuration</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

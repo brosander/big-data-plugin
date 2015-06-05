@@ -58,7 +58,7 @@ public class ShimDependentJobEntryPluginType extends JobEntryPluginType {
   public List<PluginFolderInterface> getPluginFolders() {
     return Arrays.<PluginFolderInterface>asList( new PluginFolder( new File( ShimDependentJobEntryPluginType.class
         .getProtectionDomain().getCodeSource().getLocation().getPath() ).getParentFile().toURI().toString()
-        + "plugins/", false, true ) {
+        + "src/main/assembly/resources/plugins/", false, true ) {
       @Override
       public FileObject[] findJarFiles( final boolean includeLibJars ) throws KettleFileException {
         try {

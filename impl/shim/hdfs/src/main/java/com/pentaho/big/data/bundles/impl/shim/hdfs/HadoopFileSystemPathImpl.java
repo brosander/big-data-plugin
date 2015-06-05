@@ -17,4 +17,8 @@ public class HadoopFileSystemPathImpl implements HadoopFileSystemPath {
   public String getPath() {
     return path.toUri().getPath();
   }
+
+  @Override public String getName() {
+    return path.getName();
+  }
 }

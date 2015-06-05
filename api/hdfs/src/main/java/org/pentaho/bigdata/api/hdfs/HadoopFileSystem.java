@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public interface HadoopFileSystem {
+  public static final String FS_DEFAULT_NAME = "fs.default.name";
+
   OutputStream append( HadoopFileSystemPath path ) throws IOException;
 
   OutputStream create( HadoopFileSystemPath path ) throws IOException;

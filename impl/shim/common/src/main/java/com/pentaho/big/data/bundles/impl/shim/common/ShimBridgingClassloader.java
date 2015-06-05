@@ -3,9 +3,16 @@ package com.pentaho.big.data.bundles.impl.shim.common;
 import org.apache.commons.io.IOUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.wiring.BundleWiring;
+import org.pentaho.di.core.exception.KettlePluginException;
+import org.pentaho.di.core.plugins.LifecyclePluginType;
+import org.pentaho.di.core.plugins.PluginInterface;
+import org.pentaho.di.core.plugins.PluginRegistry;
+import org.pentaho.di.core.plugins.PluginTypeInterface;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.List;
 
@@ -20,6 +27,72 @@ public class ShimBridgingClassloader extends ClassLoader {
     super( parentClassLoader );
     this.bundleWiring = (BundleWiring) bundleContext.getBundle().adapt( BundleWiring.class );
     this.bundleWiringClassloader = new PublicLoadResolveClassLoader( bundleWiring.getClassLoader() );
+  }
+
+  public static Object create( BundleContext bundleContext, String className, List<Object> arguments )
+    throws KettlePluginException, ClassNotFoundException, IllegalAccessException, InstantiationException,
+    InvocationTargetException {
+    ShimBridgingClassloader shimBridgingClassloader = new ShimBridgingClassloader( getPluginClassloader(
+      LifecyclePluginType.class.getCanonicalName(), "HadoopSpoonPlugin" ), bundleContext );
+    Class<?> clazz = Class.forName( className, true, shimBridgingClassloader );
+    if ( arguments == null || arguments.size() == 0 ) {
+      return clazz.newInstance();
+    }
+    for ( Constructor<?> constructor : clazz.getConstructors() ) {
+      Class<?>[] parameterTypes = constructor.getParameterTypes();
+      if ( parameterTypes.length == arguments.size() ) {
+        boolean match = true;
+        for ( int i = 0; i < parameterTypes.length; i++ ) {
+          Object o = arguments.get( i );
+          if ( o != null && !parameterTypes[ i ].isInstance( o ) ) {
+            match = false;
+            break;
+          }
+        }
+        if ( match ) {
+          return constructor.newInstance( arguments.toArray() );
+        }
+      }
+    }
+    throw new InstantiationException(
+      "Unable to find constructor for class " + className + " with arguments " + arguments );
+  }
+
+  /**
+   * Gets the classloader for the specified plugin, blocking until the plugin becomes available the feature watcher will
+   * kill us after a while anyway
+   *
+   * @param pluginType the plugin type (Specified as a string so that we can get the classloader for plugin types OSGi
+   *                   doesn't know about)
+   * @param pluginId   the plugin id
+   * @return
+   * @throws KettlePluginException
+   * @throws InterruptedException
+   */
+  private static ClassLoader getPluginClassloader( String pluginType, String pluginId )
+    throws KettlePluginException {
+    Class<? extends PluginTypeInterface> pluginTypeInterface = null;
+    PluginRegistry pluginRegistry = PluginRegistry.getInstance();
+    while ( true ) {
+      synchronized ( pluginRegistry ) {
+        if ( pluginTypeInterface == null ) {
+          for ( Class<? extends PluginTypeInterface> potentialPluginTypeInterface : pluginRegistry.getPluginTypes() ) {
+            if ( pluginType.equals( potentialPluginTypeInterface.getCanonicalName() ) ) {
+              pluginTypeInterface = potentialPluginTypeInterface;
+            }
+          }
+        }
+        PluginInterface plugin = pluginRegistry.getPlugin( pluginTypeInterface, pluginId );
+        if ( plugin != null ) {
+          return pluginRegistry.getClassLoader( plugin );
+        }
+        try {
+          pluginRegistry.wait();
+        } catch ( InterruptedException e ) {
+          throw new KettlePluginException( e );
+        }
+      }
+    }
   }
 
   @Override

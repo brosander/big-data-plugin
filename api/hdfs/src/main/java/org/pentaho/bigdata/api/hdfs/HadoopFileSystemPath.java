@@ -5,4 +5,5 @@ package org.pentaho.bigdata.api.hdfs;
  */
 public interface HadoopFileSystemPath {
   String getPath();
+  String getName();
 }

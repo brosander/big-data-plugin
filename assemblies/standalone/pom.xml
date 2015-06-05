@@ -31,6 +31,13 @@
       <version>${kettle.version}</version>
       <type>zip</type>
     </dependency>
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-big-data-plugin</artifactId>
+      <version>${project.version}</version>
+      <classifier>plugin</classifier>
+      <type>zip</type>
+    </dependency>
   </dependencies>
 
   <build>
@@ -51,6 +58,13 @@
                 <artifactItem>
                   <groupId>pentaho-kettle</groupId>
                   <artifactId>pdi-ce</artifactId>
+                  <type>zip</type>
+                  <outputDirectory>target/dependencies</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>pentaho</groupId>
+                  <artifactId>pentaho-big-data-plugin</artifactId>
+                  <classifier>plugin</classifier>
                   <type>zip</type>
                   <outputDirectory>target/dependencies</outputDirectory>
                 </artifactItem>

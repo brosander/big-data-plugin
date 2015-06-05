@@ -1,7 +1,10 @@
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
   <feature name="pentaho-big-data-plugin-osgi" version="1.0">
+    <bundle>mvn:pentaho/pentaho-osgi-utils-impl/${project.version}</bundle>
+    <bundle>mvn:pentaho/pdi-osgi-bridge-activator/${project.version}</bundle>
     <bundle>mvn:pentaho/pentaho-big-data-api-configuration/${project.version}</bundle>
     <bundle>mvn:pentaho/pentaho-big-data-api-hdfs/${project.version}</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-impl-configuration/${project.version}</bundle>
     <bundle>mvn:pentaho/pentaho-big-data-impl-shim-common/${project.version}</bundle>
     <bundle>mvn:pentaho/pentaho-big-data-impl-shim-hdfs/${project.version}</bundle>
     <bundle>mvn:pentaho/pentaho-big-data-impl-vfs-hdfs/${project.version}</bundle>

@@ -37,12 +37,15 @@
       <includes>
         <include>plugins/pdi-osgi-bridge/**</include>
         <include>plugins/market/**</include>
-        <include>plugins/pentaho-big-data-plugin/plugin.properties</include>
-        <include>plugins/pentaho-big-data-plugin/hadoop-configurations/cdh53/**</include>
       </includes>
       <excludes>
         <exclude>plugins/pdi-osgi-bridge/karaf/etc/org.apache.karaf.features.cfg</exclude>
+        <exclude>plugins/pdi-osgi-bridge/karaf/etc/custom.properties</exclude>
       </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>target/dependencies/pentaho-big-data-plugin</directory>
+      <outputDirectory>/plugins/pentaho-big-data-plugin</outputDirectory>
     </fileSet>
     <fileSet>
       <directory>${basedir}/target/processed</directory>
