@@ -285,6 +285,22 @@
 
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>**/*.properties</exclude>
+        </excludes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -314,7 +330,8 @@
                   <groupId>pentaho</groupId>
                   <artifactId>pentaho-hadoop-shims-hadoop-20-package</artifactId>
                   <type>zip</type>
-                  <outputDirectory>${basedir}/target/plugins/pentaho-big-data-plugin/hadoop-configurations</outputDirectory>
+                  <outputDirectory>${basedir}/target/plugins/pentaho-big-data-plugin/hadoop-configurations
+                  </outputDirectory>
                 </artifactItem>
               </artifactItems>
             </configuration>
