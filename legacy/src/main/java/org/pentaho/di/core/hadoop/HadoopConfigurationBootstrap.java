@@ -144,8 +144,7 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
   protected HadoopConfigurationProvider initializeHadoopConfigurationProvider( FileObject hadoopConfigurationsDir )
     throws ConfigurationException {
     HadoopConfigurationLocator locator = new HadoopConfigurationLocator();
-    locator.init( hadoopConfigurationsDir, this, (DefaultFileSystemManager) KettleVFS.getInstance()
-        .getFileSystemManager() );
+    locator.init( hadoopConfigurationsDir, this, new DefaultFileSystemManager() );
     return locator;
   }
 

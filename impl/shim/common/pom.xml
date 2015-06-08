@@ -17,8 +17,23 @@
     <description>a Pentaho open source project</description>
     <url>http://www.pentaho.com</url>
 
+    <properties>
+        <kettle.version>6.0-SNAPSHOT</kettle.version>
+    </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>pentaho-kettle</groupId>
+            <artifactId>kettle-core</artifactId>
+            <version>${kettle.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>pentaho-kettle</groupId>
+            <artifactId>kettle-engine</artifactId>
+            <version>${kettle.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -53,7 +68,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>*</Export-Package>
+                        <Export-Package>com.pentaho.big.data.bundles.impl.shim.common</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
