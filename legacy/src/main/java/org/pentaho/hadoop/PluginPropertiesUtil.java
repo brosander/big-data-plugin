@@ -42,7 +42,6 @@ public class PluginPropertiesUtil {
   private static final String VERSION_REPLACE_STR = "@VERSION@";
 
   private static String getVersionPlaceholder() {
-    System.out.println();
     try ( InputStream propertiesStream = PluginPropertiesUtil.class.getClassLoader().getResourceAsStream(
       "META-INF/version.properties" ) ) {
       Properties properties = new Properties();
