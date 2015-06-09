@@ -1,11 +1,16 @@
 package com.pentaho.big.data.bundles.impl.shim.hdfs;
 
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
+import org.pentaho.bigdata.api.configuration.ConfigurationNamespace;
 import org.pentaho.bigdata.api.configuration.NamedConfiguration;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystem;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemFactory;
 import org.pentaho.hadoop.shim.HadoopConfiguration;
+import org.pentaho.hadoop.shim.api.Configuration;
 import org.pentaho.hadoop.shim.spi.HadoopShim;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -15,6 +20,7 @@ import java.io.IOException;
 public class HadoopFileSystemFactoryImpl implements HadoopFileSystemFactory {
   public static final String SHIM_IDENTIFIER = "shim.identifier";
   public static final String HDFS = "hdfs";
+  private static final Logger LOGGER = LoggerFactory.getLogger( HadoopFileSystemFactoryImpl.class );
   private final boolean isActiveConfiguration;
   private final HadoopConfiguration hadoopConfiguration;
 
@@ -35,10 +41,18 @@ public class HadoopFileSystemFactoryImpl implements HadoopFileSystemFactory {
   @Override public HadoopFileSystem create( NamedConfiguration namedConfiguration ) {
     try {
       HadoopShim hadoopShim = hadoopConfiguration.getHadoopShim();
-      return new HadoopFileSystemImpl(
-        (FileSystem) hadoopShim.getFileSystem( hadoopShim.createConfiguration() ).getDelegate() );
+      Configuration configuration = hadoopShim.createConfiguration();
+      ConfigurationNamespace configurationNamespace = namedConfiguration.getConfigurationNamespace( HDFS );
+      for ( String property : configurationNamespace.getProperties() ) {
+        configuration.set( property, configurationNamespace.getProperty( property ) );
+      }
+      FileSystem fileSystem = (FileSystem) hadoopShim.getFileSystem( configuration ).getDelegate();
+      if ( fileSystem instanceof LocalFileSystem ) {
+        throw new IOException( "Got a local filesystem, was expecting an hdfs connection" );
+      }
+      return new HadoopFileSystemImpl( fileSystem );
     } catch ( IOException e ) {
-      e.printStackTrace();
+      LOGGER.error( "Unable to create filesystem from " + namedConfiguration, e );
     }
     return null;
   }

@@ -43,6 +43,7 @@
     <jline.version>0.9.94</jline.version>
     <libthrift.version>0.6</libthrift.version>
     <slf4j.version>1.7.3</slf4j.version>
+    <pentaho-hadoop-shims-cdh53-package.version>TRUNK-SNAPSHOT</pentaho-hadoop-shims-cdh53-package.version>
   </properties>
 
   <scm>
@@ -276,8 +277,8 @@
     <!-- Shims -->
     <dependency>
       <groupId>pentaho</groupId>
-      <artifactId>pentaho-hadoop-shims-hadoop-20-package</artifactId>
-      <version>${hadoop-shims-hadoop-20.version}</version>
+      <artifactId>pentaho-hadoop-shims-cdh53-package</artifactId>
+      <version>${pentaho-hadoop-shims-cdh53-package.version}</version>
       <scope>provided</scope>
       <type>zip</type>
     </dependency>
@@ -328,7 +329,7 @@
               <artifactItems>
                 <artifactItem>
                   <groupId>pentaho</groupId>
-                  <artifactId>pentaho-hadoop-shims-hadoop-20-package</artifactId>
+                  <artifactId>pentaho-hadoop-shims-cdh53-package</artifactId>
                   <type>zip</type>
                   <outputDirectory>${basedir}/target/plugins/pentaho-big-data-plugin/hadoop-configurations
                   </outputDirectory>

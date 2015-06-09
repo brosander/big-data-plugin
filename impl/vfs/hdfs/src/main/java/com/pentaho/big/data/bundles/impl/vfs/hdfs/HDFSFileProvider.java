@@ -23,9 +23,12 @@ import org.apache.commons.vfs.FileSystem;
 import org.apache.commons.vfs.FileSystemException;
 import org.apache.commons.vfs.FileSystemOptions;
 import org.apache.commons.vfs.UserAuthenticationData;
+import org.apache.commons.vfs.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs.provider.AbstractOriginatingFileProvider;
+import org.apache.commons.vfs.provider.GenericFileName;
 import org.pentaho.bigdata.api.configuration.NamedConfigurationLocator;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemService;
+import org.pentaho.di.core.vfs.KettleVFS;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,18 +61,19 @@ public class HDFSFileProvider extends AbstractOriginatingFileProvider {
   private final NamedConfigurationLocator namedConfigurationLocator;
 
   public HDFSFileProvider( HadoopFileSystemService hadoopFileSystemService,
-                           NamedConfigurationLocator namedConfigurationLocator ) {
+                           NamedConfigurationLocator namedConfigurationLocator ) throws FileSystemException {
     super();
     this.hadoopFileSystemService = hadoopFileSystemService;
     this.namedConfigurationLocator = namedConfigurationLocator;
     setFileNameParser( HDFSFileNameParser.getInstance() );
+    ( (DefaultFileSystemManager) KettleVFS.getInstance().getFileSystemManager() ).addProvider( "hdfs", this );
   }
 
   protected FileSystem doCreateFileSystem( final FileName name, final FileSystemOptions fileSystemOptions )
     throws FileSystemException {
     return new HDFSFileSystem( name, fileSystemOptions,
       hadoopFileSystemService.getHadoopFilesystem( namedConfigurationLocator.get(
-        name.getURI() ) ) );
+        ( (GenericFileName) name.getRoot() ).getHostName() ) ) );
   }
 
   public Collection<Capability> getCapabilities() {
