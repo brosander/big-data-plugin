@@ -14,6 +14,8 @@
 
   <modules>
     <module>features</module>
+    <module>pmr-libraries</module>
+    <module>legacy-plugin</module>
     <module>standalone</module>
   </modules>
 

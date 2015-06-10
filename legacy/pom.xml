@@ -314,47 +314,6 @@
           <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <!-- Uncompress the shims -->
-            <id>unpack</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>pentaho</groupId>
-                  <artifactId>pentaho-hadoop-shims-cdh53-package</artifactId>
-                  <type>zip</type>
-                  <outputDirectory>${basedir}/target/plugins/pentaho-big-data-plugin/hadoop-configurations
-                  </outputDirectory>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.4</version>
-        <configuration>
-          <descriptor>${basedir}/src/main/assembly/descriptors/plugin.xml</descriptor>
-        </configuration>
-        <executions>
-          <execution>
-            <id>pkg</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
 </project>

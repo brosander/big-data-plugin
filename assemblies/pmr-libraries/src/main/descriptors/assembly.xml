@@ -1,0 +1,21 @@
+<assembly>
+  <id>plugin</id>
+  <baseDirectory>lib</baseDirectory>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <dependencySets>
+    <dependencySet>
+      <outputDirectory>/</outputDirectory>
+      <unpack>false</unpack>
+      <scope>runtime</scope>
+      <useProjectArtifact>false</useProjectArtifact>
+      <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${artifact.extension}
+      </outputFileNameMapping>
+      <excludes>
+        <exclude>pentaho:pentaho-big-data-api</exclude>
+        <exclude>pentaho:pentaho-big-data-impl</exclude>
+      </excludes>
+    </dependencySet>
+  </dependencySets>
+</assembly>
