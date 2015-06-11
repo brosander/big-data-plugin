@@ -27,25 +27,10 @@
         </license>
     </licenses>
 
-    <developers>
-        <developer>
-            <name>Bryan Rosander</name>
-            <email>brosander@pentaho.com</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <name>Nick Baker</name>
-            <email>nbaker@pentaho.com</email>
-            <roles>
-                <role>developer</role>
-            </roles>
-        </developer>
-    </developers>
     <modules>
         <module>legacy</module>
         <module>api</module>
+        <module>kettle-plugins</module>
         <module>impl</module>
         <module>assemblies</module>
     </modules>

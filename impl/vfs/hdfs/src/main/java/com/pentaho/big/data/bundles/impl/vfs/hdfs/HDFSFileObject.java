@@ -108,7 +108,7 @@ public class HDFSFileObject extends AbstractFileObject implements FileObject {
     HadoopFileStatus[] statusList = hdfs.listStatus( hdfs.getPath( getName().getPath() ) );
     String[] children = new String[ statusList.length ];
     for ( int i = 0; i < statusList.length; i++ ) {
-      children[ i ] = URLEncoder.encode( statusList[ i ].getPath().getPath(), "UTF-8" );
+      children[ i ] = URLEncoder.encode( statusList[ i ].getPath().getName(), "UTF-8" );
     }
     return children;
   }
