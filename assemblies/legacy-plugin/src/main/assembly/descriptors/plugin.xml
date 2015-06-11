@@ -2,7 +2,6 @@
     <id>plugin</id>
     <baseDirectory>pentaho-big-data-plugin</baseDirectory>
     <formats>
-        <format>tar.gz</format>
         <format>zip</format>
     </formats>
     <fileSets>
@@ -21,8 +20,11 @@
             <unpack>false</unpack>
             <scope>runtime</scope>
             <useProjectArtifact>false</useProjectArtifact>
+            <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${artifact.extension}
+            </outputFileNameMapping>
             <includes>
               <include>pentaho:pentaho-big-data-plugin</include>
+              <include>pentaho:pentaho-big-data-assemblies-pmr-libraries</include>
             </includes>
         </dependencySet>
         <dependencySet>
@@ -30,6 +32,8 @@
             <unpack>false</unpack>
             <scope>runtime</scope>
             <useProjectArtifact>false</useProjectArtifact>
+            <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${artifact.extension}
+            </outputFileNameMapping>
             <includes>
                 <include>org.apache.avro:avro</include>
                 <include>com.amazonaws:aws-java-sdk</include>

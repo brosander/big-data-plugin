@@ -175,6 +175,15 @@
       <scope>provided</scope>
       <type>zip</type>
     </dependency>
+
+    <!-- PMR libs -->
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-big-data-assemblies-pmr-libraries</artifactId>
+      <version>${project.version}</version>
+      <classifier>plugin</classifier>
+      <type>zip</type>
+    </dependency>
   </dependencies>
 
 
