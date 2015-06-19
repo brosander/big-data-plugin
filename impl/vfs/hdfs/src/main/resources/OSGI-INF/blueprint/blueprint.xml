@@ -5,7 +5,7 @@
     <argument ref="hadoopFileSystemService"/>
     <argument ref="namedConfigurationLocator"/>
   </bean>
-  <reference id="hadoopFileSystemService" interface="org.pentaho.bigdata.api.hdfs.HadoopFileSystemService"/>
+  <reference id="hadoopFileSystemService" interface="org.pentaho.bigdata.api.hdfs.HadoopFileSystemLocator"/>
   <reference id="namedConfigurationLocator"
              interface="org.pentaho.bigdata.api.configuration.NamedConfigurationLocator"/>
 </blueprint>

@@ -15,5 +15,7 @@
   <modules>
     <module>configuration</module>
     <module>hdfs</module>
+    <module>mapreduce</module>
+    <module>pig</module>
   </modules>
 </project>

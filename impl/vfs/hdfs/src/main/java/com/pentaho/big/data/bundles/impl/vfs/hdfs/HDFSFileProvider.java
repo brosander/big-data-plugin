@@ -32,7 +32,7 @@ import org.pentaho.bigdata.api.configuration.ConfigurationNamespace;
 import org.pentaho.bigdata.api.configuration.NamedConfiguration;
 import org.pentaho.bigdata.api.configuration.NamedConfigurationLocator;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystem;
-import org.pentaho.bigdata.api.hdfs.HadoopFileSystemService;
+import org.pentaho.bigdata.api.hdfs.HadoopFileSystemLocator;
 import org.pentaho.di.core.vfs.KettleVFS;
 
 import java.util.Arrays;
@@ -64,13 +64,13 @@ public class HDFSFileProvider extends AbstractOriginatingFileProvider {
       Capability.RENAME, Capability.GET_TYPE, Capability.LIST_CHILDREN, Capability.READ_CONTENT, Capability.URI,
       Capability.WRITE_CONTENT, Capability.APPEND_CONTENT,
       Capability.GET_LAST_MODIFIED, Capability.SET_LAST_MODIFIED_FILE, Capability.RANDOM_ACCESS_READ } ) );
-  private final HadoopFileSystemService hadoopFileSystemService;
+  private final HadoopFileSystemLocator hadoopFileSystemLocator;
   private final NamedConfigurationLocator namedConfigurationLocator;
 
-  public HDFSFileProvider( HadoopFileSystemService hadoopFileSystemService,
+  public HDFSFileProvider( HadoopFileSystemLocator hadoopFileSystemLocator,
                            NamedConfigurationLocator namedConfigurationLocator ) throws FileSystemException {
     super();
-    this.hadoopFileSystemService = hadoopFileSystemService;
+    this.hadoopFileSystemLocator = hadoopFileSystemLocator;
     this.namedConfigurationLocator = namedConfigurationLocator;
     setFileNameParser( HDFSFileNameParser.getInstance() );
     ( (DefaultFileSystemManager) KettleVFS.getInstance().getFileSystemManager() ).addProvider( "hdfs", this );
@@ -99,7 +99,7 @@ public class HDFSFileProvider extends AbstractOriginatingFileProvider {
       namedConfiguration = new NamedConfigurationImpl( new HashMap<String, String>(), configurationNamespaceMap );
     }
     return new HDFSFileSystem( name, fileSystemOptions,
-      hadoopFileSystemService.getHadoopFilesystem( namedConfiguration ) );
+      hadoopFileSystemLocator.getHadoopFilesystem( namedConfiguration ) );
   }
 
   public Collection<Capability> getCapabilities() {

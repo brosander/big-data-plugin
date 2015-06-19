@@ -14,5 +14,6 @@
 
   <modules>
     <!--<module>hadoop-copy-files</module>-->
+    <module>pig</module>
   </modules>
 </project>
