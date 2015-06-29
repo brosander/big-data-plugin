@@ -33,6 +33,7 @@ import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.hadoop.HadoopSpoonPlugin;
 import org.pentaho.di.core.namedcluster.NamedClusterManager;
+import org.pentaho.di.core.namedcluster.NamedClusterService;
 import org.pentaho.di.core.namedcluster.model.NamedCluster;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.xml.XMLHandler;
@@ -89,19 +90,19 @@ public class HadoopFileInputMeta extends TextFileInputMeta {
   }
 
   public String loadUrl( String url, String ncName, IMetaStore metastore, Map<String,String> mappings ) {
-    NamedClusterManager namedClusterManager = NamedClusterManager.getInstance();
+    NamedClusterService namedClusterService = NamedClusterManager.getInstance();
 
-    NamedCluster c = metastore == null ? null : namedClusterManager.getNamedClusterByName( ncName, metastore );
+    NamedCluster c = metastore == null ? null : namedClusterService.getNamedClusterByName( ncName, metastore );
     if ( c != null && c.isMapr() ) {
       url =
-          namedClusterManager.processURLsubstitution( ncName, url, HadoopSpoonPlugin.MAPRFS_SCHEME, metastore,
+          namedClusterService.processURLsubstitution( ncName, url, HadoopSpoonPlugin.MAPRFS_SCHEME, metastore,
               variableSpace );
       if ( url != null && !url.startsWith( HadoopSpoonPlugin.MAPRFS_SCHEME ) ) {
         url = HadoopSpoonPlugin.MAPRFS_SCHEME + "://" + url;
       }
     } else if ( !Const.isEmpty( url ) && !url.startsWith( HadoopSpoonPlugin.MAPRFS_SCHEME ) ) {
       url =
-          namedClusterManager.processURLsubstitution( ncName, url, HadoopSpoonPlugin.HDFS_SCHEME, metastore,
+          namedClusterService.processURLsubstitution( ncName, url, HadoopSpoonPlugin.HDFS_SCHEME, metastore,
               variableSpace );
     }
     if ( !Const.isEmpty( ncName ) && !Const.isEmpty( url ) ) {

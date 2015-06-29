@@ -17,8 +17,6 @@
 
 package com.pentaho.big.data.bundles.impl.vfs.hdfs;
 
-import com.pentaho.big.data.bundles.impl.configuration.ConfigurationNamespaceImpl;
-import com.pentaho.big.data.bundles.impl.configuration.NamedConfigurationImpl;
 import org.apache.commons.vfs.Capability;
 import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileSystem;
@@ -28,18 +26,16 @@ import org.apache.commons.vfs.UserAuthenticationData;
 import org.apache.commons.vfs.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs.provider.AbstractOriginatingFileProvider;
 import org.apache.commons.vfs.provider.GenericFileName;
-import org.pentaho.bigdata.api.configuration.ConfigurationNamespace;
-import org.pentaho.bigdata.api.configuration.NamedConfiguration;
-import org.pentaho.bigdata.api.configuration.NamedConfigurationLocator;
-import org.pentaho.bigdata.api.hdfs.HadoopFileSystem;
+import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemLocator;
 import org.pentaho.di.core.vfs.KettleVFS;
+import org.pentaho.metastore.api.IMetaStore;
+import org.pentaho.metastore.api.exceptions.MetaStoreException;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 public class HDFSFileProvider extends AbstractOriginatingFileProvider {
   /**
@@ -65,13 +61,13 @@ public class HDFSFileProvider extends AbstractOriginatingFileProvider {
       Capability.WRITE_CONTENT, Capability.APPEND_CONTENT,
       Capability.GET_LAST_MODIFIED, Capability.SET_LAST_MODIFIED_FILE, Capability.RANDOM_ACCESS_READ } ) );
   private final HadoopFileSystemLocator hadoopFileSystemLocator;
-  private final NamedConfigurationLocator namedConfigurationLocator;
+  private final NamedClusterService namedClusterService;
 
   public HDFSFileProvider( HadoopFileSystemLocator hadoopFileSystemLocator,
-                           NamedConfigurationLocator namedConfigurationLocator ) throws FileSystemException {
+                           NamedClusterService namedClusterService ) throws FileSystemException {
     super();
     this.hadoopFileSystemLocator = hadoopFileSystemLocator;
-    this.namedConfigurationLocator = namedConfigurationLocator;
+    this.namedClusterService = namedClusterService;
     setFileNameParser( HDFSFileNameParser.getInstance() );
     ( (DefaultFileSystemManager) KettleVFS.getInstance().getFileSystemManager() ).addProvider( "hdfs", this );
   }
@@ -79,27 +75,29 @@ public class HDFSFileProvider extends AbstractOriginatingFileProvider {
   protected FileSystem doCreateFileSystem( final FileName name, final FileSystemOptions fileSystemOptions )
     throws FileSystemException {
     String rootURI = name.getRootURI();
-    NamedConfiguration namedConfiguration = null;
+    NamedCluster namedCluster = null;
+    // TODO
+    IMetaStore metaStore = null;
     String hostName = ( (GenericFileName) name.getRoot() ).getHostName();
     int port = ( (GenericFileName) name.getRoot() ).getPort();
-    if ( rootURI.contains( "@" ) || rootURI.substring( name.getScheme().length() + 1 ).contains( ":" ) ) {
+    if ( metaStore == null || rootURI.contains( "@" ) || rootURI.substring( name.getScheme().length() + 1 )
+      .contains( ":" ) ) {
       // More than hostname is specified,  Must not be a named config
     } else {
-      namedConfiguration = namedConfigurationLocator.get( hostName );
-    }
-    if ( namedConfiguration == null ) {
-      Map<String, ConfigurationNamespace> configurationNamespaceMap = new HashMap<String, ConfigurationNamespace>();
-      Map<String, String> properties = new HashMap<String, String>();
-      String fsDefault = name.getScheme() + "://" + hostName;
-      if ( port > 0 ) {
-        fsDefault = fsDefault + ":" + port;
+      try {
+        namedCluster = namedClusterService.read( hostName, metaStore );
+      } catch ( MetaStoreException e ) {
+        throw new FileSystemException( e );
       }
-      properties.put( HadoopFileSystem.FS_DEFAULT_NAME, fsDefault );
-      configurationNamespaceMap.put( SCHEME, new ConfigurationNamespaceImpl( properties ) );
-      namedConfiguration = new NamedConfigurationImpl( new HashMap<String, String>(), configurationNamespaceMap );
     }
-    return new HDFSFileSystem( name, fileSystemOptions,
-      hadoopFileSystemLocator.getHadoopFilesystem( namedConfiguration ) );
+    if ( namedCluster == null ) {
+      namedCluster = namedClusterService.getClusterTemplate();
+      namedCluster.setHdfsHost( hostName );
+      if ( port > 0 ) {
+        namedCluster.setHdfsPort( String.valueOf( port ) );
+      }
+    }
+    return new HDFSFileSystem( name, fileSystemOptions, hadoopFileSystemLocator.getHadoopFilesystem( namedCluster ) );
   }
 
   public Collection<Capability> getCapabilities() {

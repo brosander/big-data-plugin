@@ -25,23 +25,23 @@ package org.pentaho.di.ui.core.namedcluster;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.pentaho.di.core.namedcluster.NamedClusterManager;
-import org.pentaho.di.core.namedcluster.model.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.metastore.api.exceptions.MetaStoreException;
 
 public class NamedClusterUIHelper {
-
+  public static NamedClusterService namedClusterService;
   public static List<NamedCluster> getNamedClusters() {
     try {
-      return NamedClusterManager.getInstance().list( Spoon.getInstance().getMetaStore() );
+      return namedClusterService.list( Spoon.getInstance().getMetaStore() );
     } catch ( MetaStoreException e ) {
       return new ArrayList<NamedCluster>();
     }
   }  
   
   public static NamedCluster getNamedCluster( String namedCluster ) throws MetaStoreException {
-    return NamedClusterManager.getInstance().read( namedCluster, Spoon.getInstance().getMetaStore() );
+    return namedClusterService.read( namedCluster, Spoon.getInstance().getMetaStore() );
   }    
   
 }

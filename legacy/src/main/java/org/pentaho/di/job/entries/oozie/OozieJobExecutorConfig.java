@@ -25,7 +25,7 @@ package org.pentaho.di.job.entries.oozie;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.pentaho.di.core.namedcluster.model.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.di.job.BlockableJobConfig;
 import org.pentaho.di.job.JobEntryMode;
 import org.pentaho.di.job.PropertyEntry;

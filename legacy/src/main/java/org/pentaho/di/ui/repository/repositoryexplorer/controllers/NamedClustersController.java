@@ -46,7 +46,6 @@ import org.pentaho.di.ui.repository.repositoryexplorer.model.UINamedClusters;
 import org.pentaho.di.ui.repository.repositoryexplorer.model.UIObjectCreationException;
 import org.pentaho.di.ui.repository.repositoryexplorer.model.UINamedClusterObjectRegistry;
 import org.pentaho.di.ui.spoon.Spoon;
-import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.binding.Binding;
 import org.pentaho.ui.xul.binding.BindingFactory;

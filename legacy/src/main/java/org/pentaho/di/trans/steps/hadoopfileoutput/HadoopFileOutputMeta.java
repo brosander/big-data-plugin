@@ -26,6 +26,7 @@ import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.hadoop.HadoopSpoonPlugin;
 import org.pentaho.di.core.namedcluster.NamedClusterManager;
+import org.pentaho.di.core.namedcluster.NamedClusterService;
 import org.pentaho.di.core.namedcluster.model.NamedCluster;
 import org.pentaho.di.core.variables.Variables;
 import org.pentaho.di.core.xml.XMLHandler;
@@ -49,7 +50,7 @@ public class HadoopFileOutputMeta extends TextFileOutputMeta {
 
   private static final String SOURCE_CONFIGURATION_NAME = "source_configuration_name";
 
-  private NamedClusterManager namedClusterManager = NamedClusterManager.getInstance();
+  private NamedClusterService namedClusterService = NamedClusterManager.getInstance();
 
   @Override
   public void setDefault() {
@@ -86,16 +87,16 @@ public class HadoopFileOutputMeta extends TextFileOutputMeta {
     sourceConfigurationName = XMLHandler.getTagValue( stepnode, "file", SOURCE_CONFIGURATION_NAME );
 
     NamedCluster c = metastore == null ? null :
-      namedClusterManager.getNamedClusterByName( sourceConfigurationName, metastore );
+      namedClusterService.getNamedClusterByName( sourceConfigurationName, metastore );
     if ( c != null && c.isMapr() ) {
       url =
-          namedClusterManager.processURLsubstitution(
+          namedClusterService.processURLsubstitution(
               sourceConfigurationName, url, HadoopSpoonPlugin.MAPRFS_SCHEME, metastore, new Variables() );
       if ( url != null && !url.startsWith( HadoopSpoonPlugin.MAPRFS_SCHEME ) ) {
         url = HadoopSpoonPlugin.MAPRFS_SCHEME + "://" + url;
       }
     } else if ( !url.startsWith( HadoopSpoonPlugin.MAPRFS_SCHEME ) ) {
-      return namedClusterManager.processURLsubstitution( sourceConfigurationName, url, HadoopSpoonPlugin.HDFS_SCHEME,
+      return namedClusterService.processURLsubstitution( sourceConfigurationName, url, HadoopSpoonPlugin.HDFS_SCHEME,
           metastore, new Variables() );
     }
     return url;
@@ -111,16 +112,16 @@ public class HadoopFileOutputMeta extends TextFileOutputMeta {
     sourceConfigurationName = rep.getStepAttributeString( id_step, SOURCE_CONFIGURATION_NAME );
 
     NamedCluster c = rep.getMetaStore() == null ? null :
-      namedClusterManager.getNamedClusterByName( sourceConfigurationName, rep.getMetaStore() );
+      namedClusterService.getNamedClusterByName( sourceConfigurationName, rep.getMetaStore() );
     if ( c != null && c.isMapr() ) {
       url =
-          namedClusterManager.processURLsubstitution(
+          namedClusterService.processURLsubstitution(
               sourceConfigurationName, url, HadoopSpoonPlugin.MAPRFS_SCHEME, rep.getMetaStore(), new Variables() );
       if ( url != null && !url.startsWith( HadoopSpoonPlugin.MAPRFS_SCHEME ) ) {
         url = HadoopSpoonPlugin.MAPRFS_SCHEME + "://" + url;
       }
     } else if ( !url.startsWith( HadoopSpoonPlugin.MAPRFS_SCHEME ) ) {
-      return namedClusterManager.processURLsubstitution( sourceConfigurationName, url, HadoopSpoonPlugin.HDFS_SCHEME,
+      return namedClusterService.processURLsubstitution( sourceConfigurationName, url, HadoopSpoonPlugin.HDFS_SCHEME,
           rep.getMetaStore(), new Variables() );
     }
     return url;

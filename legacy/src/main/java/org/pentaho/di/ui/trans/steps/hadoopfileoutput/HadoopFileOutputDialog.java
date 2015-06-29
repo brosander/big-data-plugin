@@ -68,6 +68,7 @@ import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleFileException;
 import org.pentaho.di.core.hadoop.HadoopSpoonPlugin;
 import org.pentaho.di.core.namedcluster.NamedClusterManager;
+import org.pentaho.di.core.namedcluster.NamedClusterService;
 import org.pentaho.di.core.namedcluster.model.NamedCluster;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMeta;
@@ -234,7 +235,7 @@ public class HadoopFileOutputDialog extends BaseStepDialog implements StepDialog
 
   private boolean gotPreviousFields = false;
 
-  private NamedClusterManager namedClusterManager = NamedClusterManager.getInstance();
+  private NamedClusterService namedClusterService = NamedClusterManager.getInstance();
 
   public HadoopFileOutputDialog( Shell parent, Object in, TransMeta transMeta, String sname ) {
     super( parent, (BaseStepMeta) in, transMeta, sname );
@@ -316,7 +317,7 @@ public class HadoopFileOutputDialog extends BaseStepDialog implements StepDialog
     namedClusterWidget.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent evt ) {
         String ncName = ( (Combo) evt.getSource() ).getText();
-        NamedCluster nc = namedClusterManager.getNamedClusterByName( ncName, getMetaStore() );
+        NamedCluster nc = namedClusterService.getNamedClusterByName( ncName, getMetaStore() );
         if ( nc != null ) {
           HadoopFileOutputMeta meta = (HadoopFileOutputMeta) input;
           meta.setSourceConfigurationName( nc.getName() );
@@ -1550,17 +1551,17 @@ public class HadoopFileOutputDialog extends BaseStepDialog implements StepDialog
     String fileName = wFilename.getText();
 
     NamedCluster c = getMetaStore() == null ? null :
-      namedClusterManager.getNamedClusterByName( ncName, getMetaStore() );
+      namedClusterService.getNamedClusterByName( ncName, getMetaStore() );
     if ( c != null && c.isMapr() ) {
       fileName =
-          namedClusterManager.processURLsubstitution(
+          namedClusterService.processURLsubstitution(
               ncName, fileName, HadoopSpoonPlugin.MAPRFS_SCHEME, getMetaStore(), new Variables() );
       if ( fileName != null && !fileName.startsWith( HadoopSpoonPlugin.MAPRFS_SCHEME ) ) {
         fileName = HadoopSpoonPlugin.MAPRFS_SCHEME + "://" + fileName;
       }
     } else if ( !fileName.startsWith( HadoopSpoonPlugin.MAPRFS_SCHEME ) ) {
       fileName =
-          namedClusterManager.processURLsubstitution( ncName, wFilename.getText(), HadoopSpoonPlugin.HDFS_SCHEME,
+          namedClusterService.processURLsubstitution( ncName, wFilename.getText(), HadoopSpoonPlugin.HDFS_SCHEME,
               getMetaStore(), variables );
     }
 

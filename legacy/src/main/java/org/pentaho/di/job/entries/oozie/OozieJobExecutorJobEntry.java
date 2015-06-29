@@ -31,12 +31,12 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
+import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.annotations.JobEntry;
 import org.pentaho.di.core.exception.KettleFileException;
 import org.pentaho.di.core.hadoop.HadoopConfigurationBootstrap;
-import org.pentaho.di.core.namedcluster.NamedClusterManager;
-import org.pentaho.di.core.namedcluster.model.NamedCluster;
 import org.pentaho.di.core.util.StringUtil;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.vfs.KettleVFS;
@@ -66,6 +66,7 @@ public class OozieJobExecutorJobEntry extends AbstractJobEntry<OozieJobExecutorC
   public static final String USER_NAME = "user.name";
   private OozieClientFactory oozieClientFactory = new OozieClientFactoryImpl();
   private OozieClient oozieClient = null;
+  private NamedClusterService namedClusterService;
 
   public OozieJobExecutorJobEntry() {
     try {
@@ -98,9 +99,9 @@ public class OozieJobExecutorJobEntry extends AbstractJobEntry<OozieJobExecutorC
         // load from system first, then fall back to copy stored with job (AbstractMeta)
         NamedCluster nc = null;
         if ( rep != null && !StringUtils.isEmpty( jobConfig.getClusterName() ) && 
-            NamedClusterManager.getInstance().contains( jobConfig.getClusterName(), rep.getMetaStore() ) ) {
+            namedClusterService.contains( jobConfig.getClusterName(), rep.getMetaStore() ) ) {
           // pull config from NamedCluster
-          nc = NamedClusterManager.getInstance().read( jobConfig.getClusterName(), rep.getMetaStore() );
+          nc = namedClusterService.read( jobConfig.getClusterName(), rep.getMetaStore() );
         }
         if ( nc == null ) {
           nc = config.getNamedCluster();
@@ -316,9 +317,9 @@ public class OozieJobExecutorJobEntry extends AbstractJobEntry<OozieJobExecutorC
       // load from system first, then fall back to copy stored with job (AbstractMeta)
       NamedCluster nc = null;
       if ( rep != null && !StringUtils.isEmpty( jobConfig.getClusterName() ) && 
-          NamedClusterManager.getInstance().contains( jobConfig.getClusterName(), rep.getMetaStore() ) ) {
+          namedClusterService.contains( jobConfig.getClusterName(), rep.getMetaStore() ) ) {
         // pull config from NamedCluster
-        nc = NamedClusterManager.getInstance().read( jobConfig.getClusterName(), rep.getMetaStore() );
+        nc = namedClusterService.read( jobConfig.getClusterName(), rep.getMetaStore() );
       } else {
         nc = config.getNamedCluster();
       }

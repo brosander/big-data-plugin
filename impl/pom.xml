@@ -13,7 +13,7 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>configuration</module>
+    <module>cluster</module>
     <module>shim</module>
     <module>vfs</module>
   </modules>

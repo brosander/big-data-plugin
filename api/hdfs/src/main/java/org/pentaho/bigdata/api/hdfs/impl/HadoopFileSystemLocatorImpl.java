@@ -1,6 +1,6 @@
 package org.pentaho.bigdata.api.hdfs.impl;
 
-import org.pentaho.bigdata.api.configuration.NamedConfiguration;
+import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystem;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemFactory;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemLocator;
@@ -17,10 +17,10 @@ public class HadoopFileSystemLocatorImpl implements HadoopFileSystemLocator {
     this.hadoopFileSystemFactories = hadoopFileSystemFactories;
   }
 
-  @Override public HadoopFileSystem getHadoopFilesystem( NamedConfiguration namedConfiguration ) {
+  @Override public HadoopFileSystem getHadoopFilesystem( NamedCluster namedCluster ) {
     for ( HadoopFileSystemFactory hadoopFileSystemFactory : hadoopFileSystemFactories ) {
-      if ( hadoopFileSystemFactory.canHandle( namedConfiguration ) ) {
-        return hadoopFileSystemFactory.create( namedConfiguration );
+      if ( hadoopFileSystemFactory.canHandle( namedCluster ) ) {
+        return hadoopFileSystemFactory.create( namedCluster );
       }
     }
     return null;

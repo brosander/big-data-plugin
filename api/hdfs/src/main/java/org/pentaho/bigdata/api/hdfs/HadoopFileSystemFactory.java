@@ -1,12 +1,11 @@
 package org.pentaho.bigdata.api.hdfs;
 
-import org.pentaho.bigdata.api.configuration.NamedConfiguration;
+import org.pentaho.big.data.api.cluster.NamedCluster;
 
 /**
  * Created by bryan on 5/28/15.
  */
 public interface HadoopFileSystemFactory {
-  boolean canHandle( NamedConfiguration namedConfiguration );
-
-  HadoopFileSystem create( NamedConfiguration namedConfiguration );
+  boolean canHandle( NamedCluster namedCluster );
+  HadoopFileSystem create( NamedCluster namedCluster );
 }

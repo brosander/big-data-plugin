@@ -62,6 +62,11 @@
     </dependency>
     <dependency>
       <groupId>pentaho</groupId>
+      <artifactId>pentaho-big-data-api-cluster</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>pentaho</groupId>
       <artifactId>pentaho-s3-vfs</artifactId>
       <version>${kettle.version}</version>
     </dependency>

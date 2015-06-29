@@ -68,7 +68,7 @@ public class NamedClusterTest {
   
   @Test
   public void testGetClusterTemplate() {
-    NamedClusterManager manager = NamedClusterManager.getInstance();
+    NamedClusterService manager = NamedClusterManager.getInstance();
     
     // add config, test that we can look it up
     String name = "" + System.currentTimeMillis();
@@ -80,13 +80,13 @@ public class NamedClusterTest {
 
   @Test
   public void testEmptyStore() throws MetaStoreException {
-    NamedClusterManager manager = NamedClusterManager.getInstance();
+    NamedClusterService manager = NamedClusterManager.getInstance();
     assertEquals( 0, manager.list( metaStore ).size() );
   }  
 
   @Test
   public void testLargeStore() throws MetaStoreException {
-    NamedClusterManager manager = NamedClusterManager.getInstance();
+    NamedClusterService manager = NamedClusterManager.getInstance();
     int count = 100;
     for ( int i=0; i < count; i++ ) {
       manager.create( createNamedCluster( "config-" + i ), metaStore );
@@ -96,14 +96,14 @@ public class NamedClusterTest {
   
   @Test
   public void testCreateUsingMetaStore() throws MetaStoreException {
-    NamedClusterManager manager = NamedClusterManager.getInstance();
+    NamedClusterService manager = NamedClusterManager.getInstance();
     manager.create( createNamedCluster( "config-1" ), metaStore );
     assertNotNull( manager.read( "config-1", metaStore ) );
   }
   
   @Test
   public void testUpdateUsingMetaStore() throws MetaStoreException {
-    NamedClusterManager manager = NamedClusterManager.getInstance();
+    NamedClusterService manager = NamedClusterManager.getInstance();
     NamedCluster nc = createNamedCluster( "config-1" );
     manager.create( nc, metaStore );
     assertNotNull( manager.read( "config-1", metaStore ) );
@@ -116,7 +116,7 @@ public class NamedClusterTest {
   
   @Test
   public void testDeleteUsingMetaStore() throws MetaStoreException {
-    NamedClusterManager manager = NamedClusterManager.getInstance();
+    NamedClusterService manager = NamedClusterManager.getInstance();
 
     String name = "" + System.currentTimeMillis();
     NamedCluster nc = createNamedCluster( name );
@@ -129,7 +129,7 @@ public class NamedClusterTest {
   
   @Test
   public void testListUsingMetaStore() throws MetaStoreException {
-    NamedClusterManager manager = NamedClusterManager.getInstance();
+    NamedClusterService manager = NamedClusterManager.getInstance();
 
     String name = "" + System.currentTimeMillis();
     NamedCluster nc = createNamedCluster( name );
@@ -142,7 +142,7 @@ public class NamedClusterTest {
 
   @Test
   public void testListNamesUsingMetaStore() throws MetaStoreException {
-    NamedClusterManager manager = NamedClusterManager.getInstance();
+    NamedClusterService manager = NamedClusterManager.getInstance();
 
     String name = "" + System.currentTimeMillis();
     NamedCluster nc = createNamedCluster( name );
@@ -155,7 +155,7 @@ public class NamedClusterTest {
   
   @Test
   public void testContainsUsingMetaStore() throws MetaStoreException {
-    NamedClusterManager manager = NamedClusterManager.getInstance();
+    NamedClusterService manager = NamedClusterManager.getInstance();
 
     String name = "" + System.currentTimeMillis();
     NamedCluster nc = createNamedCluster( name );
@@ -166,7 +166,7 @@ public class NamedClusterTest {
   
   @Test
   public void testTemplateIsCloned() throws MetaStoreException {
-    NamedClusterManager manager = NamedClusterManager.getInstance();
+    NamedClusterService manager = NamedClusterManager.getInstance();
 
     String name = "" + System.currentTimeMillis();
     NamedCluster nc = createNamedCluster( name );
