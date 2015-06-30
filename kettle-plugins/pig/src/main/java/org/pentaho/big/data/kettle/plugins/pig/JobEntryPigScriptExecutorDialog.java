@@ -39,6 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.big.data.plugins.common.ui.NamedClusterWidget;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.vfs.KettleVFS;
@@ -79,6 +80,7 @@ public class JobEntryPigScriptExecutorDialog extends JobEntryDialog implements J
   private Button m_localExecutionBut;
   private TableView m_scriptParams;
   private boolean m_isMapR = false;
+  private NamedClusterService namedClusterService;
 
   /**
    * Constructor.
@@ -92,6 +94,7 @@ public class JobEntryPigScriptExecutorDialog extends JobEntryDialog implements J
     Shell parent, JobEntryInterface jobEntryInt, Repository rep, JobMeta jobMeta ) {
     super( parent, jobEntryInt, rep, jobMeta );
     m_jobEntry = (JobEntryPigScriptExecutor) jobEntryInt;
+    namedClusterService = m_jobEntry.getNamedClusterService();
   }
 
   public JobEntryInterface open() {
@@ -150,7 +153,7 @@ public class JobEntryPigScriptExecutorDialog extends JobEntryDialog implements J
     fd.right = new FormAttachment( middle, -margin );
     namedClusterLabel.setLayoutData( fd );
 
-    namedClusterWidget = new NamedClusterWidget( shell, false );
+    namedClusterWidget = new NamedClusterWidget( shell, false, namedClusterService );
     namedClusterWidget.initiate();
     props.setLook( namedClusterWidget );
     fd = new FormData();

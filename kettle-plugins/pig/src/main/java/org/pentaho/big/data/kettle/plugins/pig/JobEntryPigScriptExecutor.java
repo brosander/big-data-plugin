@@ -427,11 +427,15 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
     return namedCluster;
   }
 
+  public NamedClusterService getNamedClusterService() {
+    return namedClusterService;
+  }
+
   /*
-       * (non-Javadoc)
-       *
-       * @see org.pentaho.di.job.entry.JobEntryInterface#execute(org.pentaho.di.core.Result, int)
-       */
+         * (non-Javadoc)
+         *
+         * @see org.pentaho.di.job.entry.JobEntryInterface#execute(org.pentaho.di.core.Result, int)
+         */
   public Result execute( final Result result, int arg1 ) throws KettleException {
 
     result.setNrErrors( 0 );

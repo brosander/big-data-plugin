@@ -49,9 +49,10 @@ public class NamedClusterWidget extends Composite {
   private Combo nameClusterCombo;
   private HadoopClusterDelegate ncDelegate;
 
-  public NamedClusterWidget( Composite parent, boolean showLabel ) {
+  public NamedClusterWidget( Composite parent, boolean showLabel, NamedClusterService namedClusterService ) {
     super( parent, SWT.NONE );
-    ncDelegate = new HadoopClusterDelegate( Spoon.getInstance() );
+    this.namedClusterService = namedClusterService;
+    ncDelegate = new HadoopClusterDelegate( Spoon.getInstance(), this.namedClusterService );
 
     PropsUI props = PropsUI.getInstance();
     props.setLook( this );

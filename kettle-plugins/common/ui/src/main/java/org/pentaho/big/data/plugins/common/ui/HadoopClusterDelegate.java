@@ -38,8 +38,9 @@ public class HadoopClusterDelegate extends SpoonDelegate {
 
   private NamedClusterService namedClusterService;
 
-  public HadoopClusterDelegate( Spoon spoon ) {
+  public HadoopClusterDelegate( Spoon spoon, NamedClusterService namedClusterService ) {
     super( spoon );
+    this.namedClusterService = namedClusterService;
   }
 
   public void dupeNamedCluster( IMetaStore metaStore, NamedCluster nc, Shell shell ) {
@@ -51,7 +52,7 @@ public class HadoopClusterDelegate extends SpoonDelegate {
       String dupename = BaseMessages.getString( PKG, "Spoon.Various.DupeName" ) + nc.getName();
       ncCopy.setName( dupename );
 
-      NamedClusterDialog namedClusterDialog = new NamedClusterDialog( shell , ncCopy );
+      NamedClusterDialog namedClusterDialog = new NamedClusterDialog( shell , namedClusterService, ncCopy );
       namedClusterDialog.setNewClusterCheck( true );
       String newname = namedClusterDialog.open();
 
@@ -75,7 +76,7 @@ public class HadoopClusterDelegate extends SpoonDelegate {
     if ( metaStore == null ) {
       metaStore = Spoon.getInstance().getMetaStore();
     }
-    NamedClusterDialog namedClusterDialog = new NamedClusterDialog( shell , namedCluster.clone() );
+    NamedClusterDialog namedClusterDialog = new NamedClusterDialog( shell , namedClusterService, namedCluster.clone() );
     namedClusterDialog.setNewClusterCheck( false );
     String result = namedClusterDialog.open();
     if ( result != null ) {
@@ -96,7 +97,7 @@ public class HadoopClusterDelegate extends SpoonDelegate {
 
     NamedCluster nc = namedClusterService.getClusterTemplate();
 
-    NamedClusterDialog namedClusterDialog = new NamedClusterDialog( shell , nc );
+    NamedClusterDialog namedClusterDialog = new NamedClusterDialog( shell , namedClusterService, nc );
     namedClusterDialog.setNewClusterCheck( true );
     String result = namedClusterDialog.open();
 
