@@ -1,11 +1,12 @@
 package org.pentaho.bigdata.api.mapreduce;
 
-import org.pentaho.bigdata.api.configuration.NamedConfiguration;
+import org.pentaho.big.data.api.cluster.NamedCluster;
 
 /**
  * Created by bryan on 6/18/15.
  */
 public interface MapReduceServiceFactory {
-  boolean canHandle( NamedConfiguration namedConfiguration );
-  MapReduceService create( NamedConfiguration namedConfiguration );
+  boolean canHandle( NamedCluster namedConfiguration );
+
+  MapReduceService create( NamedCluster namedConfiguration );
 }

@@ -20,7 +20,7 @@
   <dependencies>
     <dependency>
       <groupId>pentaho</groupId>
-      <artifactId>pentaho-big-data-api-configuration</artifactId>
+      <artifactId>pentaho-big-data-api-cluster</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

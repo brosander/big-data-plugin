@@ -98,6 +98,12 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
 
   private PigServiceFactory pigServiceFactory;
 
+  public JobEntryPigScriptExecutor( NamedClusterService namedClusterService,
+                                    PigServiceFactory pigServiceFactory ) {
+    this.namedClusterService = namedClusterService;
+    this.pigServiceFactory = pigServiceFactory;
+  }
+
   /**
    * An extended PrintWriter that sends output to Kettle's logging
    *
