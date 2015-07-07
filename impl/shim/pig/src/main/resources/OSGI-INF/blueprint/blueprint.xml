@@ -4,7 +4,7 @@
   <bean class="com.pentaho.big.data.bundles.impl.shim.common.ShimBridgingClassloader" factory-method="create">
     <argument ref="blueprintBundleContext"/>
     <argument>
-      <value type="java.lang.String">com.pentaho.big.data.bundles.impl.shim.hdfs.HadoopFileSystemFactoryLoader</value>
+      <value type="java.lang.String">org.pentaho.big.data.impl.shim.pig.PigServiceFactoryLoader</value>
     </argument>
     <argument>
       <list>

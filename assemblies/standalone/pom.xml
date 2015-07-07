@@ -134,12 +134,14 @@
                 <descriptor>mvn:org.apache.karaf.assemblies.features/enterprise/${karaf.version}/xml/features</descriptor>
                 <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/2.7.11/xml/features</descriptor>
                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/2.13.2/xml/features</descriptor>
+                <descriptor>mvn:pentaho/pentaho-karaf-features/${project.version}/xml/standard</descriptor>
                 <descriptor>mvn:pentaho-karaf-features/pentaho-big-data-plugin-osgi/${project.version}/xml/features</descriptor>
               </descriptors>
               <features>
                 <feature>pentaho-big-data-plugin-osgi</feature>
+                <feature>pentaho-client</feature>
               </features>
-              <repository>${basedir}/target/dependencies/data-integration/plugins/pdi-osgi-bridge/karaf/system</repository>
+              <repository>${basedir}/target/dependencies/data-integration/system/karaf/system</repository>
             </configuration>
           </execution>
         </executions>

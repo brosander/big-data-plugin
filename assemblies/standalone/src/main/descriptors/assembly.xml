@@ -29,19 +29,16 @@
       <outputDirectory>/</outputDirectory>
       <excludes>
         <exclude>plugins/</exclude>
+        <exclude>system/karaf/etc/org.apache.karaf.features.cfg</exclude>
+        <exclude>system/karaf/etc/custom.properties</exclude>
       </excludes>
     </fileSet>
     <fileSet>
       <directory>target/dependencies/data-integration</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>plugins/pdi-osgi-bridge/**</include>
         <include>plugins/market/**</include>
       </includes>
-      <excludes>
-        <exclude>plugins/pdi-osgi-bridge/karaf/etc/org.apache.karaf.features.cfg</exclude>
-        <exclude>plugins/pdi-osgi-bridge/karaf/etc/custom.properties</exclude>
-      </excludes>
     </fileSet>
     <fileSet>
       <directory>target/dependencies/pentaho-big-data-plugin</directory>
@@ -49,7 +46,7 @@
     </fileSet>
     <fileSet>
       <directory>${basedir}/target/processed</directory>
-      <outputDirectory>/plugins/pdi-osgi-bridge/karaf</outputDirectory>
+      <outputDirectory>system/karaf</outputDirectory>
     </fileSet>
   </fileSets>
 </assembly>

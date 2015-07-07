@@ -34,9 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 public class NamedClusterManager implements NamedClusterService {
-
-  private static NamedClusterService instance = new NamedClusterManager();
-
   private Map<IMetaStore, MetaStoreFactory<NamedCluster>> factoryMap =
     new HashMap<IMetaStore, MetaStoreFactory<NamedCluster>>();
 
@@ -45,14 +42,10 @@ public class NamedClusterManager implements NamedClusterService {
   private NamedClusterManager() {
   }
 
-  public static NamedClusterService getInstance() {
-    return instance;
-  }
-
   private MetaStoreFactory<NamedCluster> getMetaStoreFactory( IMetaStore metastore ) {
     if ( factoryMap.get( metastore ) == null ) {
       factoryMap.put( metastore,
-        new MetaStoreFactory<NamedCluster>( NamedCluster.class, metastore, PentahoDefaults.NAMESPACE ) );
+        new MetaStoreFactory<>( NamedCluster.class, metastore, PentahoDefaults.NAMESPACE ) );
     }
     return factoryMap.get( metastore );
   }

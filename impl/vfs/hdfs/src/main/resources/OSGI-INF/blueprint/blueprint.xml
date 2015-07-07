@@ -3,9 +3,9 @@
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
   <bean class="com.pentaho.big.data.bundles.impl.vfs.hdfs.HDFSFileProvider">
     <argument ref="hadoopFileSystemService"/>
-    <argument ref="namedConfigurationLocator"/>
+    <argument ref="namedClusterService"/>
   </bean>
   <reference id="hadoopFileSystemService" interface="org.pentaho.bigdata.api.hdfs.HadoopFileSystemLocator"/>
-  <reference id="namedConfigurationLocator"
-             interface="org.pentaho.bigdata.api.configuration.NamedConfigurationLocator"/>
+  <reference id="namedClusterService"
+             interface="org.pentaho.big.data.api.cluster.NamedClusterService"/>
 </blueprint>

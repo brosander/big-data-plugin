@@ -10,7 +10,7 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>pentaho-big-data-impl-shim-hdfs</artifactId>
+  <artifactId>pentaho-big-data-impl-shim-pig</artifactId>
   <packaging>bundle</packaging>
 
   <name>Pentaho Community Edition Project: ${project.artifactId}</name>
@@ -21,7 +21,7 @@
   <dependencies>
     <dependency>
       <groupId>pentaho</groupId>
-      <artifactId>pentaho-big-data-api-hdfs</artifactId>
+      <artifactId>pentaho-big-data-api-pig</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

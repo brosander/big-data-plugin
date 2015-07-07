@@ -1,8 +1,8 @@
-package com.pentaho.big.data.bundles.impl.shim.hdfs;
+package org.pentaho.big.data.impl.shim.pig;
 
 import com.pentaho.big.data.bundles.impl.shim.common.ShimBridgingServiceTracker;
 import org.osgi.framework.BundleContext;
-import org.pentaho.bigdata.api.hdfs.HadoopFileSystemFactory;
+import org.pentaho.bigdata.api.pig.PigServiceFactory;
 import org.pentaho.di.core.hadoop.HadoopConfigurationBootstrap;
 import org.pentaho.di.core.hadoop.HadoopConfigurationListener;
 import org.pentaho.hadoop.shim.ConfigurationException;
@@ -11,17 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by bryan on 6/4/15.
+ * Created by bryan on 7/6/15.
  */
-public class HadoopFileSystemFactoryLoader implements HadoopConfigurationListener {
-  public static final String HADOOP_FILESYSTEM_FACTORY_IMPL_CANONICAL_NAME =
-    HadoopFileSystemFactoryImpl.class.getCanonicalName();
-  private static final Logger LOGGER = LoggerFactory.getLogger( HadoopFileSystemFactoryLoader.class );
+public class PigServiceFactoryLoader implements HadoopConfigurationListener {
+  private static final Logger LOGGER = LoggerFactory.getLogger( PigServiceFactoryLoader.class );
   private final BundleContext bundleContext;
   private final ShimBridgingServiceTracker shimBridgingServiceTracker;
 
-  public HadoopFileSystemFactoryLoader( BundleContext bundleContext,
-                                        ShimBridgingServiceTracker shimBridgingServiceTracker )
+  public PigServiceFactoryLoader( BundleContext bundleContext, ShimBridgingServiceTracker shimBridgingServiceTracker )
     throws ConfigurationException {
     this.bundleContext = bundleContext;
     this.shimBridgingServiceTracker = shimBridgingServiceTracker;
@@ -29,9 +26,12 @@ public class HadoopFileSystemFactoryLoader implements HadoopConfigurationListene
   }
 
   @Override public void onConfigurationOpen( HadoopConfiguration hadoopConfiguration, boolean defaultConfiguration ) {
+    if ( hadoopConfiguration == null ) {
+      return;
+    }
     try {
-      shimBridgingServiceTracker.registerWithClassloader( hadoopConfiguration, HadoopFileSystemFactory.class,
-        HADOOP_FILESYSTEM_FACTORY_IMPL_CANONICAL_NAME,
+      shimBridgingServiceTracker.registerWithClassloader( hadoopConfiguration, PigServiceFactory.class,
+        PigServiceFactoryImpl.class.getCanonicalName(),
         bundleContext, hadoopConfiguration.getHadoopShim().getClass().getClassLoader(),
         new Class<?>[] { boolean.class, HadoopConfiguration.class },
         new Object[] { defaultConfiguration, hadoopConfiguration } );
