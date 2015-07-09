@@ -43,8 +43,7 @@ import org.pentaho.metastore.api.exceptions.MetaStoreException;
 import java.util.List;
 
 public class NamedClusterWidget extends Composite {
-
-  private static Class<?> PKG = NamedClusterComposite.class;
+  private static Class<?> PKG = NamedClusterWidget.class;
   private NamedClusterService namedClusterService;
   private Combo nameClusterCombo;
   private HadoopClusterDelegate ncDelegate;

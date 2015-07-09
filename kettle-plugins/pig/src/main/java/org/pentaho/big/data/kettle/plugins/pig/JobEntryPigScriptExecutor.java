@@ -202,7 +202,7 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
   @Override
   public void loadXML( Node entrynode, List<DatabaseMeta> databases, List<SlaveServer> slaveServers,
                        Repository repository, IMetaStore metaStore ) throws KettleXMLException {
-    super.loadXML( entrynode, databases, slaveServers, repository, metaStore );
+    super.loadXML( entrynode, databases, slaveServers );
 
     loadClusterConfig( null, rep, entrynode, metaStore );
     setRepository( repository );

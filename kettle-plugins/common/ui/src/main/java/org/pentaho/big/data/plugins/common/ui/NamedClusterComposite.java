@@ -45,7 +45,6 @@ import org.pentaho.di.ui.core.PropsUI;
 import org.pentaho.di.ui.core.widget.TextVar;
 
 public class NamedClusterComposite extends Composite {
-
   private static Class<?> PKG = NamedClusterComposite.class;
 
   private PropsUI props;

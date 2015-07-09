@@ -34,7 +34,7 @@ import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.metastore.api.exceptions.MetaStoreException;
 
 public class HadoopClusterDelegate extends SpoonDelegate {
-  private static Class<?> PKG = Spoon.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = HadoopClusterDelegate.class; // for i18n purposes, needed by Translator2!!
 
   private NamedClusterService namedClusterService;
 
@@ -52,7 +52,7 @@ public class HadoopClusterDelegate extends SpoonDelegate {
       String dupename = BaseMessages.getString( PKG, "Spoon.Various.DupeName" ) + nc.getName();
       ncCopy.setName( dupename );
 
-      NamedClusterDialog namedClusterDialog = new NamedClusterDialog( shell , namedClusterService, ncCopy );
+      NamedClusterDialog namedClusterDialog = new NamedClusterDialog( shell, namedClusterService, ncCopy );
       namedClusterDialog.setNewClusterCheck( true );
       String newname = namedClusterDialog.open();
 
@@ -76,7 +76,7 @@ public class HadoopClusterDelegate extends SpoonDelegate {
     if ( metaStore == null ) {
       metaStore = Spoon.getInstance().getMetaStore();
     }
-    NamedClusterDialog namedClusterDialog = new NamedClusterDialog( shell , namedClusterService, namedCluster.clone() );
+    NamedClusterDialog namedClusterDialog = new NamedClusterDialog( shell, namedClusterService, namedCluster.clone() );
     namedClusterDialog.setNewClusterCheck( false );
     String result = namedClusterDialog.open();
     if ( result != null ) {
@@ -97,7 +97,7 @@ public class HadoopClusterDelegate extends SpoonDelegate {
 
     NamedCluster nc = namedClusterService.getClusterTemplate();
 
-    NamedClusterDialog namedClusterDialog = new NamedClusterDialog( shell , namedClusterService, nc );
+    NamedClusterDialog namedClusterDialog = new NamedClusterDialog( shell, namedClusterService, nc );
     namedClusterDialog.setNewClusterCheck( true );
     String result = namedClusterDialog.open();
 
@@ -122,8 +122,8 @@ public class HadoopClusterDelegate extends SpoonDelegate {
       }
     } catch ( MetaStoreException e ) {
       new ErrorDialog( spoon.getShell(),
-          BaseMessages.getString( PKG, "Spoon.Dialog.ErrorDeletingNamedCluster.Title" ),
-          BaseMessages.getString( PKG, "Spoon.Dialog.ErrorDeletingNamedCluster.Message", namedCluster.getName() ), e );
+        BaseMessages.getString( PKG, "Spoon.Dialog.ErrorDeletingNamedCluster.Title" ),
+        BaseMessages.getString( PKG, "Spoon.Dialog.ErrorDeletingNamedCluster.Message", namedCluster.getName() ), e );
     }
   }
 
@@ -132,8 +132,8 @@ public class HadoopClusterDelegate extends SpoonDelegate {
       namedClusterService.create( namedCluster, metaStore );
     } catch ( MetaStoreException e ) {
       new ErrorDialog( spoon.getShell(),
-          BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingNamedCluster.Title" ),
-          BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingNamedCluster.Message", namedCluster.getName() ), e );
+        BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingNamedCluster.Title" ),
+        BaseMessages.getString( PKG, "Spoon.Dialog.ErrorSavingNamedCluster.Message", namedCluster.getName() ), e );
     }
   }
 
