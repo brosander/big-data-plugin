@@ -39,9 +39,6 @@ public class NamedClusterManager implements NamedClusterService {
 
   private NamedCluster clusterTemplate;
 
-  private NamedClusterManager() {
-  }
-
   private MetaStoreFactory<NamedCluster> getMetaStoreFactory( IMetaStore metastore ) {
     if ( factoryMap.get( metastore ) == null ) {
       factoryMap.put( metastore,

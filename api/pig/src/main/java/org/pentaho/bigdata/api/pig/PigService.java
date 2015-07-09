@@ -1,6 +1,7 @@
 package org.pentaho.bigdata.api.pig;
 
 import org.pentaho.di.core.logging.LogChannelInterface;
+import org.pentaho.di.core.logging.LogLevel;
 import org.pentaho.di.core.variables.VariableSpace;
 
 import java.util.List;
@@ -11,8 +12,8 @@ import java.util.List;
 public interface PigService {
   boolean isLocalExecutionSupported();
 
-  int[] executeScript( String scriptPath, ExecutionMode executionMode, List<String> parameters,
-                       LogChannelInterface logChannelInterface, VariableSpace variableSpace ) throws Exception;
+  PigResult executeScript( String scriptPath, ExecutionMode executionMode, List<String> parameters, String name,
+                       LogChannelInterface logChannelInterface, VariableSpace variableSpace, LogLevel logLevel );
 
   enum ExecutionMode {
     LOCAL, MAPREDUCE

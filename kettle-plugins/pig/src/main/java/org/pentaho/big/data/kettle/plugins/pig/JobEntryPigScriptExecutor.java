@@ -18,11 +18,10 @@
 package org.pentaho.big.data.kettle.plugins.pig;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.WriterAppender;
+import org.apache.commons.vfs.FileObject;
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
+import org.pentaho.bigdata.api.pig.PigResult;
 import org.pentaho.bigdata.api.pig.PigService;
 import org.pentaho.bigdata.api.pig.PigServiceLocator;
 import org.pentaho.di.cluster.SlaveServer;
@@ -33,11 +32,6 @@ import org.pentaho.di.core.annotations.JobEntry;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleXMLException;
-import org.pentaho.di.core.logging.KettleLogChannelAppender;
-import org.pentaho.di.core.logging.Log4jFileAppender;
-import org.pentaho.di.core.logging.Log4jKettleLayout;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.logging.LogWriter;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.job.Job;
@@ -50,7 +44,6 @@ import org.pentaho.metastore.api.IMetaStore;
 import org.w3c.dom.Node;
 
 import java.io.File;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,19 +67,29 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
   private static Class<?> PKG = JobEntryPigScriptExecutor.class; // for i18n purposes, needed by Translator2!!
   // $NON-NLS-1$
 
-  /** Hostname of the job tracker */
+  /**
+   * Hostname of the job tracker
+   */
   protected NamedCluster namedCluster;
 
-  /** URL to the pig script to execute */
+  /**
+   * URL to the pig script to execute
+   */
   protected String m_scriptFile = "";
 
-  /** True if the job entry should block until the script has executed */
+  /**
+   * True if the job entry should block until the script has executed
+   */
   protected boolean m_enableBlocking;
 
-  /** True if the script should execute locally, rather than on a hadoop cluster */
+  /**
+   * True if the script should execute locally, rather than on a hadoop cluster
+   */
   protected boolean m_localExecution;
 
-  /** Parameters for the script */
+  /**
+   * Parameters for the script
+   */
   protected HashMap<String, String> m_params = new HashMap<String, String>();
 
   private NamedClusterService namedClusterService;
@@ -318,8 +321,7 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
   /**
    * Set whether the job will block until the script finishes
    *
-   * @param block
-   *          true if the job entry is to block until the script finishes
+   * @param block true if the job entry is to block until the script finishes
    */
   public void setEnableBlocking( boolean block ) {
     m_enableBlocking = block;
@@ -337,8 +339,7 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
   /**
    * Set whether the script is to be run locally rather than on a hadoop cluster
    *
-   * @param l
-   *          true if the script is to run locally
+   * @param l true if the script is to run locally
    */
   public void setLocalExecution( boolean l ) {
     m_localExecution = l;
@@ -356,8 +357,7 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
   /**
    * Set the URL to the pig script to run
    *
-   * @param filename
-   *          the URL to the pig script
+   * @param filename the URL to the pig script
    */
   public void setScriptFilename( String filename ) {
     m_scriptFile = filename;
@@ -375,8 +375,7 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
   /**
    * Set the values of parameters to replace in the script
    *
-   * @param params
-   *          a HashMap mapping parameter names to values
+   * @param params a HashMap mapping parameter names to values
    */
   public void setScriptParameters( HashMap<String, String> params ) {
     m_params = params;
@@ -403,29 +402,6 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
 
     result.setNrErrors( 0 );
 
-    // Set up an appender that will send all pig log messages to Kettle's log
-    // via logBasic().
-    KettleLoggingPrintWriter klps = new KettleLoggingPrintWriter();
-    WriterAppender pigToKettleAppender = new WriterAppender( new Log4jKettleLayout( true ), klps );
-
-    Logger pigLogger = Logger.getLogger( "org.apache.pig" );
-    Level log4jLevel = getLog4jLevel( parentJob.getLogLevel() );
-    pigLogger.setLevel( log4jLevel );
-    Log4jFileAppender appender = null;
-    String logFileName = "pdi-" + this.getName(); //$NON-NLS-1$
-    LogWriter logWriter = LogWriter.getInstance();
-    try {
-      appender = LogWriter.createFileAppender( logFileName, true, false );
-      logWriter.addAppender( appender );
-      log.setLogLevel( parentJob.getLogLevel() );
-      if ( pigLogger != null ) {
-        pigLogger.addAppender( pigToKettleAppender );
-      }
-    } catch ( Exception e ) {
-      logError( BaseMessages
-        .getString( PKG, "JobEntryPigScriptExecutor.FailedToOpenLogFile", logFileName, e.toString() ) ); //$NON-NLS-1$
-      logError( Const.getStackTracker( e ) );
-    }
 
     if ( Const.isEmpty( m_scriptFile ) ) {
       throw new KettleException(
@@ -467,45 +443,51 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
         .ExecutionMode.MAPREDUCE );
 
       if ( m_enableBlocking ) {
-        int[] executionStatus = pigService.executeScript( scriptFileS, execMode, paramList, getLogChannel(), this );
-        logBasic( BaseMessages.getString( PKG, "JobEntryPigScriptExecutor.JobCompletionStatus",
-          "" + executionStatus[ 0 ], "" + executionStatus[ 1 ] ) );
+        PigResult pigResult = pigService
+          .executeScript( scriptFileS, execMode, paramList, getName(), getLogChannel(), this, parentJob.getLogLevel() );
+        int[] executionStatus = pigResult.getResult();
+        Exception pigResultException = pigResult.getException();
+        if ( executionStatus != null ) {
+          logBasic( BaseMessages.getString( PKG, "JobEntryPigScriptExecutor.JobCompletionStatus",
+            "" + executionStatus[ 0 ], "" + executionStatus[ 1 ] ) );
 
-        if ( executionStatus[ 1 ] > 0 ) {
-          result.setStopped( true );
-          result.setNrErrors( executionStatus[ 1 ] );
-          result.setResult( false );
+          if ( executionStatus[ 1 ] > 0 ) {
+            result.setStopped( true );
+            result.setNrErrors( executionStatus[ 1 ] );
+            result.setResult( false );
+          }
+        } else if ( pigResultException != null ) {
+          logError( pigResultException.getMessage(), pigResultException );
         }
-
-        removeAppender( appender, pigToKettleAppender );
-        if ( appender != null ) {
+        FileObject logFile = pigResult.getLogFile();
+        if ( logFile != null ) {
           ResultFile resultFile =
-            new ResultFile( ResultFile.FILE_TYPE_LOG, appender.getFile(), parentJob.getJobname(), getName() );
+            new ResultFile( ResultFile.FILE_TYPE_LOG, logFile, parentJob.getJobname(), getName() );
           result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
         }
       } else {
-        final Log4jFileAppender fa = appender;
-        final WriterAppender ptk = pigToKettleAppender;
         final String finalScriptFileS = scriptFileS;
         final Thread runThread = new Thread() {
           public void run() {
-            try {
-              int[] executionStatus = pigService.executeScript( finalScriptFileS, execMode, paramList, getLogChannel(),
-                JobEntryPigScriptExecutor.this );
+            PigResult pigResult =
+              pigService.executeScript( finalScriptFileS, execMode, paramList, getName(), getLogChannel(),
+                JobEntryPigScriptExecutor.this, parentJob.getLogLevel() );
+            int[] executionStatus = pigResult.getResult();
+            Exception exception = pigResult.getException();
+            if ( executionStatus != null ) {
               logBasic( BaseMessages.getString( PKG, "JobEntryPigScriptExecutor.JobCompletionStatus", ""
                 + executionStatus[ 0 ], "" + executionStatus[ 1 ] ) );
-            } catch ( Exception ex ) {
-              ex.printStackTrace();
+            } else if ( exception != null ) {
+              logError( exception.getMessage(), exception );
               result.setStopped( true );
               result.setNrErrors( 1 );
               result.setResult( false );
-            } finally {
-              removeAppender( fa, ptk );
-              if ( fa != null ) {
-                ResultFile resultFile =
-                  new ResultFile( ResultFile.FILE_TYPE_LOG, fa.getFile(), parentJob.getJobname(), getName() );
-                result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
-              }
+            }
+            FileObject logFile = pigResult.getLogFile();
+            if ( logFile != null ) {
+              ResultFile resultFile =
+                new ResultFile( ResultFile.FILE_TYPE_LOG, logFile, parentJob.getJobname(), getName() );
+              result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
             }
           }
         };
@@ -535,67 +517,5 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
     }
 
     return result;
-  }
-
-  private Level getLog4jLevel( LogLevel level ) {
-    // KettleLogChannelAppender does not exists in Kette core, so we'll use it from kettle5-log4j-plugin.
-    Level log4jLevel = KettleLogChannelAppender.LOG_LEVEL_MAP.get( level );
-    return log4jLevel != null ? log4jLevel : Level.INFO;
-  }
-
-  protected void removeAppender( Log4jFileAppender appender, WriterAppender pigToKettleAppender ) {
-
-    // remove the file appender from kettle logging
-    if ( appender != null ) {
-      LogWriter.getInstance().removeAppender( appender );
-      appender.close();
-    }
-
-    Logger pigLogger = Logger.getLogger( "org.apache.pig" );
-    if ( pigLogger != null && pigToKettleAppender != null ) {
-      pigLogger.removeAppender( pigToKettleAppender );
-      pigToKettleAppender.close();
-    }
-  }
-
-  /**
-   * An extended PrintWriter that sends output to Kettle's logging
-   *
-   * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
-   */
-  class KettleLoggingPrintWriter extends PrintWriter {
-    public KettleLoggingPrintWriter() {
-      super( System.out );
-    }
-
-    @Override
-    public void println( String string ) {
-      logBasic( string );
-    }
-
-    @Override
-    public void println( Object obj ) {
-      println( obj.toString() );
-    }
-
-    @Override
-    public void write( String string ) {
-      println( string );
-    }
-
-    @Override
-    public void print( String string ) {
-      println( string );
-    }
-
-    @Override
-    public void print( Object obj ) {
-      print( obj.toString() );
-    }
-
-    @Override
-    public void close() {
-      flush();
-    }
   }
 }
