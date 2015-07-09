@@ -83,6 +83,11 @@ public class NamedClusterImpl implements NamedCluster {
     initializeVariablesFrom( null );
   }
 
+  public NamedClusterImpl( NamedCluster namedCluster ) {
+    this();
+    replaceMeta( namedCluster );
+  }
+
   public void setName( String name ) {
     this.name = name;
   }
@@ -169,10 +174,8 @@ public class NamedClusterImpl implements NamedCluster {
     this.lastModifiedDate = System.currentTimeMillis();
   }
 
-  public NamedCluster clone() {
-    NamedCluster nc = new NamedClusterImpl();
-    nc.replaceMeta( this );
-    return nc;
+  public NamedClusterImpl clone() {
+    return new NamedClusterImpl( this );
   }
 
   /* (non-Javadoc)

@@ -29,20 +29,20 @@ import org.pentaho.metastore.api.exceptions.MetaStoreException;
 import org.pentaho.metastore.persist.MetaStoreFactory;
 import org.pentaho.metastore.util.PentahoDefaults;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class NamedClusterManager implements NamedClusterService {
-  private Map<IMetaStore, MetaStoreFactory<NamedCluster>> factoryMap =
-    new HashMap<IMetaStore, MetaStoreFactory<NamedCluster>>();
+  private Map<IMetaStore, MetaStoreFactory<NamedClusterImpl>> factoryMap = new HashMap<>();
 
   private NamedCluster clusterTemplate;
 
-  private MetaStoreFactory<NamedCluster> getMetaStoreFactory( IMetaStore metastore ) {
+  private MetaStoreFactory<NamedClusterImpl> getMetaStoreFactory( IMetaStore metastore ) {
     if ( factoryMap.get( metastore ) == null ) {
       factoryMap.put( metastore,
-        new MetaStoreFactory<>( NamedCluster.class, metastore, PentahoDefaults.NAMESPACE ) );
+        new MetaStoreFactory<>( NamedClusterImpl.class, metastore, PentahoDefaults.NAMESPACE ) );
     }
     return factoryMap.get( metastore );
   }
@@ -69,34 +69,34 @@ public class NamedClusterManager implements NamedClusterService {
   }
 
   @Override public void create( NamedCluster namedCluster, IMetaStore metastore ) throws MetaStoreException {
-    MetaStoreFactory<NamedCluster> factory = getMetaStoreFactory( metastore );
-    factory.saveElement( namedCluster );
+    MetaStoreFactory<NamedClusterImpl> factory = getMetaStoreFactory( metastore );
+    factory.saveElement( new NamedClusterImpl( namedCluster ) );
   }
 
   @Override public NamedCluster read( String clusterName, IMetaStore metastore ) throws MetaStoreException {
-    MetaStoreFactory<NamedCluster> factory = getMetaStoreFactory( metastore );
+    MetaStoreFactory<NamedClusterImpl> factory = getMetaStoreFactory( metastore );
     return factory.loadElement( clusterName );
   }
 
 
   @Override public void update( NamedCluster namedCluster, IMetaStore metastore ) throws MetaStoreException {
-    MetaStoreFactory<NamedCluster> factory = getMetaStoreFactory( metastore );
+    MetaStoreFactory<NamedClusterImpl> factory = getMetaStoreFactory( metastore );
     factory.deleteElement( namedCluster.getName() );
-    factory.saveElement( namedCluster );
+    factory.saveElement( new NamedClusterImpl( namedCluster ) );
   }
 
   @Override public void delete( String clusterName, IMetaStore metastore ) throws MetaStoreException {
-    MetaStoreFactory<NamedCluster> factory = getMetaStoreFactory( metastore );
+    MetaStoreFactory<NamedClusterImpl> factory = getMetaStoreFactory( metastore );
     factory.deleteElement( clusterName );
   }
 
   @Override public List<NamedCluster> list( IMetaStore metastore ) throws MetaStoreException {
-    MetaStoreFactory<NamedCluster> factory = getMetaStoreFactory( metastore );
-    return factory.getElements();
+    MetaStoreFactory<NamedClusterImpl> factory = getMetaStoreFactory( metastore );
+    return new ArrayList<NamedCluster>( factory.getElements() );
   }
 
   @Override public List<String> listNames( IMetaStore metastore ) throws MetaStoreException {
-    MetaStoreFactory<NamedCluster> factory = getMetaStoreFactory( metastore );
+    MetaStoreFactory<NamedClusterImpl> factory = getMetaStoreFactory( metastore );
     return factory.getElementNames();
   }
 
