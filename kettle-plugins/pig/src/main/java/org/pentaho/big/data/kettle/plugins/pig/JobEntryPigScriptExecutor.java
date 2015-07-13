@@ -63,8 +63,16 @@ import java.util.Properties;
   i18nPackageName = "org.pentaho.di.job.entries.pig",
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Pig+Script+Executor" )
 public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable, JobEntryInterface {
+  public static final String CLUSTER_NAME = "cluster_name";
+  public static final String HDFS_HOSTNAME = "hdfs_hostname";
+  public static final String HDFS_PORT = "hdfs_port";
+  public static final String JOBTRACKER_HOSTNAME = "jobtracker_hostname";
+  public static final String JOBTRACKER_PORT = "jobtracker_port";
+  public static final String SCRIPT_FILE = "script_file";
+  public static final String ENABLE_BLOCKING = "enable_blocking";
+  public static final String LOCAL_EXECUTION = "local_execution";
 
-  private static Class<?> PKG = JobEntryPigScriptExecutor.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JobEntryPigScriptExecutor.class; // for i18n purposes, needed by Translator2!!
   // $NON-NLS-1$
 
   /**
@@ -108,9 +116,9 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
       // attempt to load from named cluster
       String clusterName = null;
       if ( entrynode != null ) {
-        clusterName = XMLHandler.getTagValue( entrynode, "cluster_name" ); //$NON-NLS-1$
+        clusterName = XMLHandler.getTagValue( entrynode, CLUSTER_NAME ); //$NON-NLS-1$
       } else if ( rep != null ) {
-        clusterName = rep.getJobEntryAttributeString( id_jobentry, "cluster_name" ); //$NON-NLS-1$ //$NON-NLS-2$
+        clusterName = rep.getJobEntryAttributeString( id_jobentry, CLUSTER_NAME ); //$NON-NLS-1$ //$NON-NLS-2$
       }
 
       // load from system first, then fall back to copy stored with job (AbstractMeta)
@@ -130,19 +138,19 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
       namedCluster = namedClusterService.getClusterTemplate();
       if ( entrynode != null ) {
         // load default values for cluster & legacy fallback
-        namedCluster.setHdfsHost( XMLHandler.getTagValue( entrynode, "hdfs_hostname" ) ); //$NON-NLS-1$
-        namedCluster.setHdfsPort( XMLHandler.getTagValue( entrynode, "hdfs_port" ) ); //$NON-NLS-1$
-        namedCluster.setJobTrackerHost( XMLHandler.getTagValue( entrynode, "jobtracker_hostname" ) ); //$NON-NLS-1$
-        namedCluster.setJobTrackerPort( XMLHandler.getTagValue( entrynode, "jobtracker_port" ) ); //$NON-NLS-1$
+        namedCluster.setHdfsHost( XMLHandler.getTagValue( entrynode, HDFS_HOSTNAME ) ); //$NON-NLS-1$
+        namedCluster.setHdfsPort( XMLHandler.getTagValue( entrynode, HDFS_PORT ) ); //$NON-NLS-1$
+        namedCluster.setJobTrackerHost( XMLHandler.getTagValue( entrynode, JOBTRACKER_HOSTNAME ) ); //$NON-NLS-1$
+        namedCluster.setJobTrackerPort( XMLHandler.getTagValue( entrynode, JOBTRACKER_PORT ) ); //$NON-NLS-1$
       } else if ( rep != null ) {
         // load default values for cluster & legacy fallback
         try {
-          namedCluster.setHdfsHost( rep.getJobEntryAttributeString( id_jobentry, "hdfs_hostname" ) );
-          namedCluster.setHdfsPort( rep.getJobEntryAttributeString( id_jobentry, "hdfs_port" ) ); //$NON-NLS-1$
+          namedCluster.setHdfsHost( rep.getJobEntryAttributeString( id_jobentry, HDFS_HOSTNAME ) );
+          namedCluster.setHdfsPort( rep.getJobEntryAttributeString( id_jobentry, HDFS_PORT ) ); //$NON-NLS-1$
           namedCluster
-            .setJobTrackerHost( rep.getJobEntryAttributeString( id_jobentry, "jobtracker_hostname" ) ); //$NON-NLS-1$
+            .setJobTrackerHost( rep.getJobEntryAttributeString( id_jobentry, JOBTRACKER_HOSTNAME ) ); //$NON-NLS-1$
           namedCluster
-            .setJobTrackerPort( rep.getJobEntryAttributeString( id_jobentry, "jobtracker_port" ) ); //$NON-NLS-1$
+            .setJobTrackerPort( rep.getJobEntryAttributeString( id_jobentry, JOBTRACKER_PORT ) ); //$NON-NLS-1$
         } catch ( KettleException ke ) {
           logError( ke.getMessage(), ke );
         }
@@ -163,18 +171,18 @@ public class JobEntryPigScriptExecutor extends JobEntryBase implements Cloneable
       String namedClusterName = namedCluster.getName();
       if ( !StringUtils.isEmpty( namedClusterName ) ) {
         retval.append( "      " )
-          .append( XMLHandler.addTagValue( "cluster_name", namedClusterName ) ); //$NON-NLS-1$ //$NON-NLS-2$
+          .append( XMLHandler.addTagValue( CLUSTER_NAME, namedClusterName ) ); //$NON-NLS-1$ //$NON-NLS-2$
       }
-      retval.append( "    " ).append( XMLHandler.addTagValue( "hdfs_hostname", namedCluster.getHdfsHost() ) );
-      retval.append( "    " ).append( XMLHandler.addTagValue( "hdfs_port", namedCluster.getHdfsPort() ) );
+      retval.append( "    " ).append( XMLHandler.addTagValue( HDFS_HOSTNAME, namedCluster.getHdfsHost() ) );
+      retval.append( "    " ).append( XMLHandler.addTagValue( HDFS_PORT, namedCluster.getHdfsPort() ) );
       retval.append( "    " ).append(
-        XMLHandler.addTagValue( "jobtracker_hostname", namedCluster.getJobTrackerHost() ) );
-      retval.append( "    " ).append( XMLHandler.addTagValue( "jobtracker_port", namedCluster.getJobTrackerPort() ) );
+        XMLHandler.addTagValue( JOBTRACKER_HOSTNAME, namedCluster.getJobTrackerHost() ) );
+      retval.append( "    " ).append( XMLHandler.addTagValue( JOBTRACKER_PORT, namedCluster.getJobTrackerPort() ) );
     }
 
-    retval.append( "    " ).append( XMLHandler.addTagValue( "script_file", m_scriptFile ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "enable_blocking", m_enableBlocking ) );
-    retval.append( "    " ).append( XMLHandler.addTagValue( "local_execution", m_localExecution ) );
+    retval.append( "    " ).append( XMLHandler.addTagValue( SCRIPT_FILE, m_scriptFile ) );
+    retval.append( "    " ).append( XMLHandler.addTagValue( ENABLE_BLOCKING, m_enableBlocking ) );
+    retval.append( "    " ).append( XMLHandler.addTagValue( LOCAL_EXECUTION, m_localExecution ) );
 
     retval.append( "    <script_parameters>" ).append( Const.CR );
     if ( m_params != null ) {
