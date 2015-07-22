@@ -29,7 +29,11 @@ public interface HadoopFileSystem {
 
   HadoopFileSystemPath resolvePath( HadoopFileSystemPath sharedObjectsPath );
 
+  HadoopFileSystemPath makeQualified( HadoopFileSystemPath hadoopFileSystemPath );
+
   void chmod( HadoopFileSystemPath hadoopFileSystemPath, int permissions );
 
   boolean exists( HadoopFileSystemPath path );
+
+  String getFsDefaultName();
 }
