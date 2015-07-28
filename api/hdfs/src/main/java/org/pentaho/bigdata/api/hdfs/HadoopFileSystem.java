@@ -31,9 +31,9 @@ public interface HadoopFileSystem {
 
   HadoopFileSystemPath makeQualified( HadoopFileSystemPath hadoopFileSystemPath );
 
-  void chmod( HadoopFileSystemPath hadoopFileSystemPath, int permissions );
+  void chmod( HadoopFileSystemPath hadoopFileSystemPath, int permissions ) throws IOException;
 
-  boolean exists( HadoopFileSystemPath path );
+  boolean exists( HadoopFileSystemPath path ) throws IOException;
 
   String getFsDefaultName();
 }
