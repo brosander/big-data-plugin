@@ -81,10 +81,6 @@ public class HadoopFileSystemImpl implements HadoopFileSystem {
     return new HadoopFileSystemPathImpl( new Path( path ) );
   }
 
-  @Override public HadoopFileSystemPath resolvePath( HadoopFileSystemPath sharedObjectsPath ) {
-    return null;
-  }
-
   @Override public HadoopFileSystemPath makeQualified( HadoopFileSystemPath hadoopFileSystemPath ) {
     return new HadoopFileSystemPathImpl( fileSystem
       .makeQualified( HadoopFileSystemPathImpl.toHadoopFileSystemPathImpl( hadoopFileSystemPath ).getRawPath() ) );
@@ -95,12 +91,12 @@ public class HadoopFileSystemImpl implements HadoopFileSystem {
     if ( owner < 0 || owner > 7 ) {
       throw new IllegalArgumentException( "Expected owner permissions between 0 and 7" );
     }
-    int group = ( permissions - owner ) / 10;
-    if ( owner < 0 || owner > 7 ) {
+    int group = ( permissions - ( owner * 100 ) ) / 10;
+    if ( group < 0 || group > 7 ) {
       throw new IllegalArgumentException( "Expected group permissions between 0 and 7" );
     }
-    int other = permissions - owner - group;
-    if ( owner < 0 || owner > 7 ) {
+    int other = permissions - ( owner * 100 ) - ( group * 10 );
+    if ( other < 0 || other > 7 ) {
       throw new IllegalArgumentException( "Expected other permissions between 0 and 7" );
     }
     fileSystem.setPermission( HadoopFileSystemPathImpl.toHadoopFileSystemPathImpl( hadoopFileSystemPath ).getRawPath(),

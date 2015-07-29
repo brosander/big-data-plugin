@@ -34,26 +34,21 @@ public class HadoopFileSystemFactoryImpl implements HadoopFileSystemFactory {
       .equals( shimIdentifier );
   }
 
-  @Override public HadoopFileSystem create( NamedCluster namedCluster ) {
-    try {
-      HadoopShim hadoopShim = hadoopConfiguration.getHadoopShim();
-      Configuration configuration = hadoopShim.createConfiguration();
-      String fsDefault;
-      //TODO: AUTH
-      if ( namedCluster.isMapr() ) {
-        fsDefault = "mapr:///";
-      } else {
-        fsDefault = "hdfs://" + namedCluster.getHdfsHost() + ":" + namedCluster.getHdfsPort();
-      }
-      configuration.set( HadoopFileSystem.FS_DEFAULT_NAME, fsDefault );
-      FileSystem fileSystem = (FileSystem) hadoopShim.getFileSystem( configuration ).getDelegate();
-      if ( fileSystem instanceof LocalFileSystem ) {
-        throw new IOException( "Got a local filesystem, was expecting an hdfs connection" );
-      }
-      return new HadoopFileSystemImpl( fileSystem );
-    } catch ( IOException e ) {
-      LOGGER.error( "Unable to create filesystem from " + namedCluster, e );
+  @Override public HadoopFileSystem create( NamedCluster namedCluster ) throws IOException {
+    HadoopShim hadoopShim = hadoopConfiguration.getHadoopShim();
+    Configuration configuration = hadoopShim.createConfiguration();
+    String fsDefault;
+    //TODO: AUTH
+    if ( namedCluster.isMapr() ) {
+      fsDefault = "mapr:///";
+    } else {
+      fsDefault = "hdfs://" + namedCluster.getHdfsHost() + ":" + namedCluster.getHdfsPort();
     }
-    return null;
+    configuration.set( HadoopFileSystem.FS_DEFAULT_NAME, fsDefault );
+    FileSystem fileSystem = (FileSystem) hadoopShim.getFileSystem( configuration ).getDelegate();
+    if ( fileSystem instanceof LocalFileSystem ) {
+      throw new IOException( "Got a local filesystem, was expecting an hdfs connection" );
+    }
+    return new HadoopFileSystemImpl( fileSystem );
   }
 }

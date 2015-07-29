@@ -23,5 +23,10 @@
       <artifactId>pentaho-big-data-api-cluster</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${dependency.slf4j.revision}</version>
+    </dependency>
   </dependencies>
 </project>
