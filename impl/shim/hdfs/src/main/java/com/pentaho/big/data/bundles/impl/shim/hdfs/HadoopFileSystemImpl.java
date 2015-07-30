@@ -107,6 +107,11 @@ public class HadoopFileSystemImpl implements HadoopFileSystem {
     return fileSystem.exists( HadoopFileSystemPathImpl.toHadoopFileSystemPathImpl( path ).getRawPath() );
   }
 
+  @Override public HadoopFileSystemPath resolvePath( HadoopFileSystemPath path ) throws IOException {
+    return new HadoopFileSystemPathImpl(
+      fileSystem.getFileStatus( HadoopFileSystemPathImpl.toHadoopFileSystemPathImpl( path ).getRawPath() ).getPath() );
+  }
+
   @Override public String getFsDefaultName() {
     return fileSystem.getConf().get( "fs.defaultFS", fileSystem.getConf().get( "fs.default.name" ) );
   }

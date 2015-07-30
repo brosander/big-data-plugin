@@ -5,6 +5,7 @@ import org.apache.hadoop.fs.LocalFileSystem;
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystem;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemFactory;
+import org.pentaho.di.core.Const;
 import org.pentaho.hadoop.shim.HadoopConfiguration;
 import org.pentaho.hadoop.shim.api.Configuration;
 import org.pentaho.hadoop.shim.spi.HadoopShim;
@@ -42,7 +43,10 @@ public class HadoopFileSystemFactoryImpl implements HadoopFileSystemFactory {
     if ( namedCluster.isMapr() ) {
       fsDefault = "mapr:///";
     } else {
-      fsDefault = "hdfs://" + namedCluster.getHdfsHost() + ":" + namedCluster.getHdfsPort();
+      fsDefault = "hdfs://" + namedCluster.getHdfsHost();
+      if ( !Const.isEmpty( namedCluster.getHdfsPort() ) ) {
+        fsDefault = fsDefault + ":" + namedCluster.getHdfsPort();
+      }
     }
     configuration.set( HadoopFileSystem.FS_DEFAULT_NAME, fsDefault );
     FileSystem fileSystem = (FileSystem) hadoopShim.getFileSystem( configuration ).getDelegate();

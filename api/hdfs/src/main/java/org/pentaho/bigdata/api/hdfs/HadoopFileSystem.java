@@ -33,5 +33,7 @@ public interface HadoopFileSystem {
 
   boolean exists( HadoopFileSystemPath path ) throws IOException;
 
+  public HadoopFileSystemPath resolvePath( HadoopFileSystemPath path ) throws IOException;
+
   String getFsDefaultName();
 }
