@@ -19,6 +19,7 @@ package org.pentaho.di.core.hadoop;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
+import org.pentaho.di.core.Const;
 import org.pentaho.di.core.annotations.KettleLifecyclePlugin;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.lifecycle.KettleLifecycleListener;
@@ -71,8 +72,19 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
    * @throws ConfigurationException
    *           The provider is not initialized (KettleEnvironment.init() has not been called)
    */
+  @Deprecated
   public static HadoopConfigurationProvider getHadoopConfigurationProvider() throws ConfigurationException {
     return instance.getProvider();
+  }
+
+  /**
+   * @return A Hadoop configuration provider capable of finding Hadoop configurations loaded for this Big Data Plugin
+   *         instance
+   * @throws ConfigurationException
+   *           The provider is not initialized (KettleEnvironment.init() has not been called)
+   */
+  public static HadoopConfigurationProvider getHadoopConfigurationProvider( String desiredShim ) throws ConfigurationException {
+    return instance.getProvider( desiredShim );
   }
 
   public static HadoopConfigurationBootstrap getInstance() {
@@ -83,17 +95,25 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
     HadoopConfigurationBootstrap.instance = instance;
   }
 
+  @Deprecated
   public HadoopConfigurationProvider getProvider() throws ConfigurationException {
-    initProvider();
+    return getProvider( null );
+  }
+
+  public HadoopConfigurationProvider getProvider( String desiredShim ) throws ConfigurationException {
+    initProvider( desiredShim );
     return provider;
   }
 
-  protected synchronized void initProvider() throws ConfigurationException {
+  protected synchronized void initProvider( String desiredShim ) throws ConfigurationException {
+    if ( Const.isEmpty( desiredShim ) ) {
+      desiredShim = getActiveConfigurationId();
+    }
     if ( provider == null ) {
       // Initialize the HadoopConfigurationProvider
       try {
         FileObject hadoopConfigurationsDir = resolveHadoopConfigurationsDirectory();
-        HadoopConfigurationProvider p = initializeHadoopConfigurationProvider( hadoopConfigurationsDir );
+        HadoopConfigurationProvider p = initializeHadoopConfigurationProvider( hadoopConfigurationsDir, desiredShim );
 
         // verify the active configuration exists
         HadoopConfiguration activeConfig = null;
@@ -112,6 +132,10 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
 
         provider = p;
 
+        for ( HadoopConfigurationListener hadoopConfigurationListener : hadoopConfigurationListeners ) {
+          hadoopConfigurationListener.onConfigurationOpen( activeConfig, true );
+        }
+
         log.logDetailed( BaseMessages.getString( PKG, "HadoopConfigurationBootstrap.HadoopConfiguration.Loaded" ),
           provider.getConfigurations().size(), hadoopConfigurationsDir );
       } catch ( Exception ex ) {
@@ -122,6 +146,8 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
             "HadoopConfigurationBootstrap.HadoopConfiguration.StartupError" ), ex );
         }
       }
+    } else if ( !desiredShim.equals( provider.getActiveConfiguration().getIdentifier() ) ) {
+      throw new ConfigurationException( "YOU MUST RESTART KETTLE TO CHANGE SHIM!!!" );
     }
   }
 
@@ -133,10 +159,14 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
    * @return
    * @throws ConfigurationException
    */
-  protected HadoopConfigurationProvider initializeHadoopConfigurationProvider( FileObject hadoopConfigurationsDir )
+  protected HadoopConfigurationProvider initializeHadoopConfigurationProvider( FileObject hadoopConfigurationsDir, final String desiredShim )
     throws ConfigurationException {
     HadoopConfigurationLocator locator = new HadoopConfigurationLocator();
-    locator.init( hadoopConfigurationsDir, this,
+    locator.init( hadoopConfigurationsDir, new ActiveHadoopConfigurationLocator() {
+        @Override public String getActiveConfigurationId() throws ConfigurationException {
+          return desiredShim;
+        }
+      },
       (DefaultFileSystemManager) KettleVFS.getInstance().getFileSystemManager() );
     return locator;
   }
@@ -234,12 +264,7 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
 
   @Override
   public void onEnvironmentInit() throws LifecycleException {
-    try {
-      getInstance().getProvider();
-    } catch ( ConfigurationException e ) {
-      throw new LifecycleException( BaseMessages.getString( PKG,
-        "HadoopConfigurationBootstrap.HadoopConfiguration.StartupError" ), e, true );
-    }
+    log.logDebug( BaseMessages.getString( PKG, "HadoopConfigurationBootstrap.HadoopConfiguration.DeferringInitialization" ) );
   }
 
   @Override
@@ -247,10 +272,12 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
     // noop
   }
 
-  public void registerHadoopConfigurationListener( HadoopConfigurationListener hadoopConfigurationListener )
+  public synchronized void registerHadoopConfigurationListener( HadoopConfigurationListener hadoopConfigurationListener )
     throws ConfigurationException {
     if ( hadoopConfigurationListeners.add( hadoopConfigurationListener ) ) {
-      hadoopConfigurationListener.onConfigurationOpen( getProvider().getActiveConfiguration(), true );
+      if ( provider != null ) {
+        hadoopConfigurationListener.onConfigurationOpen( provider.getActiveConfiguration(), true );
+      }
     }
   }
 

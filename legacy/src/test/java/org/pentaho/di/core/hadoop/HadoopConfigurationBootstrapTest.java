@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 
@@ -198,7 +199,7 @@ public class HadoopConfigurationBootstrapTest {
       }
 
       @Override
-      protected HadoopConfigurationProvider initializeHadoopConfigurationProvider( FileObject hadoopConfigurationsDir )
+      protected HadoopConfigurationProvider initializeHadoopConfigurationProvider( FileObject hadoopConfigurationsDir, String desired )
         throws ConfigurationException {
         return provider;
       }
@@ -231,7 +232,7 @@ public class HadoopConfigurationBootstrapTest {
         }
 
         @Override
-        protected HadoopConfigurationProvider initializeHadoopConfigurationProvider( FileObject hadoopConfigurationsDir )
+        protected HadoopConfigurationProvider initializeHadoopConfigurationProvider( FileObject hadoopConfigurationsDir, String desired )
           throws ConfigurationException {
           return provider;
         }
@@ -271,7 +272,7 @@ public class HadoopConfigurationBootstrapTest {
         }
 
         @Override
-        protected HadoopConfigurationProvider initializeHadoopConfigurationProvider( FileObject hadoopConfigurationsDir )
+        protected HadoopConfigurationProvider initializeHadoopConfigurationProvider( FileObject hadoopConfigurationsDir, String desired )
           throws ConfigurationException {
           return provider;
         }
@@ -287,7 +288,7 @@ public class HadoopConfigurationBootstrapTest {
     HadoopConfigurationBootstrap b = new HadoopConfigurationBootstrap();
 
     HadoopConfigurationProvider provider =
-        b.initializeHadoopConfigurationProvider( VFS.getManager().resolveFile( "ram://" ) );
+        b.initializeHadoopConfigurationProvider( VFS.getManager().resolveFile( "ram://" ), null );
     assertNotNull( provider );
   }
 
@@ -343,18 +344,11 @@ public class HadoopConfigurationBootstrapTest {
     }
   }
 
-  @Test
+  @Test ( expected = ConfigurationException.class )
   public void testLifecycleExceptionWithSevereTrueThrows_WhenConfigurationExceptionOccursOnEnvInit() throws Exception {
     HadoopConfigurationBootstrap hadoopConfigurationBootstrap = new HadoopConfigurationBootstrap();
     HadoopConfigurationBootstrap hadoopConfigurationBootstrapSpy = spy( hadoopConfigurationBootstrap );
-    doThrow( new ConfigurationException( TEST_MESSAGE ) ).when( hadoopConfigurationBootstrapSpy ).getProvider();
-    try {
-      hadoopConfigurationBootstrapSpy.onEnvironmentInit();
-      fail( "Expected LifecycleException exception but wasn't" );
-    } catch ( LifecycleException lcExc ) {
-      assertTrue( lcExc.isSevere() );
-    }
+    doThrow( new ConfigurationException( TEST_MESSAGE ) ).when( hadoopConfigurationBootstrapSpy ).getProvider(anyString());
+    hadoopConfigurationBootstrapSpy.getProvider();
   }
-
-
 }
