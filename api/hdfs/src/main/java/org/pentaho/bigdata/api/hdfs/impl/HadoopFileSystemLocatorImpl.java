@@ -23,6 +23,7 @@
 package org.pentaho.bigdata.api.hdfs.impl;
 
 import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterInitializationException;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystem;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemFactory;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemLocator;
@@ -43,7 +44,9 @@ public class HadoopFileSystemLocatorImpl implements HadoopFileSystemLocator {
     this.hadoopFileSystemFactories = hadoopFileSystemFactories;
   }
 
-  @Override public HadoopFileSystem getHadoopFilesystem( NamedCluster namedCluster ) {
+  @Override public HadoopFileSystem getHadoopFilesystem( NamedCluster namedCluster )
+    throws NamedClusterInitializationException {
+    namedCluster.init();
     for ( HadoopFileSystemFactory hadoopFileSystemFactory : hadoopFileSystemFactories ) {
       if ( hadoopFileSystemFactory.canHandle( namedCluster ) ) {
         try {

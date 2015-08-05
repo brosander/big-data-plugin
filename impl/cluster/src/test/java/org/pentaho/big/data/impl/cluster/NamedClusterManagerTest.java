@@ -25,6 +25,7 @@ package org.pentaho.big.data.impl.cluster;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterInitializer;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.metastore.api.exceptions.MetaStoreException;
 import org.pentaho.metastore.persist.MetaStoreFactory;
@@ -49,13 +50,15 @@ public class NamedClusterManagerTest {
   private IMetaStore metaStore;
   private MetaStoreFactory<NamedClusterImpl> metaStoreFactory;
   private NamedClusterManager namedClusterManager;
+  private List<NamedClusterInitializer> namedClusterInitializers;
 
   @Before
   @SuppressWarnings( "unchecked" )
   public void setup() {
     metaStore = mock( IMetaStore.class );
     metaStoreFactory = mock( MetaStoreFactory.class );
-    namedClusterManager = new NamedClusterManager();
+    namedClusterInitializers = mock( List.class );
+    namedClusterManager = new NamedClusterManager( namedClusterInitializers );
     namedClusterManager.putMetaStoreFactory( metaStore, metaStoreFactory );
   }
 
@@ -73,7 +76,7 @@ public class NamedClusterManagerTest {
 
   @Test
   public void testCreate() throws MetaStoreException {
-    NamedClusterImpl namedCluster = new NamedClusterImpl();
+    NamedClusterImpl namedCluster = new NamedClusterImpl( namedClusterInitializers );
     String testName = "testName";
     namedCluster.setName( testName );
     namedClusterManager.create( namedCluster, metaStore );
@@ -83,14 +86,14 @@ public class NamedClusterManagerTest {
   @Test
   public void testRead() throws MetaStoreException {
     String testName = "testName";
-    NamedClusterImpl namedCluster = new NamedClusterImpl();
+    NamedClusterImpl namedCluster = new NamedClusterImpl( namedClusterInitializers );
     when( metaStoreFactory.loadElement( testName ) ).thenReturn( namedCluster );
     assertTrue( namedCluster == namedClusterManager.read( testName, metaStore ) );
   }
 
   @Test
   public void testUpdate() throws MetaStoreException {
-    NamedClusterImpl namedCluster = new NamedClusterImpl();
+    NamedClusterImpl namedCluster = new NamedClusterImpl( namedClusterInitializers );
     String testName = "testName";
     namedCluster.setName( testName );
     namedClusterManager.update( namedCluster, metaStore );
@@ -108,7 +111,7 @@ public class NamedClusterManagerTest {
   @Test
   @SuppressWarnings( "unchecked" )
   public void testList() throws MetaStoreException {
-    NamedClusterImpl namedCluster = new NamedClusterImpl();
+    NamedClusterImpl namedCluster = new NamedClusterImpl( namedClusterInitializers );
     namedCluster.setName( "testName" );
     List<NamedClusterImpl> value = new ArrayList<>( Arrays.asList( namedCluster ) );
     when( metaStoreFactory.getElements() ).thenReturn( value );

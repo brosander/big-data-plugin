@@ -24,6 +24,7 @@ package org.pentaho.bigdata.api.pig.impl;
 
 import org.junit.Test;
 import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterInitializationException;
 import org.pentaho.bigdata.api.pig.PigService;
 import org.pentaho.bigdata.api.pig.PigServiceFactory;
 
@@ -43,7 +44,7 @@ import static org.mockito.Mockito.when;
  */
 public class PigServiceLocatorImplTest {
   @Test
-  public void testGetPigService() {
+  public void testGetPigService() throws NamedClusterInitializationException {
     NamedCluster namedCluster = mock( NamedCluster.class );
     NamedCluster namedCluster2 = mock( NamedCluster.class );
 

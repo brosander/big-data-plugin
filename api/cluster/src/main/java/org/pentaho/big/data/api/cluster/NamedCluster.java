@@ -79,4 +79,6 @@ public interface NamedCluster extends Cloneable, VariableSpace {
   void setMapr( boolean mapr );
 
   NamedCluster clone();
+
+  void init() throws NamedClusterInitializationException;
 }

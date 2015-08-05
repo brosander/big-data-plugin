@@ -22,7 +22,10 @@
 
 package org.pentaho.big.data.impl.cluster;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterInitializationException;
+import org.pentaho.big.data.api.cluster.NamedClusterInitializer;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleValueException;
 import org.pentaho.di.core.row.RowMetaInterface;
@@ -33,12 +36,15 @@ import org.pentaho.metastore.persist.MetaStoreAttribute;
 import org.pentaho.metastore.persist.MetaStoreElementType;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 @MetaStoreElementType( name = "NamedCluster", description = "A NamedCluster" )
 public class NamedClusterImpl implements NamedCluster {
 
   private VariableSpace variables = new Variables();
+
+  private final List<NamedClusterInitializer> namedClusterInitializers;
 
   @MetaStoreAttribute
   private String name;
@@ -79,12 +85,18 @@ public class NamedClusterImpl implements NamedCluster {
     }
   };
 
-  public NamedClusterImpl() {
+  @VisibleForTesting
+  NamedClusterImpl() {
+    namedClusterInitializers = null;
+  }
+
+  public NamedClusterImpl( List<NamedClusterInitializer> namedClusterInitializers ) {
+    this.namedClusterInitializers = namedClusterInitializers;
     initializeVariablesFrom( null );
   }
 
-  public NamedClusterImpl( NamedCluster namedCluster ) {
-    this();
+  public NamedClusterImpl( NamedCluster namedCluster, List<NamedClusterInitializer> namedClusterInitializers ) {
+    this( namedClusterInitializers );
     replaceMeta( namedCluster );
   }
 
@@ -175,7 +187,16 @@ public class NamedClusterImpl implements NamedCluster {
   }
 
   public NamedClusterImpl clone() {
-    return new NamedClusterImpl( this );
+    return new NamedClusterImpl( this, namedClusterInitializers );
+  }
+
+  @Override public void init() throws NamedClusterInitializationException {
+    for ( NamedClusterInitializer namedClusterInitializer : namedClusterInitializers ) {
+      if ( namedClusterInitializer.init( this ) ) {
+        return;
+      }
+    }
+    throw new NamedClusterInitializationException( "Unable to find named cluster initializer for " + this );
   }
 
   /* (non-Javadoc)

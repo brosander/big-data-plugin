@@ -25,6 +25,7 @@ package org.pentaho.bigdata.api.hdfs.impl;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterInitializationException;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystem;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemFactory;
 
@@ -60,21 +61,21 @@ public class HadoopFileSystemLocatorImplTest {
   }
 
   @Test
-  public void testIOException() throws IOException {
+  public void testIOException() throws IOException, NamedClusterInitializationException {
     when( hadoopFileSystemFactory.canHandle( namedCluster ) ).thenReturn( true );
     when( hadoopFileSystemFactory.create( namedCluster ) ).thenThrow( new IOException() );
     assertNull( hadoopFileSystemLocator.getHadoopFilesystem( namedCluster ) );
   }
 
   @Test
-  public void testNormal() throws IOException {
+  public void testNormal() throws IOException, NamedClusterInitializationException {
     when( hadoopFileSystemFactory.canHandle( namedCluster ) ).thenReturn( true );
     when( hadoopFileSystemFactory.create( namedCluster ) ).thenReturn( hadoopFileSystem );
     assertEquals( hadoopFileSystem, hadoopFileSystemLocator.getHadoopFilesystem( namedCluster ) );
   }
 
   @Test
-  public void testNoEligibleFactories() throws IOException {
+  public void testNoEligibleFactories() throws IOException, NamedClusterInitializationException {
     when( hadoopFileSystemFactory.canHandle( namedCluster ) ).thenReturn( false );
     assertNull( hadoopFileSystemLocator.getHadoopFilesystem( namedCluster ) );
     verify( hadoopFileSystemFactory ).canHandle( namedCluster );

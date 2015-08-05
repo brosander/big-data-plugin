@@ -1,51 +1,29 @@
 /*******************************************************************************
- *
  * Pentaho Big Data
- *
+ * <p/>
  * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
+ * <p/>
+ * ******************************************************************************
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  ******************************************************************************/
 
 package org.pentaho.big.data.kettle.plugins.pig;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.VFS;
-import org.apache.pig.PigServer;
-import org.apache.pig.tools.grunt.GruntParser;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.big.data.api.cluster.NamedClusterService;
-import org.pentaho.big.data.impl.cluster.NamedClusterManager;
-import org.pentaho.big.data.impl.shim.pig.PigServiceFactoryImpl;
-import org.pentaho.bigdata.api.pig.PigServiceFactory;
-import org.pentaho.bigdata.api.pig.PigServiceLocator;
-import org.pentaho.bigdata.api.pig.impl.PigServiceLocatorImpl;
 import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.annotations.JobEntry;
 import org.pentaho.di.core.hadoop.HadoopConfigurationBootstrap;
 import org.pentaho.di.job.Job;
 import org.pentaho.di.job.JobMeta;
-import org.pentaho.hadoop.shim.ConfigurationException;
-import org.pentaho.hadoop.shim.HadoopConfiguration;
-import org.pentaho.hadoop.shim.common.CommonHadoopShim;
-import org.pentaho.hadoop.shim.common.CommonPigShim;
-import org.pentaho.hadoop.shim.common.CommonSqoopShim;
-import org.pentaho.hadoop.shim.spi.HadoopConfigurationProvider;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -53,11 +31,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 

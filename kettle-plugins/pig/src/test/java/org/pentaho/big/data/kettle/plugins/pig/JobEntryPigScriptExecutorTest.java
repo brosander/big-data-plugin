@@ -25,6 +25,7 @@ package org.pentaho.big.data.kettle.plugins.pig;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterInitializationException;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.bigdata.api.pig.PigService;
 import org.pentaho.bigdata.api.pig.PigServiceLocator;
@@ -60,7 +61,7 @@ public class JobEntryPigScriptExecutorTest {
   private String namedClusterJobTrackerHost;
 
   @Before
-  public void setup() {
+  public void setup() throws NamedClusterInitializationException {
     namedClusterService = mock( NamedClusterService.class );
     pigServiceLocator = mock( PigServiceLocator.class );
     jobEntryPigScriptExecutor = new JobEntryPigScriptExecutor( namedClusterService, pigServiceLocator );

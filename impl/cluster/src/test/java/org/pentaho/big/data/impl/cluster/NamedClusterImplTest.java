@@ -24,10 +24,12 @@ package org.pentaho.big.data.impl.cluster;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.pentaho.big.data.api.cluster.NamedClusterInitializer;
 import org.pentaho.di.core.exception.KettleValueException;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.variables.VariableSpace;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.google.code.beanmatchers.BeanMatchers.hasValidBeanConstructor;
@@ -61,11 +63,13 @@ public class NamedClusterImplTest {
   private String namedClusterZookeeperPort;
   private String namedClusterOozieUrl;
   private boolean isMapr;
+  private List<NamedClusterInitializer> namedClusterInitializers;
 
   @Before
   public void setup() {
     variableSpace = mock( VariableSpace.class );
-    namedCluster = new NamedClusterImpl();
+    namedClusterInitializers = mock( List.class );
+    namedCluster = new NamedClusterImpl( namedClusterInitializers );
     namedCluster.shareVariablesWith( variableSpace );
     namedClusterName = "namedClusterName";
     namedClusterHdfsHost = "namedClusterHdfsHost";
@@ -94,7 +98,6 @@ public class NamedClusterImplTest {
 
   @Test
   public void testBean() {
-    assertThat( NamedClusterImpl.class, hasValidBeanConstructor() );
     assertThat( NamedClusterImpl.class, hasValidGettersAndSetters() );
     assertThat( NamedClusterImpl.class, hasValidBeanEqualsFor( "name" ) );
   }
@@ -208,7 +211,7 @@ public class NamedClusterImplTest {
 
   @Test
   public void testComparator() {
-    NamedClusterImpl other = new NamedClusterImpl();
+    NamedClusterImpl other = new NamedClusterImpl( namedClusterInitializers );
     other.setName( "a" );
     assertTrue( NamedClusterImpl.comparator.compare( namedCluster, other ) > 0 );
     other.setName( "z" );

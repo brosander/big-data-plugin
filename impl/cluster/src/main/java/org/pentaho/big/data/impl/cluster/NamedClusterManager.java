@@ -24,6 +24,7 @@ package org.pentaho.big.data.impl.cluster;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterInitializer;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.metastore.api.IMetaStore;
 import org.pentaho.metastore.api.exceptions.MetaStoreException;
@@ -37,8 +38,12 @@ import java.util.Map;
 
 public class NamedClusterManager implements NamedClusterService {
   private Map<IMetaStore, MetaStoreFactory<NamedClusterImpl>> factoryMap = new HashMap<>();
-
+  private final List<NamedClusterInitializer> namedClusterInitializers;
   private NamedCluster clusterTemplate;
+
+  public NamedClusterManager( List<NamedClusterInitializer> namedClusterInitializers ) {
+    this.namedClusterInitializers = namedClusterInitializers;
+  }
 
   private MetaStoreFactory<NamedClusterImpl> getMetaStoreFactory( IMetaStore metastore ) {
     MetaStoreFactory<NamedClusterImpl> namedClusterMetaStoreFactory = factoryMap.get( metastore );
@@ -57,7 +62,7 @@ public class NamedClusterManager implements NamedClusterService {
 
   @Override public NamedCluster getClusterTemplate() {
     if ( clusterTemplate == null ) {
-      clusterTemplate = new NamedClusterImpl();
+      clusterTemplate = new NamedClusterImpl( namedClusterInitializers );
       clusterTemplate.setName( "" );
       clusterTemplate.setHdfsHost( "localhost" );
       clusterTemplate.setHdfsPort( "8020" );
@@ -77,7 +82,7 @@ public class NamedClusterManager implements NamedClusterService {
   }
 
   @Override public void create( NamedCluster namedCluster, IMetaStore metastore ) throws MetaStoreException {
-    getMetaStoreFactory( metastore ).saveElement( new NamedClusterImpl( namedCluster ) );
+    getMetaStoreFactory( metastore ).saveElement( new NamedClusterImpl( namedCluster, namedClusterInitializers ) );
   }
 
   @Override public NamedCluster read( String clusterName, IMetaStore metastore ) throws MetaStoreException {
@@ -88,7 +93,7 @@ public class NamedClusterManager implements NamedClusterService {
   @Override public void update( NamedCluster namedCluster, IMetaStore metastore ) throws MetaStoreException {
     MetaStoreFactory<NamedClusterImpl> factory = getMetaStoreFactory( metastore );
     factory.deleteElement( namedCluster.getName() );
-    factory.saveElement( new NamedClusterImpl( namedCluster ) );
+    factory.saveElement( new NamedClusterImpl( namedCluster, namedClusterInitializers ) );
   }
 
   @Override public void delete( String clusterName, IMetaStore metastore ) throws MetaStoreException {

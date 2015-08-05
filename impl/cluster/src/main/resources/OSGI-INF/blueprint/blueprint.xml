@@ -5,6 +5,9 @@
            xsi:schemaLocation="
             http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
             http://www.pentaho.com/xml/schemas/pentaho-blueprint http://www.pentaho.com/xml/schemas/pentaho-blueprint.xsd">
-  <bean id="namedClusterManager" class="org.pentaho.big.data.impl.cluster.NamedClusterManager" scope="singleton"/>
+  <bean id="namedClusterManager" class="org.pentaho.big.data.impl.cluster.NamedClusterManager" scope="singleton">
+    <argument ref="namedClusterInitializers"/>
+  </bean>
   <service ref="namedClusterManager" interface="org.pentaho.big.data.api.cluster.NamedClusterService"/>
+  <reference-list id="namedClusterInitializers" interface="org.pentaho.big.data.api.cluster.NamedClusterInitializer"/>
 </blueprint>
