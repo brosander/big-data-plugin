@@ -78,6 +78,14 @@ public interface NamedCluster extends Cloneable, VariableSpace {
 
   void setMapr( boolean mapr );
 
+  String getClusterIdentifier();
+
+  void setClusterIdentifier( String identifier );
+
+  String getClusterName();
+
+  void setClusterName( String clusterName );
+
   NamedCluster clone();
 
   void init() throws NamedClusterInitializationException;

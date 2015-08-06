@@ -77,6 +77,12 @@ public class NamedClusterImpl implements NamedCluster {
   @MetaStoreAttribute
   private long lastModifiedDate = System.currentTimeMillis();
 
+  @MetaStoreAttribute
+  private String clusterIdentifier;
+
+  @MetaStoreAttribute
+  private String clusterName;
+
   // Comparator for sorting clusters alphabetically by name
   public static final Comparator<NamedCluster> comparator = new Comparator<NamedCluster>() {
     @Override
@@ -312,4 +318,19 @@ public class NamedClusterImpl implements NamedCluster {
     return mapr;
   }
 
+  @Override public String getClusterIdentifier() {
+    return clusterIdentifier;
+  }
+
+  @Override public void setClusterIdentifier( String clusterIdentifier ) {
+    this.clusterIdentifier = clusterIdentifier;
+  }
+
+  @Override public String getClusterName() {
+    return clusterName;
+  }
+
+  @Override public void setClusterName( String clusterName ) {
+    this.clusterName = clusterName;
+  }
 }
