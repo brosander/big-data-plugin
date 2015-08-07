@@ -17,6 +17,7 @@
 
 package org.pentaho.hadoop;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.vfs2.FileObject;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleFileException;
@@ -33,13 +34,12 @@ import java.util.Properties;
  */
 public class PluginPropertiesUtil {
   public static final String PLUGIN_PROPERTIES_FILE = "plugin.properties";
-
+  private static final String VERSION_REPLACE_STR = "@VERSION@";
   /**
    * Placeholder for the version string that is replaced during the ant build process. This is mangled here so we have
    * something to compare against to determine if the replacement has occured.
    */
   private static final String VERSION_PLACEHOLDER = getVersionPlaceholder();
-  private static final String VERSION_REPLACE_STR = "@VERSION@";
 
   private static String getVersionPlaceholder() {
     try ( InputStream propertiesStream = PluginPropertiesUtil.class.getClassLoader().getResourceAsStream(
@@ -47,7 +47,7 @@ public class PluginPropertiesUtil {
       Properties properties = new Properties();
       properties.load( propertiesStream );
       return properties.getProperty( "version", VERSION_REPLACE_STR );
-    } catch ( Exception e ){
+    } catch ( Exception e ) {
       return VERSION_REPLACE_STR;
     }
   }
@@ -58,7 +58,6 @@ public class PluginPropertiesUtil {
    * @param plugin
    * @return
    * @throws KettleFileException
-   * @throws FileSystemException
    * @throws IOException
    */
   protected Properties loadProperties( PluginInterface plugin, String relativeName ) throws KettleFileException,
@@ -71,9 +70,11 @@ public class PluginPropertiesUtil {
     if ( !propFile.exists() ) {
       throw new FileNotFoundException( propFile.toString() );
     }
-    Properties p = new Properties();
-    p.load( KettleVFS.getInputStream( propFile ) );
-    return p;
+    try {
+      return new PropertiesConfigurationProperties( propFile );
+    } catch ( ConfigurationException e ) {
+      throw new IOException( e );
+    }
   }
 
   /**

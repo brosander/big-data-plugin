@@ -112,6 +112,10 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
 
         provider = p;
 
+        for ( HadoopConfigurationListener hadoopConfigurationListener : hadoopConfigurationListeners ) {
+          hadoopConfigurationListener.onConfigurationOpen( activeConfig, true );
+        }
+
         log.logDetailed( BaseMessages.getString( PKG, "HadoopConfigurationBootstrap.HadoopConfiguration.Loaded" ),
           provider.getConfigurations().size(), hadoopConfigurationsDir );
       } catch ( Exception ex ) {
@@ -136,8 +140,7 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
   protected HadoopConfigurationProvider initializeHadoopConfigurationProvider( FileObject hadoopConfigurationsDir )
     throws ConfigurationException {
     HadoopConfigurationLocator locator = new HadoopConfigurationLocator();
-    locator.init( hadoopConfigurationsDir, this,
-      (DefaultFileSystemManager) KettleVFS.getInstance().getFileSystemManager() );
+    locator.init( hadoopConfigurationsDir, this, new DefaultFileSystemManager() );
     return locator;
   }
 
@@ -218,7 +221,7 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
 
   @Override
   public String getActiveConfigurationId() throws ConfigurationException {
-    Properties p = null;
+    Properties p;
     try {
       p = getPluginProperties();
     } catch ( Exception ex ) {
@@ -232,14 +235,18 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
     return p.getProperty( PROPERTY_ACTIVE_HADOOP_CONFIGURATION );
   }
 
+  public void setActiveShim( String shimId ) {
+
+  }
+
   @Override
   public void onEnvironmentInit() throws LifecycleException {
-    try {
+    /*try {
       getInstance().getProvider();
     } catch ( ConfigurationException e ) {
       throw new LifecycleException( BaseMessages.getString( PKG,
         "HadoopConfigurationBootstrap.HadoopConfiguration.StartupError" ), e, true );
-    }
+    }*/
   }
 
   @Override
@@ -247,9 +254,9 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
     // noop
   }
 
-  public void registerHadoopConfigurationListener( HadoopConfigurationListener hadoopConfigurationListener )
+  public synchronized void registerHadoopConfigurationListener( HadoopConfigurationListener hadoopConfigurationListener )
     throws ConfigurationException {
-    if ( hadoopConfigurationListeners.add( hadoopConfigurationListener ) ) {
+    if ( hadoopConfigurationListeners.add( hadoopConfigurationListener ) && provider != null ) {
       hadoopConfigurationListener.onConfigurationOpen( getProvider().getActiveConfiguration(), true );
     }
   }
