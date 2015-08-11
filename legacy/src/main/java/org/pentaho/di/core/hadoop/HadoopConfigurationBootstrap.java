@@ -23,6 +23,7 @@
 package org.pentaho.di.core.hadoop;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.pentaho.di.core.annotations.KettleLifecyclePlugin;
 import org.pentaho.di.core.exception.KettleException;
@@ -43,7 +44,9 @@ import org.pentaho.hadoop.shim.api.ActiveHadoopConfigurationLocator;
 import org.pentaho.hadoop.shim.spi.HadoopConfigurationProvider;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,6 +61,7 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
   public static final String PROPERTY_ACTIVE_HADOOP_CONFIGURATION = "active.hadoop.configuration";
   public static final String PROPERTY_HADOOP_CONFIGURATIONS_PATH = "hadoop.configurations.path";
   public static final String DEFAULT_FOLDER_HADOOP_CONFIGURATIONS = "hadoop-configurations";
+  public static final String CONFIG_PROPERTIES = "config.properties";
   private static final Class<?> PKG = HadoopConfigurationBootstrap.class;
   private static LogChannelInterface log = new LogChannel( BaseMessages.getString( PKG,
     "HadoopConfigurationBootstrap.LoggingPrefix" ) );
@@ -72,9 +76,8 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
 
   /**
    * @return A Hadoop configuration provider capable of finding Hadoop configurations loaded for this Big Data Plugin
-   *         instance
-   * @throws ConfigurationException
-   *           The provider is not initialized (KettleEnvironment.init() has not been called)
+   * instance
+   * @throws ConfigurationException The provider is not initialized (KettleEnvironment.init() has not been called)
    */
   public static HadoopConfigurationProvider getHadoopConfigurationProvider() throws ConfigurationException {
     return instance.getProvider();
@@ -144,17 +147,42 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
    */
   protected HadoopConfigurationProvider initializeHadoopConfigurationProvider( FileObject hadoopConfigurationsDir )
     throws ConfigurationException {
+    final String activeConfigurationId = getWillBeActiveConfigurationId();
     HadoopConfigurationLocator locator = new HadoopConfigurationLocator();
-    locator.init( hadoopConfigurationsDir, this, new DefaultFileSystemManager() );
+    locator.init( hadoopConfigurationsDir, new ActiveHadoopConfigurationLocator() {
+      @Override public String getActiveConfigurationId() throws ConfigurationException {
+        return activeConfigurationId;
+      }
+    }, new DefaultFileSystemManager() );
     return locator;
+  }
+
+  public synchronized List<HadoopConfigurationInfo> getHadoopConfigurationInfos()
+    throws KettleException, ConfigurationException, IOException {
+    List<HadoopConfigurationInfo> result = new ArrayList<>();
+    FileObject hadoopConfigurationsDir = resolveHadoopConfigurationsDirectory();
+    String activeId = getActiveConfigurationId();
+    String willBeActiveId = getWillBeActiveConfigurationId();
+    for ( FileObject childFolder : hadoopConfigurationsDir.getChildren() ) {
+      if ( childFolder.getType() == FileType.FOLDER ) {
+        String id = childFolder.getName().getBaseName();
+        FileObject configPropertiesFile = childFolder.getChild( CONFIG_PROPERTIES );
+        if ( configPropertiesFile.exists() ) {
+          Properties properties = new Properties();
+          properties.load( configPropertiesFile.getContent().getInputStream() );
+          result.add( new HadoopConfigurationInfo( id, properties.getProperty( "name", id ),
+            id.equals( activeId ), willBeActiveId.equals( id ) ) );
+        }
+      }
+    }
+    return result;
   }
 
   /**
    * Retrieves the plugin properties from disk every call. This allows the plugin properties to change at runtime.
    *
    * @return Properties loaded from "$PLUGIN_DIR/plugin.properties".
-   * @throws ConfigurationException
-   *           Error loading properties file
+   * @throws ConfigurationException Error loading properties file
    */
   public Properties getPluginProperties() throws ConfigurationException {
     try {
@@ -167,8 +195,7 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
 
   /**
    * @return the {@link PluginInterface} for the HadoopSpoonPlugin. Will be used to resolve plugin directory
-   * @throws KettleException
-   *           Unable to locate ourself in the Plugin Registry
+   * @throws KettleException Unable to locate ourself in the Plugin Registry
    */
   protected PluginInterface getPluginInterface() throws KettleException {
     if ( plugin == null ) {
@@ -207,16 +234,13 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
   }
 
   /**
-   * Resolve the directory to look for Hadoop configurations in. This is based on the plugin property
-   * {@link #PROPERTY_HADOOP_CONFIGURATIONS_PATH} in the plugin's properties file.
+   * Resolve the directory to look for Hadoop configurations in. This is based on the plugin property {@link
+   * #PROPERTY_HADOOP_CONFIGURATIONS_PATH} in the plugin's properties file.
    *
    * @return Folder to look for Hadoop configurations within
-   * @throws ConfigurationException
-   *           Error locating plugin directory
-   * @throws KettleException
-   *           Error resolving hadoop configuration's path
-   * @throws IOException
-   *           Error loading plugin properties
+   * @throws ConfigurationException Error locating plugin directory
+   * @throws KettleException        Error resolving hadoop configuration's path
+   * @throws IOException            Error loading plugin properties
    */
   public FileObject resolveHadoopConfigurationsDirectory() throws ConfigurationException, IOException, KettleException {
     String hadoopConfigurationPath =
@@ -225,7 +249,18 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
   }
 
   @Override
-  public String getActiveConfigurationId() throws ConfigurationException {
+  public synchronized String getActiveConfigurationId() throws ConfigurationException {
+    if ( provider != null ) {
+      return provider.getActiveConfiguration().getIdentifier();
+    }
+    return getWillBeActiveConfigurationId();
+  }
+
+  public void setActiveShim( String shimId ) throws ConfigurationException {
+    getPluginProperties().setProperty( PROPERTY_ACTIVE_HADOOP_CONFIGURATION, shimId );
+  }
+
+  public String getWillBeActiveConfigurationId() throws ConfigurationException {
     Properties p;
     try {
       p = getPluginProperties();
@@ -238,10 +273,6 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
         "HadoopConfigurationBootstrap.MissingActiveConfigurationProperty", PROPERTY_ACTIVE_HADOOP_CONFIGURATION ) );
     }
     return p.getProperty( PROPERTY_ACTIVE_HADOOP_CONFIGURATION );
-  }
-
-  public void setActiveShim( String shimId ) {
-
   }
 
   @Override
@@ -259,7 +290,8 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
     // noop
   }
 
-  public synchronized void registerHadoopConfigurationListener( HadoopConfigurationListener hadoopConfigurationListener )
+  public synchronized void registerHadoopConfigurationListener(
+    HadoopConfigurationListener hadoopConfigurationListener )
     throws ConfigurationException {
     if ( hadoopConfigurationListeners.add( hadoopConfigurationListener ) && provider != null ) {
       hadoopConfigurationListener.onConfigurationOpen( getProvider().getActiveConfiguration(), true );
