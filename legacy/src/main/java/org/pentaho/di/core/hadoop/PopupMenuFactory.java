@@ -1,6 +1,6 @@
-/*! ******************************************************************************
+/*******************************************************************************
  *
- * Pentaho Data Integration
+ * Pentaho Big Data
  *
  * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
  *
@@ -33,13 +33,13 @@ import org.pentaho.di.core.namedcluster.model.NamedCluster;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.ui.delegates.HadoopClusterDelegate;
+import org.pentaho.di.ui.core.namedcluster.HadoopClusterDelegate;
+import org.pentaho.di.ui.core.namedcluster.NamedClusterUIHelper;
 import org.pentaho.di.ui.spoon.Spoon;
 
 public class PopupMenuFactory {
-
   private static final int RESULT_YES = 0;
-  
+
   private Spoon spoon = null;
   private static Class<?> PKG = PopupMenuFactory.class;
   private HadoopClusterDelegate ncDelegate = null;
@@ -50,7 +50,7 @@ public class PopupMenuFactory {
 
   public PopupMenuFactory() {
     spoon = Spoon.getInstance();
-    ncDelegate = new HadoopClusterDelegate( spoon );
+    ncDelegate = NamedClusterUIHelper.getNamedClusterUIFactory().createHadoopClusterDelegate( spoon );
   }
 
   public Menu createNewPopupMenu( final Tree selectionTree ) {

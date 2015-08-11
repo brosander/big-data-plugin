@@ -1,6 +1,6 @@
-/*! ******************************************************************************
+/*******************************************************************************
  *
- * Pentaho Data Integration
+ * Pentaho Big Data
  *
  * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
  *
@@ -22,26 +22,36 @@
 
 package org.pentaho.di.ui.core.namedcluster;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.pentaho.di.core.namedcluster.NamedClusterManager;
 import org.pentaho.di.core.namedcluster.model.NamedCluster;
 import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.metastore.api.exceptions.MetaStoreException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NamedClusterUIHelper {
+  private static NamedClusterUIFactory namedClusterUIFactory;
+
+  public static NamedClusterUIFactory getNamedClusterUIFactory() {
+    return namedClusterUIFactory;
+  }
+
+  public static void setNamedClusterUIFactory(
+    NamedClusterUIFactory namedClusterUIFactory ) {
+    NamedClusterUIHelper.namedClusterUIFactory = namedClusterUIFactory;
+  }
 
   public static List<NamedCluster> getNamedClusters() {
     try {
       return NamedClusterManager.getInstance().list( Spoon.getInstance().getMetaStore() );
     } catch ( MetaStoreException e ) {
-      return new ArrayList<NamedCluster>();
+      return new ArrayList<>();
     }
-  }  
-  
+  }
+
   public static NamedCluster getNamedCluster( String namedCluster ) throws MetaStoreException {
     return NamedClusterManager.getInstance().read( namedCluster, Spoon.getInstance().getMetaStore() );
-  }    
-  
+  }
+
 }
