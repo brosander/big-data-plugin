@@ -1,23 +1,18 @@
 /*******************************************************************************
- *
  * Pentaho Big Data
- *
+ * <p/>
  * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
+ * <p/>
+ * ******************************************************************************
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  ******************************************************************************/
 
 package org.pentaho.big.data.plugins.common.ui;
@@ -40,6 +35,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
+import org.pentaho.big.data.api.clusterTest.ClusterTester;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.plugins.LifecyclePluginType;
 import org.pentaho.di.core.plugins.PluginInterface;
@@ -54,36 +50,32 @@ import org.pentaho.di.ui.util.HelpUtils;
 import org.pentaho.metastore.api.exceptions.MetaStoreException;
 
 /**
- *
  * Dialog that allows you to edit the settings of a named cluster.
  *
  * @see <code>NamedCluster</code>
- *
  */
 public class NamedClusterDialog extends Dialog {
-  private static Class<?> PKG = NamedClusterDialog.class; // for i18n purposes, needed by Translator2!!
-
   private static final int RESULT_NO = 1;
-
+  private static Class<?> PKG = NamedClusterDialog.class; // for i18n purposes, needed by Translator2!!
+  private final NamedClusterService namedClusterService;
+  private final ClusterTester clusterTester;
   private Shell shell;
   private PropsUI props;
-  private Button wOK, wCancel;
-
   private int margin;
-
-  private NamedClusterService namedClusterService;
   private NamedCluster originalNamedCluster;
   private NamedCluster namedCluster;
   private boolean newClusterCheck = false;
   private String result;
 
-  public NamedClusterDialog( Shell parent, NamedClusterService namedClusterService ) {
-    this( parent, namedClusterService, null );
+  public NamedClusterDialog( Shell parent, NamedClusterService namedClusterService, ClusterTester clusterTester ) {
+    this( parent, namedClusterService, clusterTester, null );
   }
 
-  public NamedClusterDialog( Shell parent, NamedClusterService namedClusterService, NamedCluster namedCluster ) {
+  public NamedClusterDialog( Shell parent, NamedClusterService namedClusterService, ClusterTester clusterTester,
+                             NamedCluster namedCluster ) {
     super( parent );
     this.namedClusterService = namedClusterService;
+    this.clusterTester = clusterTester;
     props = PropsUI.getInstance();
 
     this.namedCluster = namedCluster;
@@ -103,7 +95,7 @@ public class NamedClusterDialog extends Dialog {
     return newClusterCheck;
   }
 
-  public void setNewClusterCheck(boolean newClusterCheck) {
+  public void setNewClusterCheck( boolean newClusterCheck ) {
     this.newClusterCheck = newClusterCheck;
   }
 
@@ -122,10 +114,10 @@ public class NamedClusterDialog extends Dialog {
     margin = Const.FORM_MARGIN;
 
     PluginInterface plugin =
-        PluginRegistry.getInstance().findPluginWithId( LifecyclePluginType.class, /* TODO */ "HadoopSpoonPlugin" );
+      PluginRegistry.getInstance().findPluginWithId( LifecyclePluginType.class, /* TODO */ "HadoopSpoonPlugin" );
     HelpUtils.createHelpButton( shell, HelpUtils.getHelpDialogTitle( plugin ),
-        BaseMessages.getString( PKG, "NamedClusterDialog.Shell.Doc" ),
-        BaseMessages.getString( PKG, "NamedClusterDialog.Shell.Title" ));
+      BaseMessages.getString( PKG, "NamedClusterDialog.Shell.Doc" ),
+      BaseMessages.getString( PKG, "NamedClusterDialog.Shell.Title" ) );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -136,21 +128,24 @@ public class NamedClusterDialog extends Dialog {
 
     NamedClusterComposite namedClusterComposite = new NamedClusterComposite( shell, namedCluster, props );
     FormData fd = new FormData();
-    fd.left = new FormAttachment(0, 0);
-    fd.right = new FormAttachment(100, 0);
+    fd.left = new FormAttachment( 0, 0 );
+    fd.right = new FormAttachment( 100, 0 );
     namedClusterComposite.setLayoutData( fd );
 
     shell.setSize( 431, 630 );
     shell.setMinimumSize( 431, 630 );
 
     // Buttons
-    wOK = new Button( shell, SWT.PUSH );
+    Button wTest = new Button( shell, SWT.PUSH );
+    wTest.setText( BaseMessages.getString( PKG, "System.Button.Test" ) );
+
+    Button wOK = new Button( shell, SWT.PUSH );
     wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    Button[] buttons = new Button[] { wOK, wCancel };
+    Button[] buttons = new Button[] { wTest, wOK, wCancel };
     BaseStepDialog.positionBottomRightButtons( shell, buttons, margin, null );
 
     // Create a horizontal separator
@@ -164,6 +159,11 @@ public class NamedClusterDialog extends Dialog {
     bottomSeparator.setLayoutData( fd );
 
     // Add listeners
+    wTest.addListener( SWT.Selection, new Listener() {
+      @Override public void handleEvent( Event event ) {
+        clusterTester.testCluster( getNamedCluster() );
+      }
+    } );
     wOK.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         ok();
@@ -214,10 +214,11 @@ public class NamedClusterDialog extends Dialog {
           String title = BaseMessages.getString( PKG, "NamedClusterDialog.ClusterNameExists.Title" );
           String message = BaseMessages.getString( PKG, "NamedClusterDialog.ClusterNameExists", result );
           String replaceButton = BaseMessages.getString( PKG, "NamedClusterDialog.ClusterNameExists.Replace" );
-          String doNotReplaceButton = BaseMessages.getString( PKG, "NamedClusterDialog.ClusterNameExists.DoNotReplace" );
+          String doNotReplaceButton =
+            BaseMessages.getString( PKG, "NamedClusterDialog.ClusterNameExists.DoNotReplace" );
           MessageDialog dialog =
-              new MessageDialog( shell, title, null, message, MessageDialog.WARNING, new String[] { replaceButton,
-                doNotReplaceButton }, 0 );
+            new MessageDialog( shell, title, null, message, MessageDialog.WARNING, new String[] { replaceButton,
+              doNotReplaceButton }, 0 );
 
           // there already exists a cluster with the new name, ask the user
           if ( RESULT_NO == dialog.open() ) {

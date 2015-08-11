@@ -1,23 +1,18 @@
 /*******************************************************************************
- *
  * Pentaho Big Data
- *
+ * <p/>
  * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
+ * <p/>
+ * ******************************************************************************
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  ******************************************************************************/
 
 package org.pentaho.big.data.kettle.plugins.pig;
@@ -45,6 +40,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
+import org.pentaho.big.data.api.clusterTest.ClusterTester;
 import org.pentaho.big.data.plugins.common.ui.NamedClusterWidget;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.vfs.KettleVFS;
@@ -74,6 +70,8 @@ public class JobEntryPigScriptExecutorDialog extends JobEntryDialog implements J
 
   public static final String PIG_FILE_EXT = ".pig";
   private static final Class<?> PKG = JobEntryPigScriptExecutor.class;
+  private final NamedClusterService namedClusterService;
+  private final ClusterTester clusterTester;
   protected JobEntryPigScriptExecutor m_jobEntry;
   NamedClusterWidget namedClusterWidget;
   private Display m_display;
@@ -85,7 +83,6 @@ public class JobEntryPigScriptExecutorDialog extends JobEntryDialog implements J
   private Button m_localExecutionBut;
   private TableView m_scriptParams;
   private boolean m_isMapR = false;
-  private NamedClusterService namedClusterService;
 
   /**
    * Constructor.
@@ -100,6 +97,7 @@ public class JobEntryPigScriptExecutorDialog extends JobEntryDialog implements J
     super( parent, jobEntryInt, rep, jobMeta );
     m_jobEntry = (JobEntryPigScriptExecutor) jobEntryInt;
     namedClusterService = m_jobEntry.getNamedClusterService();
+    clusterTester = m_jobEntry.getClusterTester();
   }
 
   public JobEntryInterface open() {
@@ -158,7 +156,7 @@ public class JobEntryPigScriptExecutorDialog extends JobEntryDialog implements J
     fd.right = new FormAttachment( middle, -margin );
     namedClusterLabel.setLayoutData( fd );
 
-    namedClusterWidget = new NamedClusterWidget( shell, false, namedClusterService );
+    namedClusterWidget = new NamedClusterWidget( shell, false, namedClusterService, clusterTester );
     namedClusterWidget.initiate();
     props.setLook( namedClusterWidget );
     fd = new FormData();
