@@ -31,12 +31,22 @@ import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.metastore.api.exceptions.MetaStoreException;
 
 public class NamedClusterUIHelper {
+  private static NamedClusterUIFactory namedClusterUIFactory;
+
+  public static void setNamedClusterUIFactory(
+    NamedClusterUIFactory namedClusterUIFactory ) {
+    NamedClusterUIHelper.namedClusterUIFactory = namedClusterUIFactory;
+  }
+
+  public static NamedClusterUIFactory getNamedClusterUIFactory() {
+    return namedClusterUIFactory;
+  }
 
   public static List<NamedCluster> getNamedClusters() {
     try {
       return NamedClusterManager.getInstance().list( Spoon.getInstance().getMetaStore() );
     } catch ( MetaStoreException e ) {
-      return new ArrayList<NamedCluster>();
+      return new ArrayList<>();
     }
   }  
   

@@ -43,8 +43,8 @@ import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.ui.core.ConstUI;
 import org.pentaho.di.ui.core.dialog.ErrorDialog;
 import org.pentaho.di.ui.core.gui.GUIResource;
-import org.pentaho.di.ui.core.namedcluster.dialog.NamedClusterDialog;
-import org.pentaho.di.ui.delegates.HadoopClusterDelegate;
+import org.pentaho.di.ui.core.namedcluster.HadoopClusterDelegate;
+import org.pentaho.di.ui.core.namedcluster.NamedClusterUIHelper;
 import org.pentaho.di.ui.spoon.SelectionTreeExtension;
 import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.di.ui.util.SwtSvgImageUtil;
@@ -61,13 +61,13 @@ public class HadoopClusterViewTreeExtension implements ExtensionPointInterface {
   private static Class<?> PKG = Spoon.class; 
   public static final String
       STRING_NAMED_CLUSTERS =
-      BaseMessages.getString( NamedClusterDialog.class, "NamedClusterDialog.STRING_NAMED_CLUSTERS" );
+      BaseMessages.getString( HadoopClusterDelegate.class, "NamedClusterDialog.STRING_NAMED_CLUSTERS" );
 
   private LogChannelInterface log = new LogChannel( HadoopClusterViewTreeExtension.class.getName() );
 
   public HadoopClusterViewTreeExtension() {
     spoon = Spoon.getInstance();
-    ncDelegate = new HadoopClusterDelegate( spoon );
+    ncDelegate = NamedClusterUIHelper.getNamedClusterUIFactory().createHadoopClusterDelegate( spoon );
     hadoopClusterImage = getHadoopClusterImage( spoon.getDisplay() );
   }
 
