@@ -62,8 +62,8 @@ public class HadoopConfigurationsSpoonPlugin implements SpoonPluginInterface {
         return new HadoopConfigurationsXulDialog( Spoon.getInstance().getShell(), hadoopConfigurationInfos ).open();
       }
 
-      @Override public void promptForRestart() {
-
+      @Override public boolean promptForRestart() {
+        return new HadoopConfigurationRestartXulDialog( Spoon.getInstance().getShell() ).open();
       }
     } );
   }
