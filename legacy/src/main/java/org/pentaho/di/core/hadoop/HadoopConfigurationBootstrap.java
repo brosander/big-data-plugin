@@ -1,23 +1,18 @@
 /*******************************************************************************
- *
  * Pentaho Big Data
- *
+ * <p/>
  * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
+ * <p/>
+ * ******************************************************************************
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  ******************************************************************************/
 
 package org.pentaho.di.core.hadoop;
@@ -25,6 +20,7 @@ package org.pentaho.di.core.hadoop;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
+import org.pentaho.di.core.Const;
 import org.pentaho.di.core.annotations.KettleLifecyclePlugin;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.lifecycle.KettleLifecycleListener;
@@ -68,6 +64,7 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
   private static HadoopConfigurationBootstrap instance = new HadoopConfigurationBootstrap();
   private final Set<HadoopConfigurationListener> hadoopConfigurationListeners =
     Collections.newSetFromMap( new ConcurrentHashMap<HadoopConfigurationListener, Boolean>() );
+  private HadoopConfigurationPrompter prompter;
   private HadoopConfigurationProvider provider;
   /**
    * Cached plugin description for locating Plugin
@@ -96,8 +93,20 @@ public class HadoopConfigurationBootstrap implements KettleLifecycleListener, Ac
     return provider;
   }
 
+  public void setPrompter( HadoopConfigurationPrompter prompter ) {
+    this.prompter = prompter;
+  }
+
   protected synchronized void initProvider() throws ConfigurationException {
     if ( provider == null ) {
+      HadoopConfigurationPrompter prompter = this.prompter;
+      if ( Const.isEmpty( getWillBeActiveConfigurationId() ) && prompter != null ) {
+        try {
+          setActiveShim( prompter.getConfigurationSelection( getHadoopConfigurationInfos() ) );
+        } catch ( Exception e ) {
+          throw new ConfigurationException( e.getMessage(), e );
+        }
+      }
       // Initialize the HadoopConfigurationProvider
       try {
         FileObject hadoopConfigurationsDir = resolveHadoopConfigurationsDirectory();
