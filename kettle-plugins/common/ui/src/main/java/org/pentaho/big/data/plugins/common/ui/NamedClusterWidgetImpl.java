@@ -38,17 +38,17 @@ import org.pentaho.metastore.api.exceptions.MetaStoreException;
 
 import java.util.List;
 
-public class NamedClusterWidget extends Composite {
-  private static Class<?> PKG = NamedClusterWidget.class;
+public class NamedClusterWidgetImpl extends Composite {
+  private static Class<?> PKG = NamedClusterWidgetImpl.class;
   private NamedClusterService namedClusterService;
   private Combo nameClusterCombo;
-  private HadoopClusterDelegate ncDelegate;
+  private HadoopClusterDelegateImpl ncDelegate;
 
-  public NamedClusterWidget( Composite parent, boolean showLabel, NamedClusterService namedClusterService,
-                             ClusterTester clusterTester ) {
+  public NamedClusterWidgetImpl( Composite parent, boolean showLabel, NamedClusterService namedClusterService,
+                                 ClusterTester clusterTester ) {
     super( parent, SWT.NONE );
     this.namedClusterService = namedClusterService;
-    ncDelegate = new HadoopClusterDelegate( Spoon.getInstance(), this.namedClusterService, clusterTester );
+    ncDelegate = new HadoopClusterDelegateImpl( Spoon.getInstance(), this.namedClusterService, clusterTester );
 
     PropsUI props = PropsUI.getInstance();
     props.setLook( this );

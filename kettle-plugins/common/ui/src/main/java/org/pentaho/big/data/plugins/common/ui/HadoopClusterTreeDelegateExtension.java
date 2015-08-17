@@ -20,17 +20,16 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.delegates;
+package org.pentaho.big.data.plugins.common.ui;
 
+import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.di.base.AbstractMeta;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.extension.ExtensionPoint;
 import org.pentaho.di.core.extension.ExtensionPointInterface;
 import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.core.namedcluster.NamedClusterManager;
-import org.pentaho.di.core.namedcluster.model.NamedCluster;
 import org.pentaho.di.i18n.BaseMessages;
-import org.pentaho.di.ui.core.namedcluster.dialog.NamedClusterDialog;
 import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.di.ui.spoon.TreeSelection;
 import org.pentaho.di.ui.spoon.delegates.SpoonTreeDelegateExtension;
@@ -39,12 +38,17 @@ import org.pentaho.metastore.api.exceptions.MetaStoreException;
 import java.util.List;
 
 @ExtensionPoint( id = "HadoopClusterTreeDelegateExtension", description = "During the SpoonTreeDelegate execution",
-    extensionPointId = "SpoonTreeDelegateExtension" )
+  extensionPointId = "SpoonTreeDelegateExtension" )
 
 public class HadoopClusterTreeDelegateExtension implements ExtensionPointInterface {
+  private static Class<?> PKG = NamedClusterComposite.class;
+  public static final String STRING_NAMED_CLUSTERS =
+    BaseMessages.getString( PKG, "NamedClusterDialog.STRING_NAMED_CLUSTERS" );
+  private final NamedClusterService namedClusterService;
 
-  private static Class<?> PKG = NamedClusterDialog.class;
-  public static final String STRING_NAMED_CLUSTERS = BaseMessages.getString( PKG, "NamedClusterDialog.STRING_NAMED_CLUSTERS" );
+  public HadoopClusterTreeDelegateExtension( NamedClusterService namedClusterService ) {
+    this.namedClusterService = namedClusterService;
+  }
 
   public void callExtensionPoint( LogChannelInterface log, Object extension ) throws KettleException {
 
@@ -58,17 +62,17 @@ public class HadoopClusterTreeDelegateExtension implements ExtensionPointInterfa
     TreeSelection object = null;
     Spoon spoon = Spoon.getInstance();
 
-    switch ( caseNumber ) {
+    switch( caseNumber ) {
       case 3:
-        if ( path[2].equals( STRING_NAMED_CLUSTERS ) ) {
-          object = new TreeSelection( path[2], NamedCluster.class, transMeta );
+        if ( path[ 2 ].equals( STRING_NAMED_CLUSTERS ) ) {
+          object = new TreeSelection( path[ 2 ], NamedCluster.class, transMeta );
         }
         break;
       case 4:
-        if ( path[2].equals( STRING_NAMED_CLUSTERS ) ) {
+        if ( path[ 2 ].equals( STRING_NAMED_CLUSTERS ) ) {
           try {
-            NamedCluster nc = NamedClusterManager.getInstance().read( path[3], spoon.getMetaStore() );
-            object = new TreeSelection( path[3], nc, transMeta );
+            NamedCluster nc = namedClusterService.read( path[ 3 ], spoon.getMetaStore() );
+            object = new TreeSelection( path[ 3 ], nc, transMeta );
           } catch ( MetaStoreException e ) {
           }
         }

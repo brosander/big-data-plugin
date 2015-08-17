@@ -51,9 +51,9 @@ import org.pentaho.di.job.entries.sqoop.SqoopUtils;
 import org.pentaho.di.ui.core.database.dialog.DatabaseDialog;
 import org.pentaho.di.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.pentaho.di.ui.core.dialog.EnterSelectionDialog;
+import org.pentaho.di.ui.core.namedcluster.HadoopClusterDelegate;
 import org.pentaho.di.ui.core.namedcluster.NamedClusterUIHelper;
 import org.pentaho.di.ui.core.namedcluster.NamedClusterWidget;
-import org.pentaho.di.ui.delegates.HadoopClusterDelegate;
 import org.pentaho.di.ui.job.AbstractJobEntryController;
 import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.di.ui.vfs.hadoopvfsfilechooserdialog.HadoopVfsFileChooserDialog;
@@ -172,7 +172,7 @@ public abstract class AbstractSqoopJobEntryController<S extends SqoopConfig, E e
     USE_ADVANCED_OPTIONS_CLUSTER.setVariable( "valid", "false" );
     Spoon spoon = Spoon.getInstance();
     if ( spoon != null ) {
-      ncDelegate = new HadoopClusterDelegate( spoon );
+      ncDelegate = NamedClusterUIHelper.getNamedClusterUIFactory().createHadoopClusterDelegate( spoon );
     }
   }
 

@@ -34,7 +34,8 @@ import org.pentaho.di.core.namedcluster.model.NamedCluster;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.di.ui.core.dialog.ErrorDialog;
-import org.pentaho.di.ui.core.namedcluster.dialog.NamedClusterDialog;
+import org.pentaho.di.ui.core.namedcluster.NamedClusterDialog;
+import org.pentaho.di.ui.core.namedcluster.NamedClusterUIHelper;
 import org.pentaho.di.ui.repository.repositoryexplorer.ContextChangeVetoer;
 import org.pentaho.di.ui.repository.repositoryexplorer.ContextChangeVetoer.TYPE;
 import org.pentaho.di.ui.repository.repositoryexplorer.ContextChangeVetoerCollection;
@@ -100,7 +101,7 @@ public class NamedClustersController extends LazilyInitializedController impleme
 
   private NamedClusterDialog getNamedClusterDialog() {
     if ( namedClusterDialog == null ) {
-      namedClusterDialog = new NamedClusterDialog( shell );
+      namedClusterDialog = NamedClusterUIHelper.getNamedClusterUIFactory().createNamedClusterDialog( shell );
     }
     return namedClusterDialog;
   }

@@ -22,17 +22,10 @@
 
 package org.pentaho.di.ui.vfs.hadoopvfsfilechooserdialog;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.ArrayList;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -51,6 +44,7 @@ import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.variables.Variables;
 import org.pentaho.di.core.vfs.KettleVFS;
 import org.pentaho.di.i18n.BaseMessages;
+import org.pentaho.di.ui.core.namedcluster.NamedClusterUIHelper;
 import org.pentaho.di.ui.core.namedcluster.NamedClusterWidget;
 import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.hadoop.shim.ConfigurationException;
@@ -60,6 +54,11 @@ import org.pentaho.hadoop.shim.spi.HadoopConfigurationProvider;
 import org.pentaho.hadoop.shim.spi.HadoopShim;
 import org.pentaho.vfs.ui.CustomVfsUiPanel;
 import org.pentaho.vfs.ui.VfsFileChooserDialog;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.util.ArrayList;
 
 public class HadoopVfsFileChooserDialog extends CustomVfsUiPanel {
 
@@ -140,8 +139,9 @@ public class HadoopVfsFileChooserDialog extends CustomVfsUiPanel {
     GridData gData = new GridData( SWT.FILL, SWT.FILL, true, false );
     connectionGroup.setLayoutData( gData );
     connectionGroup.setLayout( connectionGroupLayout );
-    
-    namedClusterWidget = new NamedClusterWidget( connectionGroup, true );
+
+    namedClusterWidget =
+      NamedClusterUIHelper.getNamedClusterUIFactory().createNamedClusterWidget( connectionGroup, true );
     namedClusterWidget.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent evt ) {
         try {

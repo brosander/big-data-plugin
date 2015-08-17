@@ -54,9 +54,9 @@ import org.pentaho.metastore.api.exceptions.MetaStoreException;
  *
  * @see <code>NamedCluster</code>
  */
-public class NamedClusterDialog extends Dialog {
+public class NamedClusterDialogImpl extends Dialog {
   private static final int RESULT_NO = 1;
-  private static Class<?> PKG = NamedClusterDialog.class; // for i18n purposes, needed by Translator2!!
+  private static Class<?> PKG = NamedClusterDialogImpl.class; // for i18n purposes, needed by Translator2!!
   private final NamedClusterService namedClusterService;
   private final ClusterTester clusterTester;
   private Shell shell;
@@ -67,12 +67,12 @@ public class NamedClusterDialog extends Dialog {
   private boolean newClusterCheck = false;
   private String result;
 
-  public NamedClusterDialog( Shell parent, NamedClusterService namedClusterService, ClusterTester clusterTester ) {
+  public NamedClusterDialogImpl( Shell parent, NamedClusterService namedClusterService, ClusterTester clusterTester ) {
     this( parent, namedClusterService, clusterTester, null );
   }
 
-  public NamedClusterDialog( Shell parent, NamedClusterService namedClusterService, ClusterTester clusterTester,
-                             NamedCluster namedCluster ) {
+  public NamedClusterDialogImpl( Shell parent, NamedClusterService namedClusterService, ClusterTester clusterTester,
+                                 NamedCluster namedCluster ) {
     super( parent );
     this.namedClusterService = namedClusterService;
     this.clusterTester = clusterTester;
