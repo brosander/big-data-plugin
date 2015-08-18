@@ -10,7 +10,5 @@ import java.util.Map;
  * Created by bryan on 8/11/15.
  */
 public interface ClusterTester {
-  List<ClusterTestModuleResults> testCluster( NamedCluster namedCluster );
-
   void testCluster( NamedCluster namedCluster, ClusterTestProgressCallback clusterTestProgressCallback );
 }

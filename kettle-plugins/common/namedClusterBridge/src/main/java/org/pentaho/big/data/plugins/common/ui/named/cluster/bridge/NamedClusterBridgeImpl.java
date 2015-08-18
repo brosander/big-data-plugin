@@ -18,6 +18,9 @@ public class NamedClusterBridgeImpl implements NamedCluster {
   }
 
   public static org.pentaho.di.core.namedcluster.model.NamedCluster fromOsgiNamedCluster( NamedCluster namedCluster ) {
+    if ( namedCluster == null ) {
+      return null;
+    }
     org.pentaho.di.core.namedcluster.model.NamedCluster result =
       new org.pentaho.di.core.namedcluster.model.NamedCluster();
     new NamedClusterBridgeImpl( result ).replaceMeta( namedCluster );

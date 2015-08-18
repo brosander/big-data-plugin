@@ -35,7 +35,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
+import org.pentaho.big.data.api.clusterTest.ClusterTestProgressCallback;
 import org.pentaho.big.data.api.clusterTest.ClusterTester;
+import org.pentaho.big.data.api.clusterTest.module.ClusterTestModuleResults;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.plugins.LifecyclePluginType;
 import org.pentaho.di.core.plugins.PluginInterface;
@@ -48,6 +50,8 @@ import org.pentaho.di.ui.spoon.Spoon;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
 import org.pentaho.di.ui.util.HelpUtils;
 import org.pentaho.metastore.api.exceptions.MetaStoreException;
+
+import java.util.List;
 
 /**
  * Dialog that allows you to edit the settings of a named cluster.
@@ -161,7 +165,11 @@ public class NamedClusterDialogImpl extends Dialog {
     // Add listeners
     wTest.addListener( SWT.Selection, new Listener() {
       @Override public void handleEvent( Event event ) {
-        clusterTester.testCluster( getNamedCluster() );
+        clusterTester.testCluster( getNamedCluster(), new ClusterTestProgressCallback() {
+          @Override public void onProgress( List<ClusterTestModuleResults> moduleResults ) {
+            System.out.println( moduleResults );
+          }
+        } );
       }
     } );
     wOK.addListener( SWT.Selection, new Listener() {

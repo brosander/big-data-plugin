@@ -1,23 +1,18 @@
 /*******************************************************************************
- *
  * Pentaho Big Data
- *
+ * <p/>
  * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
+ * <p/>
+ * ******************************************************************************
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  ******************************************************************************/
 
 package org.pentaho.di.ui.hadoop.configuration;
@@ -39,6 +34,7 @@ import org.pentaho.ui.xul.XulException;
 
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by bryan on 8/10/15.
@@ -63,12 +59,28 @@ public class HadoopConfigurationsSpoonPlugin implements SpoonPluginInterface {
       log.logError( e.getMessage() );
     }
     HadoopConfigurationBootstrap.getInstance().setPrompter( new HadoopConfigurationPrompter() {
-      @Override public String getConfigurationSelection( List<HadoopConfigurationInfo> hadoopConfigurationInfos ) {
-        return new HadoopConfigurationsXulDialog( Spoon.getInstance().getShell(), hadoopConfigurationInfos ).open();
+      @Override
+      public String getConfigurationSelection( final List<HadoopConfigurationInfo> hadoopConfigurationInfos ) {
+        final Spoon spoon = Spoon.getInstance();
+        final AtomicReference<String> atomicReference = new AtomicReference<>();
+        spoon.getDisplay().syncExec( new Runnable() {
+          @Override public void run() {
+            atomicReference
+              .set( new HadoopConfigurationsXulDialog( spoon.getShell(), hadoopConfigurationInfos ).open() );
+          }
+        } );
+        return atomicReference.get();
       }
 
       @Override public boolean promptForRestart() {
-        return new HadoopConfigurationRestartXulDialog( Spoon.getInstance().getShell() ).open();
+        final AtomicReference<Boolean> atomicReference = new AtomicReference<>();
+        final Spoon spoon = Spoon.getInstance();
+        spoon.getDisplay().syncExec( new Runnable() {
+          @Override public void run() {
+            atomicReference.set( new HadoopConfigurationRestartXulDialog( spoon.getShell() ).open() );
+          }
+        } );
+        return atomicReference.get();
       }
     } );
   }

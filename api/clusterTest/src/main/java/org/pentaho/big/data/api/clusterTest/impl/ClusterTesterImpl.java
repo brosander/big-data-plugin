@@ -23,11 +23,6 @@ public class ClusterTesterImpl implements ClusterTester {
   }
 
   @Override
-  public List<ClusterTestModuleResults> testCluster( NamedCluster namedCluster ) {
-    return new ClusterTestRunner( clusterTests, namedCluster, null, executorService ).runTests();
-  }
-
-  @Override
   public void testCluster( final NamedCluster namedCluster, final ClusterTestProgressCallback clusterTestProgressCallback ) {
     executorService.submit( new Runnable() {
       @Override public void run() {
