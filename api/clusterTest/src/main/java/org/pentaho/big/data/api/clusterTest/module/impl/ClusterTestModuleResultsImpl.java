@@ -54,16 +54,12 @@ public class ClusterTestModuleResultsImpl implements ClusterTestModuleResults {
   }
 
   public static ClusterTestModuleResults withCompleteTest( ClusterTestModuleResults clusterTestModuleResults,
-                                                           ClusterTest completeTest,
-                                                           ClusterTestResult clusterTestResult ) {
+                                                           ClusterTest completeTest ) {
     Set<ClusterTest> runningTests = new HashSet<>( clusterTestModuleResults.getRunningTests() );
     runningTests.remove( completeTest );
 
-    List<ClusterTestResult> clusterTestResults = new ArrayList<>( clusterTestModuleResults.getClusterTestResults() );
-    clusterTestResults.add( clusterTestResult );
-
     return new ClusterTestModuleResultsImpl( clusterTestModuleResults.name(),
-      clusterTestResults, runningTests, clusterTestModuleResults.getOutstandingTests() );
+      clusterTestModuleResults.getClusterTestResults(), runningTests, clusterTestModuleResults.getOutstandingTests() );
   }
 
   public static ClusterTestModuleResults withNewSkippedTest( ClusterTestModuleResults clusterTestModuleResults,
@@ -72,8 +68,9 @@ public class ClusterTestModuleResultsImpl implements ClusterTestModuleResults {
     outstandingTests.remove( skippedTest );
 
     List<ClusterTestResult> clusterTestResults = new ArrayList<>( clusterTestModuleResults.getClusterTestResults() );
-    clusterTestResults.add( new ClusterTestResultImpl( Arrays.<ClusterTestResultEntry>asList(
-      new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.SKIPPED, "Skipped test execution " + skippedTest.getName(),
+    clusterTestResults.add( new ClusterTestResultImpl( skippedTest, Arrays.<ClusterTestResultEntry>asList(
+      new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.SKIPPED,
+        "Skipped test execution " + skippedTest.getName(),
         "The following dependencies either failed or were skipped: " + relevantFailed, null ) ) ) );
 
     return new ClusterTestModuleResultsImpl( clusterTestModuleResults.name(),

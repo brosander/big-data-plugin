@@ -34,9 +34,9 @@ public class PingOozieHostTest extends BaseClusterTest {
     String oozieUrl = namedCluster.getOozieUrl();
     try {
       URL url = new URL( oozieUrl );
-      return new ConnectTest( url.getHost(), String.valueOf( url.getPort() ), false ).runTest();
+      return new ConnectTest( this, url.getHost(), String.valueOf( url.getPort() ), false ).runTest();
     } catch ( MalformedURLException e ) {
-      return new ClusterTestResultImpl( new ArrayList<ClusterTestResultEntry>( Arrays.asList(
+      return new ClusterTestResultImpl( this, new ArrayList<ClusterTestResultEntry>( Arrays.asList(
         new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
           BaseMessages.getString( PKG, "PingOozieHostTest.MalformedUrlDesc" ),
           BaseMessages.getString( PKG, "PingOozieHostTest.MalformedUrlDesc" ), e ) ) ) );

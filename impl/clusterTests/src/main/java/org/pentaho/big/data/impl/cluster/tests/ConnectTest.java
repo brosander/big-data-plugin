@@ -1,5 +1,6 @@
 package org.pentaho.big.data.impl.cluster.tests;
 
+import org.pentaho.big.data.api.clusterTest.test.ClusterTest;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestEntrySeverity;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestResult;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestResultEntry;
@@ -20,16 +21,19 @@ import java.util.List;
  */
 public class ConnectTest {
   private static final Class<?> PKG = ConnectTest.class;
+  private final ClusterTest clusterTest;
   private final String hostname;
   private final String port;
   private final boolean haPossible;
   private final ClusterTestEntrySeverity severityOfFalures;
 
-  public ConnectTest( String hostname, String port, boolean haPossible ) {
-    this( hostname, port, haPossible, ClusterTestEntrySeverity.FATAL );
+  public ConnectTest( ClusterTest clusterTest, String hostname, String port, boolean haPossible ) {
+    this( clusterTest, hostname, port, haPossible, ClusterTestEntrySeverity.FATAL );
   }
 
-  public ConnectTest( String hostname, String port, boolean haPossible, ClusterTestEntrySeverity severityOfFailures ) {
+  public ConnectTest( ClusterTest clusterTest, String hostname, String port, boolean haPossible,
+                      ClusterTestEntrySeverity severityOfFailures ) {
+    this.clusterTest = clusterTest;
     this.hostname = hostname;
     this.port = port;
     this.haPossible = haPossible;
@@ -85,6 +89,6 @@ public class ConnectTest {
           BaseMessages.getString( PKG, "ConnectTest.NetworkError.Message" ), e ) );
       }
     }
-    return new ClusterTestResultImpl( clusterTestResultEntries );
+    return new ClusterTestResultImpl( clusterTest, clusterTestResultEntries );
   }
 }

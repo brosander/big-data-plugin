@@ -5,7 +5,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.clusterTest.ClusterTestProgressCallback;
+import org.pentaho.big.data.api.clusterTest.ClusterTestStatus;
 import org.pentaho.big.data.api.clusterTest.module.ClusterTestModuleResults;
+import org.pentaho.big.data.api.clusterTest.test.ClusterTest;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestResult;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestResultEntry;
 import org.pentaho.big.data.api.clusterTest.test.impl.BaseClusterTest;
@@ -13,6 +15,7 @@ import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -126,13 +130,74 @@ public class ClusterTestRunnerTest {
   }
 
   private void testScenario( List<TestClusterTest> clusterTests ) {
-    ClusterTestProgressCallback clusterTestProgressCallback = mock( ClusterTestProgressCallback.class );
+    final List<ClusterTestStatus> clusterTestStatuses = Collections.synchronizedList( new ArrayList
+      <ClusterTestStatus>() );
+    final ClusterTestProgressCallback clusterTestProgressCallback = new ClusterTestProgressCallback() {
+      @Override public void onProgress( ClusterTestStatus clusterTestStatus ) {
+        clusterTestStatuses.add( clusterTestStatus );
+        if ( clusterTestStatus.isDone() ) {
+          synchronized ( this ) {
+            notifyAll();
+          }
+        }
+      }
+    };
     long before = System.currentTimeMillis();
-    List<ClusterTestModuleResults> clusterTestModuleResults =
-      new ClusterTestRunner( clusterTests, namedCluster, clusterTestProgressCallback,
-        executorService ).runTests();
+    new ClusterTestRunner( clusterTests, namedCluster, clusterTestProgressCallback, executorService ).runTests();
+    synchronized ( clusterTestProgressCallback ) {
+      while ( clusterTestStatuses.size() == 0 || !clusterTestStatuses.get( clusterTestStatuses.size() - 1 ).isDone() ) {
+        try {
+          clusterTestProgressCallback.wait();
+        } catch ( InterruptedException e ) {
+          // Ignore
+        }
+      }
+    }
     long after = System.currentTimeMillis();
+    Set<String> doneIds = new HashSet<>();
+    for ( int i = 0; i < clusterTestStatuses.size(); i++ ) {
+      ClusterTestStatus clusterTestStatus = clusterTestStatuses.get( i );
+      if ( i < clusterTestStatuses.size() - 1 ) {
+        assertFalse( clusterTestStatus.isDone() );
+      } else {
+        assertTrue( clusterTestStatus.isDone() );
+      }
+      Set<String> justDoneIds = new HashSet<>();
+      for ( ClusterTestModuleResults clusterTestModuleResults : clusterTestStatus.getModuleResults() ) {
+        Set<String> outstandingIds = new HashSet<>();
+        Set<String> runningIds = new HashSet<>();
+        for ( ClusterTest clusterTest : clusterTestModuleResults.getOutstandingTests() ) {
+          outstandingIds.add( clusterTest.getId() );
+        }
+        for ( ClusterTest clusterTest : clusterTestModuleResults.getRunningTests() ) {
+          runningIds.add( clusterTest.getId() );
+        }
+
+        Set<String> resultIds = new HashSet<>();
+        for ( ClusterTestResult clusterTestResult : clusterTestModuleResults.getClusterTestResults() ) {
+          resultIds.add( clusterTestResult.getClusterTest().getId() );
+        }
+        // We should have results for all ids in module
+        assertTrue( resultIds.containsAll( outstandingIds ) );
+        assertTrue( resultIds.containsAll( runningIds ) );
+
+        // No done ides should be in outstanding or running
+        assertTrue( Collections.disjoint( doneIds, outstandingIds ) );
+        assertTrue( Collections.disjoint( doneIds, runningIds ) );
+
+        resultIds.removeAll( outstandingIds );
+        resultIds.removeAll( runningIds );
+        justDoneIds.addAll( resultIds );
+      }
+      // All previously done ids should still be done
+      assertTrue( justDoneIds.containsAll( doneIds ) );
+      // We should get called back for each one that finishes
+      assertTrue( justDoneIds.size() == doneIds.size() || justDoneIds.size() == doneIds.size() + 1 );
+
+      doneIds.addAll( justDoneIds );
+    }
     for ( TestClusterTest clusterTest : clusterTests ) {
+      assertTrue( doneIds.contains( clusterTest.getId() ) );
       clusterTest.validateRunState();
     }
     System.out.println( "Ran in " + ( after - before ) + " ms" );
@@ -174,7 +239,7 @@ public class ClusterTestRunnerTest {
       } catch ( InterruptedException e ) {
         // Ignore
       }
-      ClusterTestResultImpl clusterTestResult = new ClusterTestResultImpl( clusterTestResultEntries );
+      ClusterTestResultImpl clusterTestResult = new ClusterTestResultImpl( this, clusterTestResultEntries );
       hasRun.set( true );
       System.out.println( "Done running: " + logName );
       return clusterTestResult;

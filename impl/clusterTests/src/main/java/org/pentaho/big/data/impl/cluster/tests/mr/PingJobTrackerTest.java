@@ -23,6 +23,6 @@ public class PingJobTrackerTest extends BaseClusterTest {
   }
 
   @Override public ClusterTestResult runTest( NamedCluster namedCluster ) {
-    return new ConnectTest( namedCluster.getJobTrackerHost(), namedCluster.getJobTrackerPort(), true ).runTest();
+    return new ConnectTest( this, namedCluster.getJobTrackerHost(), namedCluster.getJobTrackerPort(), true ).runTest();
   }
 }

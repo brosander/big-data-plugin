@@ -5,7 +5,10 @@ package org.pentaho.big.data.api.clusterTest.test;
  */
 public interface ClusterTestResultEntry {
   ClusterTestEntrySeverity getSeverity();
+
   String getDescription();
+
   String getMessage();
+
   Throwable getException();
 }

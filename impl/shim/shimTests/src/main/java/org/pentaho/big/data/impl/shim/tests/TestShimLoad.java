@@ -39,6 +39,6 @@ public class TestShimLoad extends BaseClusterTest {
       clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
         BaseMessages.getString( PKG, "TestShimLoad.UnableToLoadShim.Desc" ), e.getMessage(), e ) );
     }
-    return new ClusterTestResultImpl( clusterTestResultEntries );
+    return new ClusterTestResultImpl( this, clusterTestResultEntries );
   }
 }

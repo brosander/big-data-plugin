@@ -24,6 +24,6 @@ public class PingFileSystemEntryPointTest extends BaseClusterTest {
   }
 
   @Override public ClusterTestResult runTest( NamedCluster namedCluster ) {
-    return new ConnectTest( namedCluster.getHdfsHost(), namedCluster.getHdfsPort(), true ).runTest();
+    return new ConnectTest( this, namedCluster.getHdfsHost(), namedCluster.getHdfsPort(), true ).runTest();
   }
 }

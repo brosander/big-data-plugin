@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.big.data.api.clusterTest.ClusterTestProgressCallback;
+import org.pentaho.big.data.api.clusterTest.ClusterTestStatus;
 import org.pentaho.big.data.api.clusterTest.ClusterTester;
 import org.pentaho.big.data.api.clusterTest.module.ClusterTestModuleResults;
 import org.pentaho.di.core.Const;
@@ -166,8 +167,10 @@ public class NamedClusterDialogImpl extends Dialog {
     wTest.addListener( SWT.Selection, new Listener() {
       @Override public void handleEvent( Event event ) {
         clusterTester.testCluster( getNamedCluster(), new ClusterTestProgressCallback() {
-          @Override public void onProgress( List<ClusterTestModuleResults> moduleResults ) {
-            System.out.println( moduleResults );
+          @Override public void onProgress( ClusterTestStatus clusterTestStatus ) {
+            if ( clusterTestStatus.isDone() ) {
+              System.out.println( clusterTestStatus );
+            }
           }
         } );
       }

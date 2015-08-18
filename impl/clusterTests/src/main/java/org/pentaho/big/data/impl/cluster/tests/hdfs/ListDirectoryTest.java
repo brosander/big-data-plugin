@@ -77,6 +77,6 @@ public class ListDirectoryTest extends BaseClusterTest {
         BaseMessages.getString( PKG, "ListDirectoryTest.ErrorInitializingCluster.Desc" ),
         BaseMessages.getString( PKG, "ListDirectoryTest.ErrorInitializingCluster.Message" ), e ) );
     }
-    return new ClusterTestResultImpl( clusterTestResultEntries );
+    return new ClusterTestResultImpl( this, clusterTestResultEntries );
   }
 }

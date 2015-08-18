@@ -15,7 +15,7 @@
   <bean id="clusterTesterImpl" class="org.pentaho.big.data.api.clusterTest.impl.ClusterTesterImpl" scope="singleton">
     <argument ref="clusterTests"/>
     <argument ref="executorService"/>
-    <argument ref="orderedModules"/>
+    <argument value="${orderedModules}"/>
   </bean>
   <reference-list id="clusterTests" interface="org.pentaho.big.data.api.clusterTest.test.ClusterTest"
                   availability="optional"/>

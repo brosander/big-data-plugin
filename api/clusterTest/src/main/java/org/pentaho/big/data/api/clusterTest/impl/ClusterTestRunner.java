@@ -7,9 +7,13 @@ import org.pentaho.big.data.api.clusterTest.module.impl.ClusterTestModuleResults
 import org.pentaho.big.data.api.clusterTest.test.ClusterTest;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestEntrySeverity;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestResult;
+import org.pentaho.big.data.api.clusterTest.test.ClusterTestResultEntry;
 import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestDelegateWithMoreDependencies;
+import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultEntryImpl;
+import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,17 +34,37 @@ public class ClusterTestRunner {
   private final ExecutorService executorService;
   private final Set<String> satisfiedDependencies;
   private final Set<String> failedDependencies;
-  private final Map<String, ClusterTestModuleResults> stringClusterTestModuleResultsMap;
+  private final List<String> clusterModuleList;
+  private final Map<String, List<String>> stringClusterTestModuleToTestIdMap;
+  private final Map<String, ClusterTestResult> clusterTestResultMap;
+  private final Set<String> outstandingTestIds;
+  private final Set<String> runningTestIds;
+
 
   public ClusterTestRunner( Collection<? extends ClusterTest> clusterTests, NamedCluster namedCluster,
                             ClusterTestProgressCallback clusterTestProgressCallback, ExecutorService executorService ) {
+    clusterModuleList = new ArrayList<>();
+    stringClusterTestModuleToTestIdMap = new HashMap<>();
+    clusterTestResultMap = new HashMap<>();
+    outstandingTestIds = new HashSet<>();
+    runningTestIds = new HashSet<>();
+
     Set<ClusterTest> initTests = new HashSet<>();
     Set<String> initTestIds = new HashSet<>();
     Set<ClusterTest> nonInitTests = new HashSet<>();
     for ( ClusterTest clusterTest : clusterTests ) {
+      String clusterTestModule = clusterTest.getModule();
+      List<String> clusterIdsForModule = stringClusterTestModuleToTestIdMap.get( clusterTestModule );
+      if ( clusterIdsForModule == null ) {
+        clusterModuleList.add( clusterTestModule );
+        clusterIdsForModule = new ArrayList<>();
+        stringClusterTestModuleToTestIdMap.put( clusterTestModule, clusterIdsForModule );
+      }
+      String clusterTestId = clusterTest.getId();
+      clusterIdsForModule.add( clusterTestId );
       if ( clusterTest.isConfigInitTest() ) {
         initTests.add( clusterTest );
-        initTestIds.add( clusterTest.getId() );
+        initTestIds.add( clusterTestId );
       } else {
         nonInitTests.add( clusterTest );
       }
@@ -49,55 +73,64 @@ public class ClusterTestRunner {
     for ( ClusterTest nonInitTest : nonInitTests ) {
       remainingTests.add( new ClusterTestDelegateWithMoreDependencies( nonInitTest, initTestIds ) );
     }
+    for ( ClusterTest remainingTest : remainingTests ) {
+      String remainingTestId = remainingTest.getId();
+      clusterTestResultMap
+        .put( remainingTestId, new ClusterTestResultImpl( remainingTest, new ArrayList<ClusterTestResultEntry>() ) );
+      outstandingTestIds.add( remainingTestId );
+    }
     this.satisfiedDependencies = new HashSet<>();
     this.failedDependencies = new HashSet<>();
     this.namedCluster = namedCluster;
     this.clusterTestProgressCallback = clusterTestProgressCallback;
     this.executorService = executorService;
-    Map<String, Set<ClusterTest>> outstandingModuleTests = new HashMap<>();
-    Map<String, Set<ClusterTest>> currentlyRunningTests = new HashMap<>();
-    Set<String> seenModules = new HashSet<>();
-    for ( ClusterTest remainingTest : this.remainingTests ) {
-      String module = remainingTest.getModule();
-      if ( seenModules.add( module ) ) {
-        outstandingModuleTests.put( module, new HashSet<ClusterTest>() );
-        currentlyRunningTests.put( module, new HashSet<ClusterTest>() );
-      }
-      outstandingModuleTests.get( module ).add( remainingTest );
-    }
-    this.stringClusterTestModuleResultsMap = new HashMap<>();
-    for ( ClusterTest remainingTest : this.remainingTests ) {
-      String module = remainingTest.getModule();
-      ClusterTestModuleResults clusterTestModuleResults = stringClusterTestModuleResultsMap.get( module );
-      if ( clusterTestModuleResults == null ) {
-        stringClusterTestModuleResultsMap.put( module,
-          new ClusterTestModuleResultsImpl( module, new ArrayList<ClusterTestResult>(), new HashSet<ClusterTest>(),
-            new HashSet<>( outstandingModuleTests.get( module ) ) ) );
-      }
-    }
   }
 
   private void markSkipped( ClusterTest clusterTest ) {
     Set<String> relevantFailed = new HashSet<>( failedDependencies );
     relevantFailed.retainAll( clusterTest.getDependencies() );
     // We had a dependency fail so we need to skip
-    failedDependencies.add( clusterTest.getId() );
-    String skippingTestModule = clusterTest.getModule();
-    ClusterTestModuleResults clusterTestModuleResults = stringClusterTestModuleResultsMap.get( skippingTestModule );
-    stringClusterTestModuleResultsMap.put( skippingTestModule,
-      ClusterTestModuleResultsImpl.withNewSkippedTest( clusterTestModuleResults, clusterTest, relevantFailed ) );
+    String clusterTestId = clusterTest.getId();
+    failedDependencies.add( clusterTestId );
+    outstandingTestIds.remove( clusterTestId );
+    runningTestIds.remove( clusterTestId );
+    clusterTestResultMap.put( clusterTestId, new ClusterTestResultImpl( clusterTest, Arrays
+      .<ClusterTestResultEntry>asList(
+        new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.SKIPPED,
+          "Skipped test execution " + clusterTest.getName(),
+          "The following dependencies either failed or were skipped: " + relevantFailed, null ) ) ) );
   }
 
   private void callbackState() {
+    callbackState( false );
+  }
+
+  private void callbackState( boolean done ) {
     if ( clusterTestProgressCallback != null ) {
+      List<ClusterTestModuleResults> moduleResults = new ArrayList<>( clusterModuleList.size() );
+      for ( String clusterModule : clusterModuleList ) {
+        List<ClusterTestResult> clusterTestResults = new ArrayList<>();
+        Set<ClusterTest> runningTests = new HashSet<>();
+        HashSet<ClusterTest> outstandingTests = new HashSet<>();
+        for ( String testId : stringClusterTestModuleToTestIdMap.get( clusterModule ) ) {
+          ClusterTestResult clusterTestResult = clusterTestResultMap.get( testId );
+          clusterTestResults.add( clusterTestResult );
+          if ( runningTestIds.contains( testId ) ) {
+            runningTests.add( clusterTestResult.getClusterTest() );
+          } else if ( outstandingTestIds.contains( testId ) ) {
+            outstandingTests.add( clusterTestResult.getClusterTest() );
+          }
+        }
+        moduleResults
+          .add( new ClusterTestModuleResultsImpl( clusterModule, clusterTestResults, runningTests, outstandingTests ) );
+      }
       clusterTestProgressCallback
-        .onProgress( new ArrayList<>( stringClusterTestModuleResultsMap.values() ) );
+        .onProgress( new ClusterTestStatusImpl( Collections.unmodifiableList( moduleResults ), done ) );
     }
   }
 
   private void runTest( ClusterTest clusterTest, AtomicInteger runningTestCount ) {
     try {
-      String clusterTestModule = clusterTest.getModule();
       ClusterTestResult clusterTestResult = clusterTest.runTest( namedCluster );
       ClusterTestEntrySeverity maxSeverity = clusterTestResult.getMaxSeverity();
       String eligibleTestId = clusterTest.getId();
@@ -107,11 +140,13 @@ public class ClusterTestRunner {
         } else {
           satisfiedDependencies.add( eligibleTestId );
         }
-
-        ClusterTestModuleResults clusterTestModuleResults =
-          stringClusterTestModuleResultsMap.get( clusterTestModule );
-        stringClusterTestModuleResultsMap.put( clusterTestModule,
-          ClusterTestModuleResultsImpl.withCompleteTest( clusterTestModuleResults, clusterTest, clusterTestResult ) );
+        if ( clusterTestResult.getClusterTest() == clusterTest ) {
+          clusterTestResultMap.put( eligibleTestId, clusterTestResult );
+        } else {
+          clusterTestResultMap.put( eligibleTestId,
+            new ClusterTestResultImpl( clusterTest, clusterTestResult.getClusterTestResultEntries() ) );
+        }
+        runningTestIds.remove( eligibleTestId );
         callbackState();
         runningTestCount.getAndDecrement();
         notifyAll();
@@ -121,7 +156,7 @@ public class ClusterTestRunner {
     }
   }
 
-  public synchronized List<ClusterTestModuleResults> runTests() {
+  public synchronized void runTests() {
     callbackState();
     final AtomicInteger runningTestCount = new AtomicInteger();
     while ( remainingTests.size() > 0 || runningTestCount.get() > 0 ) {
@@ -131,14 +166,8 @@ public class ClusterTestRunner {
       for ( ClusterTest remainingTest : remainingTests ) {
         possibleToSatisfyIds.add( remainingTest.getId() );
       }
-      for ( ClusterTestModuleResults clusterTestModuleResults : stringClusterTestModuleResultsMap.values() ) {
-        for ( ClusterTest clusterTest : clusterTestModuleResults.getOutstandingTests() ) {
-          possibleToSatisfyIds.add( clusterTest.getId() );
-        }
-        for ( ClusterTest clusterTest : clusterTestModuleResults.getRunningTests() ) {
-          possibleToSatisfyIds.add( clusterTest.getId() );
-        }
-      }
+      possibleToSatisfyIds.addAll( outstandingTestIds );
+      possibleToSatisfyIds.addAll( runningTestIds );
       for ( ClusterTest remainingTest : remainingTests ) {
         Set<String> remainingTestDependencies = remainingTest.getDependencies();
         if ( satisfiedDependencies.containsAll( remainingTestDependencies ) ) {
@@ -153,10 +182,9 @@ public class ClusterTestRunner {
       remainingTests.removeAll( skippingTests );
       final int wasRunning = runningTestCount.addAndGet( eligibleTests.size() );
       for ( final ClusterTest eligibleTest : eligibleTests ) {
-        final String eligibleTestModule = eligibleTest.getModule();
-        ClusterTestModuleResults clusterTestModuleResults = stringClusterTestModuleResultsMap.get( eligibleTestModule );
-        stringClusterTestModuleResultsMap.put( eligibleTestModule,
-          ClusterTestModuleResultsImpl.withNewRunningTest( clusterTestModuleResults, eligibleTest ) );
+        String eligibleTestId = eligibleTest.getId();
+        outstandingTestIds.remove( eligibleTestId );
+        runningTestIds.add( eligibleTestId );
 
         executorService.submit( new Runnable() {
           @Override public void run() {
@@ -181,7 +209,6 @@ public class ClusterTestRunner {
         callbackState();
       }
     }
-    callbackState();
-    return new ArrayList<>( stringClusterTestModuleResultsMap.values() );
+    callbackState( true );
   }
 }

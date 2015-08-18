@@ -93,6 +93,6 @@ public class WriteToAndDeleteFromUsersHomeFolderTest extends BaseClusterTest {
         BaseMessages.getString( PKG, "WriteToAndDeleteFromUsersHomeFolderTest.ErrorInitializingCluster.Message" ),
         e ) );
     }
-    return new ClusterTestResultImpl( clusterTestResultEntries );
+    return new ClusterTestResultImpl( this, clusterTestResultEntries );
   }
 }

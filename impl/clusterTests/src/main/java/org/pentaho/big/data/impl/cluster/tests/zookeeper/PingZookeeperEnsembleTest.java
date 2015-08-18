@@ -34,12 +34,12 @@ public class PingZookeeperEnsembleTest extends BaseClusterTest {
     String zooKeeperHost = namedCluster.getZooKeeperHost();
     String zooKeeperPort = namedCluster.getZooKeeperPort();
     if ( Const.isEmpty( zooKeeperHost ) ) {
-      return new ClusterTestResultImpl( new ArrayList<ClusterTestResultEntry>( Arrays.asList(
+      return new ClusterTestResultImpl( this, new ArrayList<ClusterTestResultEntry>( Arrays.asList(
         new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
           BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankHost" ),
           BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankHost" ) ) ) ) );
     } else if ( Const.isEmpty( zooKeeperPort ) ) {
-      return new ClusterTestResultImpl( new ArrayList<ClusterTestResultEntry>( Arrays.asList(
+      return new ClusterTestResultImpl( this, new ArrayList<ClusterTestResultEntry>( Arrays.asList(
         new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
           BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankPort" ),
           BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankPort" ) ) ) ) );
@@ -49,7 +49,7 @@ public class PingZookeeperEnsembleTest extends BaseClusterTest {
       boolean hadSuccess = false;
       for ( String node : quorum ) {
         ClusterTestResult nodeResults =
-          new ConnectTest( node, zooKeeperPort, false, ClusterTestEntrySeverity.WARNING ).runTest();
+          new ConnectTest( this, node, zooKeeperPort, false, ClusterTestEntrySeverity.WARNING ).runTest();
         if ( nodeResults.getMaxSeverity() != ClusterTestEntrySeverity.WARNING ) {
           hadSuccess = true;
         }
@@ -64,7 +64,7 @@ public class PingZookeeperEnsembleTest extends BaseClusterTest {
         newClusterTestResultEntries.addAll( clusterTestResultEntries );
         clusterTestResultEntries = newClusterTestResultEntries;
       }
-      return new ClusterTestResultImpl( clusterTestResultEntries );
+      return new ClusterTestResultImpl( this, clusterTestResultEntries );
     }
   }
 }
