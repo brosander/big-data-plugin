@@ -45,15 +45,15 @@ public class ListDirectoryTest extends BaseClusterTest {
       if ( hadoopFilesystem == null ) {
         clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
           BaseMessages.getString( PKG, "ListDirectoryTest.CouldntGetFileSystem.Desc" ),
-          BaseMessages.getString( PKG, "ListDirectoryTest.CouldntGetFileSystem.Message" ) ) );
+          BaseMessages.getString( PKG, "ListDirectoryTest.CouldntGetFileSystem.Message", namedCluster.getName() ) ) );
       } else {
+        HadoopFileSystemPath hadoopFilesystemPath;
+        if ( Const.isEmpty( directory ) ) {
+          hadoopFilesystemPath = hadoopFilesystem.getHomeDirectory();
+        } else {
+          hadoopFilesystemPath = hadoopFilesystem.getPath( directory );
+        }
         try {
-          HadoopFileSystemPath hadoopFilesystemPath;
-          if ( Const.isEmpty( directory ) ) {
-            hadoopFilesystemPath = hadoopFilesystem.getHomeDirectory();
-          } else {
-            hadoopFilesystemPath = hadoopFilesystem.getPath( directory );
-          }
           HadoopFileStatus[] hadoopFileStatuses = hadoopFilesystem.listStatus( hadoopFilesystemPath );
           StringBuilder paths = new StringBuilder();
           for ( HadoopFileStatus hadoopFileStatus : hadoopFileStatuses ) {
@@ -69,13 +69,16 @@ public class ListDirectoryTest extends BaseClusterTest {
         } catch ( IOException e ) {
           clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
             BaseMessages.getString( PKG, "ListDirectoryTest.ErrorListingDirectory.Desc" ),
-            BaseMessages.getString( PKG, "ListDirectoryTest.ErrorListingDirectory.Message" ), e ) );
+            BaseMessages
+              .getString( PKG, "ListDirectoryTest.ErrorListingDirectory.Message", hadoopFilesystemPath.toString() ),
+            e ) );
         }
       }
     } catch ( ClusterInitializationException e ) {
       clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
         BaseMessages.getString( PKG, "ListDirectoryTest.ErrorInitializingCluster.Desc" ),
-        BaseMessages.getString( PKG, "ListDirectoryTest.ErrorInitializingCluster.Message" ), e ) );
+        BaseMessages.getString( PKG, "ListDirectoryTest.ErrorInitializingCluster.Message", namedCluster.getName() ),
+        e ) );
     }
     return new ClusterTestResultImpl( this, clusterTestResultEntries );
   }

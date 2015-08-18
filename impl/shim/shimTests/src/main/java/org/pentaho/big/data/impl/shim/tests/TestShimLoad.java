@@ -33,8 +33,8 @@ public class TestShimLoad extends BaseClusterTest {
       String identifier =
         HadoopConfigurationBootstrap.getHadoopConfigurationProvider().getActiveConfiguration().getIdentifier();
       clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.INFO,
-        BaseMessages.getString( PKG, "TestShimLoad.CorrectShimLoaded.Desc", identifier ),
-        BaseMessages.getString( PKG, "TestShimLoad.CorrectShimLoaded.Message", identifier ) ) );
+        BaseMessages.getString( PKG, "TestShimLoad.ShimLoaded.Desc", identifier ),
+        BaseMessages.getString( PKG, "TestShimLoad.ShimLoaded.Message", identifier ) ) );
     } catch ( ConfigurationException e ) {
       clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
         BaseMessages.getString( PKG, "TestShimLoad.UnableToLoadShim.Desc" ), e.getMessage(), e ) );

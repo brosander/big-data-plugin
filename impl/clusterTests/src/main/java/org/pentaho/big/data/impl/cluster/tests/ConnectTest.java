@@ -64,11 +64,11 @@ public class ConnectTest {
             socket = new Socket( hostname, Integer.valueOf( port ) );
             clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.INFO,
               BaseMessages.getString( PKG, "ConnectTest.ConnectSuccess.Desc" ),
-              BaseMessages.getString( PKG, "ConnectTest.ConnectSuccess.Desc" ) ) );
+              BaseMessages.getString( PKG, "ConnectTest.ConnectSuccess.Message", hostname, port ) ) );
           } catch ( IOException e ) {
             clusterTestResultEntries.add( new ClusterTestResultEntryImpl( severityOfFalures,
               BaseMessages.getString( PKG, "ConnectTest.ConnectFail.Desc" ),
-              BaseMessages.getString( PKG, "ConnectTest.ConnectFail.Message" ), e ) );
+              BaseMessages.getString( PKG, "ConnectTest.ConnectFail.Message", hostname, port ), e ) );
           } finally {
             if ( socket != null ) {
               try {
@@ -82,7 +82,7 @@ public class ConnectTest {
       } catch ( UnknownHostException e ) {
         clusterTestResultEntries.add( new ClusterTestResultEntryImpl( severityOfFalures,
           BaseMessages.getString( PKG, "ConnectTest.UnknownHostname.Desc" ),
-          BaseMessages.getString( PKG, "ConnectTest.UnknownHostname.Message" ), e ) );
+          BaseMessages.getString( PKG, "ConnectTest.UnknownHostname.Message", hostname ), e ) );
       } catch ( IOException e ) {
         clusterTestResultEntries.add( new ClusterTestResultEntryImpl( severityOfFalures,
           BaseMessages.getString( PKG, "ConnectTest.NetworkError.Desc" ),
