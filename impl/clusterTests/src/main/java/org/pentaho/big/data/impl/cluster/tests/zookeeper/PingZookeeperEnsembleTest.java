@@ -36,13 +36,13 @@ public class PingZookeeperEnsembleTest extends BaseClusterTest {
     if ( Const.isEmpty( zooKeeperHost ) ) {
       return new ClusterTestResultImpl( this, new ArrayList<ClusterTestResultEntry>( Arrays.asList(
         new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
-          BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankHost" ),
-          BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankHost" ) ) ) ) );
+          BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankHost.Desc" ),
+          BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankHost.Message" ) ) ) ) );
     } else if ( Const.isEmpty( zooKeeperPort ) ) {
       return new ClusterTestResultImpl( this, new ArrayList<ClusterTestResultEntry>( Arrays.asList(
         new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
-          BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankPort" ),
-          BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankPort" ) ) ) ) );
+          BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankPort.Desc" ),
+          BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankPort.Message" ) ) ) ) );
     } else {
       String[] quorum = namedCluster.getZooKeeperHost().split( "," );
       List<ClusterTestResultEntry> clusterTestResultEntries = new ArrayList<>();

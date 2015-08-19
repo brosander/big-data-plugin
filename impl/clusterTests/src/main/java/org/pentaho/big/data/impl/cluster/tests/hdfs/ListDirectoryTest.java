@@ -13,6 +13,7 @@ import org.pentaho.bigdata.api.hdfs.HadoopFileStatus;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystem;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemLocator;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemPath;
+import org.pentaho.bigdata.api.hdfs.exceptions.AccessControlException;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.i18n.BaseMessages;
 
@@ -66,6 +67,12 @@ public class ListDirectoryTest extends BaseClusterTest {
           clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.INFO,
             BaseMessages.getString( PKG, "ListDirectoryTest.Success.Desc" ),
             BaseMessages.getString( PKG, "ListDirectoryTest.Success.Message", paths.toString() ) ) );
+        } catch ( AccessControlException e ) {
+          clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.WARNING,
+            BaseMessages.getString( PKG, "ListDirectoryTest.AccessControlException.Desc" ),
+            BaseMessages
+              .getString( PKG, "ListDirectoryTest.AccessControlException.Message", hadoopFilesystemPath.toString() ),
+            e ) );
         } catch ( IOException e ) {
           clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
             BaseMessages.getString( PKG, "ListDirectoryTest.ErrorListingDirectory.Desc" ),
