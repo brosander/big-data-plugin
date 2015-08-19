@@ -45,4 +45,11 @@ public class ClusterTestDelegateWithMoreDependencies implements ClusterTest {
   @Override public ClusterTestResult runTest( NamedCluster namedCluster ) {
     return delegate.runTest( namedCluster );
   }
+
+  @Override public String toString() {
+    return "ClusterTestDelegateWithMoreDependencies{" +
+      "delegate=" + delegate +
+      ", extraDependencies=" + extraDependencies +
+      '}';
+  }
 }

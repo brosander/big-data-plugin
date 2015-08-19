@@ -39,4 +39,13 @@ public class ClusterTestResultEntryImpl implements ClusterTestResultEntry {
   @Override public Throwable getException() {
     return exception;
   }
+
+  @Override public String toString() {
+    return "ClusterTestResultEntryImpl{" +
+      "severity=" + severity +
+      ", description='" + description + '\'' +
+      ", message='" + message + '\'' +
+      ", exception=" + exception +
+      '}';
+  }
 }

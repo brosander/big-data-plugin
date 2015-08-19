@@ -24,4 +24,11 @@ public class ClusterTestStatusImpl implements ClusterTestStatus {
   @Override public boolean isDone() {
     return done;
   }
+
+  @Override public String toString() {
+    return "ClusterTestStatusImpl{" +
+      "clusterTestModuleResults=" + clusterTestModuleResults +
+      ", done=" + done +
+      '}';
+  }
 }

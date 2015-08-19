@@ -56,4 +56,14 @@ public class ClusterTestModuleResultsImpl implements ClusterTestModuleResults {
   @Override public Set<ClusterTest> getOutstandingTests() {
     return outstandingTests;
   }
+
+  @Override public String toString() {
+    return "ClusterTestModuleResultsImpl{" +
+      "name='" + name + '\'' +
+      ", clusterTestResults=" + clusterTestResults +
+      ", runningTests=" + runningTests +
+      ", outstandingTests=" + outstandingTests +
+      ", maxSeverity=" + maxSeverity +
+      '}';
+  }
 }

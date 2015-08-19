@@ -47,4 +47,14 @@ public abstract class BaseClusterTest implements ClusterTest {
   @Override public boolean isConfigInitTest() {
     return configInitTest;
   }
+
+  @Override public String toString() {
+    return "BaseClusterTest{" +
+      "module='" + module + '\'' +
+      ", id='" + id + '\'' +
+      ", name='" + name + '\'' +
+      ", configInitTest=" + configInitTest +
+      ", dependencies=" + dependencies +
+      '}';
+  }
 }

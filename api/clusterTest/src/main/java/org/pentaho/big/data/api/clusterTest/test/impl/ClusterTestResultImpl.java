@@ -39,4 +39,12 @@ public class ClusterTestResultImpl implements ClusterTestResult {
   @Override public ClusterTest getClusterTest() {
     return clusterTest;
   }
+
+  @Override public String toString() {
+    return "ClusterTestResultImpl{" +
+      "clusterTest=" + clusterTest +
+      ", clusterTestResultEntries=" + clusterTestResultEntries +
+      ", maxSeverity=" + maxSeverity +
+      '}';
+  }
 }
