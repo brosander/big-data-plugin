@@ -11,6 +11,7 @@ import org.pentaho.big.data.api.clusterTest.test.ClusterTestResultEntry;
 import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestDelegateWithMoreDependencies;
 import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultEntryImpl;
 import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultImpl;
+import org.pentaho.di.i18n.BaseMessages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,12 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by bryan on 8/11/15.
  */
 public class ClusterTestRunner {
+  private static final Class<?> PKG = ClusterTestRunner.class;
   private final Set<ClusterTest> remainingTests;
   private final NamedCluster namedCluster;
   private final ClusterTestProgressCallback clusterTestProgressCallback;
@@ -97,8 +98,8 @@ public class ClusterTestRunner {
     clusterTestResultMap.put( clusterTestId, new ClusterTestResultImpl( clusterTest, Arrays
       .<ClusterTestResultEntry>asList(
         new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.SKIPPED,
-          "Skipped test execution " + clusterTest.getName(),
-          "The following dependencies either failed or were skipped: " + relevantFailed, null ) ) ) );
+          BaseMessages.getString( PKG, "ClusterTestRunner.Skipped.Desc", clusterTest.getName() ),
+          BaseMessages.getString( PKG, "ClusterTestRunner.Skipped.Message", relevantFailed ), null ) ) ) );
   }
 
   private void callbackState() {
@@ -129,37 +130,36 @@ public class ClusterTestRunner {
     }
   }
 
-  private void runTest( ClusterTest clusterTest, AtomicInteger runningTestCount ) {
+  private void runTest( ClusterTest clusterTest ) {
+    String eligibleTestId = clusterTest.getId();
+    ClusterTestResult clusterTestResult;
     try {
-      ClusterTestResult clusterTestResult = clusterTest.runTest( namedCluster );
-      ClusterTestEntrySeverity maxSeverity = clusterTestResult.getMaxSeverity();
-      String eligibleTestId = clusterTest.getId();
-      synchronized ( this ) {
-        if ( maxSeverity == ClusterTestEntrySeverity.ERROR || maxSeverity == ClusterTestEntrySeverity.FATAL ) {
-          failedDependencies.add( eligibleTestId );
-        } else {
-          satisfiedDependencies.add( eligibleTestId );
-        }
-        if ( clusterTestResult.getClusterTest() == clusterTest ) {
-          clusterTestResultMap.put( eligibleTestId, clusterTestResult );
-        } else {
-          clusterTestResultMap.put( eligibleTestId,
-            new ClusterTestResultImpl( clusterTest, clusterTestResult.getClusterTestResultEntries() ) );
-        }
-        runningTestIds.remove( eligibleTestId );
-        callbackState();
-        runningTestCount.getAndDecrement();
-        notifyAll();
-      }
+      clusterTestResult =
+        new ClusterTestResultImpl( clusterTest, clusterTest.runTest( namedCluster ).getClusterTestResultEntries() );
     } catch ( Throwable e ) {
-      e.printStackTrace();
+      clusterTestResult = new ClusterTestResultImpl( clusterTest, new ArrayList<ClusterTestResultEntry>(
+        Arrays.asList( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
+          BaseMessages.getString( PKG, "ClusterTestRunner.Error.Desc", clusterTest.getName() ),
+          e.getMessage(), e ) ) ) );
+    }
+    ClusterTestEntrySeverity maxSeverity = clusterTestResult.getMaxSeverity();
+    synchronized ( this ) {
+      if ( maxSeverity == ClusterTestEntrySeverity.ERROR || maxSeverity == ClusterTestEntrySeverity.FATAL ) {
+        failedDependencies.add( eligibleTestId );
+      } else {
+        satisfiedDependencies.add( eligibleTestId );
+      }
+      clusterTestResultMap.put( eligibleTestId,
+        new ClusterTestResultImpl( clusterTest, clusterTestResult.getClusterTestResultEntries() ) );
+      runningTestIds.remove( eligibleTestId );
+      callbackState();
+      notifyAll();
     }
   }
 
   public synchronized void runTests() {
     callbackState();
-    final AtomicInteger runningTestCount = new AtomicInteger();
-    while ( remainingTests.size() > 0 || runningTestCount.get() > 0 ) {
+    while ( remainingTests.size() > 0 || runningTestIds.size() > 0 ) {
       Set<ClusterTest> eligibleTests = new HashSet<>();
       Set<ClusterTest> skippingTests = new HashSet<>();
       Set<String> possibleToSatisfyIds = new HashSet<>( satisfiedDependencies );
@@ -180,15 +180,16 @@ public class ClusterTestRunner {
       }
       remainingTests.removeAll( eligibleTests );
       remainingTests.removeAll( skippingTests );
-      final int wasRunning = runningTestCount.addAndGet( eligibleTests.size() );
-      for ( final ClusterTest eligibleTest : eligibleTests ) {
+      for ( ClusterTest eligibleTest : eligibleTests ) {
         String eligibleTestId = eligibleTest.getId();
         outstandingTestIds.remove( eligibleTestId );
         runningTestIds.add( eligibleTestId );
-
+      }
+      final int wasRunning = runningTestIds.size();
+      for ( final ClusterTest eligibleTest : eligibleTests ) {
         executorService.submit( new Runnable() {
           @Override public void run() {
-            runTest( eligibleTest, runningTestCount );
+            runTest( eligibleTest );
           }
         } );
       }
@@ -196,7 +197,7 @@ public class ClusterTestRunner {
       // finishes
       if ( skippingTests.size() == 0 ) {
         if ( wasRunning > 0 ) {
-          while ( wasRunning == runningTestCount.get() ) {
+          while ( wasRunning == runningTestIds.size() ) {
             try {
               // Wait until a test finishes
               wait();

@@ -8,6 +8,7 @@ import org.pentaho.big.data.api.clusterTest.test.impl.BaseClusterTest;
 import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultEntryImpl;
 import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultImpl;
 import org.pentaho.di.core.hadoop.HadoopConfigurationBootstrap;
+import org.pentaho.di.core.hadoop.NoShimSpecifiedException;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.hadoop.shim.ConfigurationException;
 
@@ -30,13 +31,16 @@ public class TestShimLoad extends BaseClusterTest {
   @Override public ClusterTestResult runTest( NamedCluster namedCluster ) {
     List<ClusterTestResultEntry> clusterTestResultEntries = new ArrayList<>();
     try {
-      String identifier =
-        HadoopConfigurationBootstrap.getHadoopConfigurationProvider().getActiveConfiguration().getIdentifier();
+      String activeConfigurationId = HadoopConfigurationBootstrap.getInstance().getActiveConfigurationId();
+      HadoopConfigurationBootstrap.getHadoopConfigurationProvider();
       clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.INFO,
-        BaseMessages.getString( PKG, "TestShimLoad.ShimLoaded.Desc", identifier ),
-        BaseMessages.getString( PKG, "TestShimLoad.ShimLoaded.Message", identifier ) ) );
+        BaseMessages.getString( PKG, "TestShimLoad.ShimLoaded.Desc", activeConfigurationId ),
+        BaseMessages.getString( PKG, "TestShimLoad.ShimLoaded.Message", activeConfigurationId ) ) );
+    } catch ( NoShimSpecifiedException e ) {
+      clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.ERROR,
+        BaseMessages.getString( PKG, "TestShimLoad.NoShimSpecified.Desc" ), e.getMessage(), e ) );
     } catch ( ConfigurationException e ) {
-      clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
+      clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.ERROR,
         BaseMessages.getString( PKG, "TestShimLoad.UnableToLoadShim.Desc" ), e.getMessage(), e ) );
     }
     return new ClusterTestResultImpl( this, clusterTestResultEntries );

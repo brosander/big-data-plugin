@@ -1,23 +1,18 @@
 /*******************************************************************************
- *
  * Pentaho Big Data
- *
+ * <p/>
  * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
+ * <p/>
+ * ******************************************************************************
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  ******************************************************************************/
 
 package com.pentaho.big.data.bundles.impl.shim.common;
@@ -138,6 +133,25 @@ public class ShimBridgingClassloader extends ClassLoader {
       return defineClass( name, bytes, 0, bytes.length );
     }
     throw new ClassNotFoundException();
+  }
+
+  @Override public URL getResource( String name ) {
+    int lastIndexOf = name.lastIndexOf( '/' );
+
+    List<URL> entries;
+    if ( lastIndexOf > 0 ) {
+      entries = bundleWiring.findEntries( name.substring( 0, lastIndexOf ), name.substring( lastIndexOf + 1 ), 0 );
+    } else {
+      entries = bundleWiring.findEntries( "/", name, 0 );
+    }
+    if ( entries.size() == 1 ) {
+      return entries.get( 0 );
+    }
+    URL resource = bundleWiringClassloader.getResource( name );
+    if ( resource == null ) {
+      resource = super.getResource( name );
+    }
+    return resource;
   }
 
   @Override
