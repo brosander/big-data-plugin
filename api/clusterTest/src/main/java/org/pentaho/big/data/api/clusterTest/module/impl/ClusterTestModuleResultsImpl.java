@@ -27,14 +27,7 @@ public class ClusterTestModuleResultsImpl implements ClusterTestModuleResults {
     this.runningTests = Collections.unmodifiableSet( new HashSet<>( runningTests ) );
     this.outstandingTests = Collections.unmodifiableSet( new HashSet<>( outstandingTests ) );
     this.clusterTestResults = Collections.unmodifiableList( new ArrayList<>( clusterTestResults ) );
-    ClusterTestEntrySeverity maxSeverity = null;
-    for ( ClusterTestResult clusterTestResult : clusterTestResults ) {
-      ClusterTestEntrySeverity severity = clusterTestResult.getMaxSeverity();
-      if ( maxSeverity == null || ( severity != null && severity.ordinal() > maxSeverity.ordinal() ) ) {
-        maxSeverity = severity;
-      }
-    }
-    this.maxSeverity = maxSeverity;
+    this.maxSeverity = ClusterTestEntrySeverity.maxSeverityResult( clusterTestResults );
   }
 
   @Override public String name() {

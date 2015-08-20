@@ -10,5 +10,7 @@ public interface ClusterTestResult {
 
   List<ClusterTestResultEntry> getClusterTestResultEntries();
 
+  long getTimeTaken();
+
   ClusterTestEntrySeverity getMaxSeverity();
 }

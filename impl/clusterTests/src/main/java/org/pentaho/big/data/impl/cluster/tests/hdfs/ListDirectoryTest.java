@@ -2,11 +2,9 @@ package org.pentaho.big.data.impl.cluster.tests.hdfs;
 
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestEntrySeverity;
-import org.pentaho.big.data.api.clusterTest.test.ClusterTestResult;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestResultEntry;
 import org.pentaho.big.data.api.clusterTest.test.impl.BaseClusterTest;
 import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultEntryImpl;
-import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultImpl;
 import org.pentaho.big.data.api.initializer.ClusterInitializationException;
 import org.pentaho.big.data.impl.cluster.tests.Constants;
 import org.pentaho.bigdata.api.hdfs.HadoopFileStatus;
@@ -39,7 +37,7 @@ public class ListDirectoryTest extends BaseClusterTest {
     this.directory = directory;
   }
 
-  @Override public ClusterTestResult runTest( NamedCluster namedCluster ) {
+  @Override public List<ClusterTestResultEntry> runTest( NamedCluster namedCluster ) {
     List<ClusterTestResultEntry> clusterTestResultEntries = new ArrayList<>();
     try {
       HadoopFileSystem hadoopFilesystem = hadoopFileSystemLocator.getHadoopFilesystem( namedCluster );
@@ -87,6 +85,6 @@ public class ListDirectoryTest extends BaseClusterTest {
         BaseMessages.getString( PKG, "ListDirectoryTest.ErrorInitializingCluster.Message", namedCluster.getName() ),
         e ) );
     }
-    return new ClusterTestResultImpl( this, clusterTestResultEntries );
+    return clusterTestResultEntries;
   }
 }

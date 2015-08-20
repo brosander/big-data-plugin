@@ -11,7 +11,6 @@ import org.pentaho.big.data.api.clusterTest.test.ClusterTest;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestResult;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestResultEntry;
 import org.pentaho.big.data.api.clusterTest.test.impl.BaseClusterTest;
-import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -225,7 +224,7 @@ public class ClusterTestRunnerTest {
       return getModule() + ":" + getId();
     }
 
-    @Override public ClusterTestResult runTest( NamedCluster namedCluster ) {
+    @Override public List<ClusterTestResultEntry> runTest( NamedCluster namedCluster ) {
       assertTrue( shouldRun );
       assertEquals( ClusterTestRunnerTest.this.namedCluster, namedCluster );
       String logName = getLogName();
@@ -239,10 +238,9 @@ public class ClusterTestRunnerTest {
       } catch ( InterruptedException e ) {
         // Ignore
       }
-      ClusterTestResultImpl clusterTestResult = new ClusterTestResultImpl( this, clusterTestResultEntries );
       hasRun.set( true );
       System.out.println( "Done running: " + logName );
-      return clusterTestResult;
+      return clusterTestResultEntries;
     }
 
     public void validateRunState() {

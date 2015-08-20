@@ -40,7 +40,7 @@ public class ConnectTest {
     this.severityOfFalures = severityOfFailures;
   }
 
-  public ClusterTestResult runTest() {
+  public List<ClusterTestResultEntry> runTest() {
     List<ClusterTestResultEntry> clusterTestResultEntries = new ArrayList<>();
     if ( Const.isEmpty( hostname ) ) {
       clusterTestResultEntries.add( new ClusterTestResultEntryImpl( severityOfFalures,
@@ -89,6 +89,6 @@ public class ConnectTest {
           BaseMessages.getString( PKG, "ConnectTest.NetworkError.Message" ), e ) );
       }
     }
-    return new ClusterTestResultImpl( clusterTest, clusterTestResultEntries );
+    return clusterTestResultEntries;
   }
 }

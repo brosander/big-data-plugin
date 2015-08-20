@@ -1,13 +1,14 @@
 package org.pentaho.big.data.impl.cluster.tests.hdfs;
 
 import org.pentaho.big.data.api.cluster.NamedCluster;
-import org.pentaho.big.data.api.clusterTest.test.ClusterTestResult;
+import org.pentaho.big.data.api.clusterTest.test.ClusterTestResultEntry;
 import org.pentaho.big.data.api.clusterTest.test.impl.BaseClusterTest;
 import org.pentaho.big.data.impl.cluster.tests.ConnectTest;
 import org.pentaho.big.data.impl.cluster.tests.Constants;
 import org.pentaho.di.i18n.BaseMessages;
 
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Created by bryan on 8/14/15.
@@ -23,7 +24,7 @@ public class PingFileSystemEntryPointTest extends BaseClusterTest {
       new HashSet<String>() );
   }
 
-  @Override public ClusterTestResult runTest( NamedCluster namedCluster ) {
+  @Override public List<ClusterTestResultEntry> runTest( NamedCluster namedCluster ) {
     return new ConnectTest( this, namedCluster.getHdfsHost(), namedCluster.getHdfsPort(), true ).runTest();
   }
 }

@@ -2,10 +2,11 @@ package org.pentaho.big.data.api.clusterTest.test.impl;
 
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTest;
-import org.pentaho.big.data.api.clusterTest.test.ClusterTestResult;
+import org.pentaho.big.data.api.clusterTest.test.ClusterTestResultEntry;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -42,7 +43,7 @@ public class ClusterTestDelegateWithMoreDependencies implements ClusterTest {
     return Collections.unmodifiableSet( set );
   }
 
-  @Override public ClusterTestResult runTest( NamedCluster namedCluster ) {
+  @Override public List<ClusterTestResultEntry> runTest( NamedCluster namedCluster ) {
     return delegate.runTest( namedCluster );
   }
 

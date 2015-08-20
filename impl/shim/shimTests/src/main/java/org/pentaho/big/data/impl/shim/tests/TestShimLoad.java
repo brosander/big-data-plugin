@@ -2,11 +2,9 @@ package org.pentaho.big.data.impl.shim.tests;
 
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestEntrySeverity;
-import org.pentaho.big.data.api.clusterTest.test.ClusterTestResult;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestResultEntry;
 import org.pentaho.big.data.api.clusterTest.test.impl.BaseClusterTest;
 import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultEntryImpl;
-import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultImpl;
 import org.pentaho.di.core.hadoop.HadoopConfigurationBootstrap;
 import org.pentaho.di.core.hadoop.NoShimSpecifiedException;
 import org.pentaho.di.i18n.BaseMessages;
@@ -28,7 +26,7 @@ public class TestShimLoad extends BaseClusterTest {
       BaseMessages.getString( PKG, "TestShimLoad.Name" ), true, new HashSet<String>() );
   }
 
-  @Override public ClusterTestResult runTest( NamedCluster namedCluster ) {
+  @Override public List<ClusterTestResultEntry> runTest( NamedCluster namedCluster ) {
     List<ClusterTestResultEntry> clusterTestResultEntries = new ArrayList<>();
     try {
       String activeConfigurationId = HadoopConfigurationBootstrap.getInstance().getActiveConfigurationId();
@@ -43,6 +41,6 @@ public class TestShimLoad extends BaseClusterTest {
       clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.ERROR,
         BaseMessages.getString( PKG, "TestShimLoad.UnableToLoadShim.Desc" ), e.getMessage(), e ) );
     }
-    return new ClusterTestResultImpl( this, clusterTestResultEntries );
+    return clusterTestResultEntries;
   }
 }

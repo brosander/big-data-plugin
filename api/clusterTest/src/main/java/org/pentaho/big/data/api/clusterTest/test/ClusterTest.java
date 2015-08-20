@@ -2,6 +2,7 @@ package org.pentaho.big.data.api.clusterTest.test;
 
 import org.pentaho.big.data.api.cluster.NamedCluster;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -18,5 +19,5 @@ public interface ClusterTest {
 
   Set<String> getDependencies();
 
-  ClusterTestResult runTest( NamedCluster namedCluster );
+  List<ClusterTestResultEntry> runTest( NamedCluster namedCluster );
 }

@@ -77,7 +77,8 @@ public class ClusterTestRunner {
     for ( ClusterTest remainingTest : remainingTests ) {
       String remainingTestId = remainingTest.getId();
       clusterTestResultMap
-        .put( remainingTestId, new ClusterTestResultImpl( remainingTest, new ArrayList<ClusterTestResultEntry>() ) );
+        .put( remainingTestId, new ClusterTestResultImpl( remainingTest, Collections.EMPTY_LIST,
+          0L ) );
       outstandingTestIds.add( remainingTestId );
     }
     this.satisfiedDependencies = new HashSet<>();
@@ -99,7 +100,7 @@ public class ClusterTestRunner {
       .<ClusterTestResultEntry>asList(
         new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.SKIPPED,
           BaseMessages.getString( PKG, "ClusterTestRunner.Skipped.Desc", clusterTest.getName() ),
-          BaseMessages.getString( PKG, "ClusterTestRunner.Skipped.Message", relevantFailed ), null ) ) ) );
+          BaseMessages.getString( PKG, "ClusterTestRunner.Skipped.Message", relevantFailed ), null ) ), 0L ) );
   }
 
   private void callbackState() {
@@ -132,16 +133,19 @@ public class ClusterTestRunner {
 
   private void runTest( ClusterTest clusterTest ) {
     String eligibleTestId = clusterTest.getId();
-    ClusterTestResult clusterTestResult;
+    List<ClusterTestResultEntry> clusterTestResultEntries;
+    long before = System.currentTimeMillis();
     try {
-      clusterTestResult =
-        new ClusterTestResultImpl( clusterTest, clusterTest.runTest( namedCluster ).getClusterTestResultEntries() );
+      clusterTestResultEntries = clusterTest.runTest( namedCluster );
     } catch ( Throwable e ) {
-      clusterTestResult = new ClusterTestResultImpl( clusterTest, new ArrayList<ClusterTestResultEntry>(
+      clusterTestResultEntries = new ArrayList<ClusterTestResultEntry>(
         Arrays.asList( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
           BaseMessages.getString( PKG, "ClusterTestRunner.Error.Desc", clusterTest.getName() ),
-          e.getMessage(), e ) ) ) );
+          e.getMessage(), e ) ) );
     }
+    long after = System.currentTimeMillis();
+    ClusterTestResult clusterTestResult =
+      new ClusterTestResultImpl( clusterTest, clusterTestResultEntries, after - before );
     ClusterTestEntrySeverity maxSeverity = clusterTestResult.getMaxSeverity();
     synchronized ( this ) {
       if ( maxSeverity == ClusterTestEntrySeverity.ERROR || maxSeverity == ClusterTestEntrySeverity.FATAL ) {
@@ -149,8 +153,7 @@ public class ClusterTestRunner {
       } else {
         satisfiedDependencies.add( eligibleTestId );
       }
-      clusterTestResultMap.put( eligibleTestId,
-        new ClusterTestResultImpl( clusterTest, clusterTestResult.getClusterTestResultEntries() ) );
+      clusterTestResultMap.put( eligibleTestId, clusterTestResult );
       runningTestIds.remove( eligibleTestId );
       callbackState();
       notifyAll();

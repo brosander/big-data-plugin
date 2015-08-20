@@ -2,11 +2,9 @@ package org.pentaho.big.data.impl.cluster.tests.zookeeper;
 
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestEntrySeverity;
-import org.pentaho.big.data.api.clusterTest.test.ClusterTestResult;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestResultEntry;
 import org.pentaho.big.data.api.clusterTest.test.impl.BaseClusterTest;
 import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultEntryImpl;
-import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultImpl;
 import org.pentaho.big.data.impl.cluster.tests.ConnectTest;
 import org.pentaho.big.data.impl.cluster.tests.Constants;
 import org.pentaho.di.core.Const;
@@ -30,30 +28,30 @@ public class PingZookeeperEnsembleTest extends BaseClusterTest {
       BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.Name" ), new HashSet<String>() );
   }
 
-  @Override public ClusterTestResult runTest( NamedCluster namedCluster ) {
+  @Override public List<ClusterTestResultEntry> runTest( NamedCluster namedCluster ) {
     String zooKeeperHost = namedCluster.getZooKeeperHost();
     String zooKeeperPort = namedCluster.getZooKeeperPort();
     if ( Const.isEmpty( zooKeeperHost ) ) {
-      return new ClusterTestResultImpl( this, new ArrayList<ClusterTestResultEntry>( Arrays.asList(
+      return new ArrayList<ClusterTestResultEntry>( Arrays.asList(
         new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
           BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankHost.Desc" ),
-          BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankHost.Message" ) ) ) ) );
+          BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankHost.Message" ) ) ) );
     } else if ( Const.isEmpty( zooKeeperPort ) ) {
-      return new ClusterTestResultImpl( this, new ArrayList<ClusterTestResultEntry>( Arrays.asList(
+      return new ArrayList<ClusterTestResultEntry>( Arrays.asList(
         new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
           BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankPort.Desc" ),
-          BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankPort.Message" ) ) ) ) );
+          BaseMessages.getString( PKG, "PingZookeeperEnsembleTest.BlankPort.Message" ) ) ) );
     } else {
       String[] quorum = namedCluster.getZooKeeperHost().split( "," );
       List<ClusterTestResultEntry> clusterTestResultEntries = new ArrayList<>();
       boolean hadSuccess = false;
       for ( String node : quorum ) {
-        ClusterTestResult nodeResults =
+        List<ClusterTestResultEntry> nodeResults =
           new ConnectTest( this, node, zooKeeperPort, false, ClusterTestEntrySeverity.WARNING ).runTest();
-        if ( nodeResults.getMaxSeverity() != ClusterTestEntrySeverity.WARNING ) {
+        if ( ClusterTestEntrySeverity.maxSeverityEntry( nodeResults ) != ClusterTestEntrySeverity.WARNING ) {
           hadSuccess = true;
         }
-        clusterTestResultEntries.addAll( nodeResults.getClusterTestResultEntries() );
+        clusterTestResultEntries.addAll( nodeResults );
       }
       if ( !hadSuccess ) {
         List<ClusterTestResultEntry> newClusterTestResultEntries =
@@ -64,7 +62,7 @@ public class PingZookeeperEnsembleTest extends BaseClusterTest {
         newClusterTestResultEntries.addAll( clusterTestResultEntries );
         clusterTestResultEntries = newClusterTestResultEntries;
       }
-      return new ClusterTestResultImpl( this, clusterTestResultEntries );
+      return clusterTestResultEntries;
     }
   }
 }
