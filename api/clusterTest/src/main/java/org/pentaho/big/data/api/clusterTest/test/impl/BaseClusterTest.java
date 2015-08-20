@@ -52,7 +52,7 @@ public abstract class BaseClusterTest implements ClusterTest {
     return "BaseClusterTest{" +
       "module='" + module + '\'' +
       ", id='" + id + '\'' +
-      ", name='" + name + '\'' +
+      ", getName='" + name + '\'' +
       ", configInitTest=" + configInitTest +
       ", dependencies=" + dependencies +
       '}';

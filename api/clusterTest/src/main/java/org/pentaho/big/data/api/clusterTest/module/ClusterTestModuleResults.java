@@ -12,7 +12,7 @@ import java.util.Set;
  * Created by bryan on 8/11/15.
  */
 public interface ClusterTestModuleResults {
-  String name();
+  String getName();
 
   List<ClusterTestResult> getClusterTestResults();
 

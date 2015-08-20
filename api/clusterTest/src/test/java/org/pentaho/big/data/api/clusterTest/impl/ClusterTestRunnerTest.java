@@ -56,7 +56,7 @@ public class ClusterTestRunnerTest {
     executorService = Executors.newCachedThreadPool();
     unsatisfiableDependencyA = new TestClusterTest( "unsatisfiableDependency", "unsatisfiableDependencyTestA", "Test A",
       new HashSet<>( Arrays.asList(
-        new TestClusterTest( "fake-module", "fake-test-id", "fake-name", new HashSet<TestClusterTest>(), 5,
+        new TestClusterTest( "fake-module", "fake-test-id", "fake-getName", new HashSet<TestClusterTest>(), 5,
           new ArrayList<ClusterTestResultEntry>(), false ) ) ), 5, new ArrayList<ClusterTestResultEntry>(),
       false );
     moduleATestA =

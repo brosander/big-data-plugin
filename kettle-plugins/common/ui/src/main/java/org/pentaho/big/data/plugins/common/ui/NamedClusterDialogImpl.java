@@ -217,7 +217,7 @@ public class NamedClusterDialogImpl extends Dialog {
       mb.open();
       return;
     } else if ( newClusterCheck || !originalNamedCluster.getName().equals( result ) ) {
-      // check that the name does not already exist
+      // check that the getName does not already exist
       try {
         NamedCluster fetched = namedClusterService.read( result, Spoon.getInstance().getMetaStore() );
         if ( fetched != null ) {
@@ -231,7 +231,7 @@ public class NamedClusterDialogImpl extends Dialog {
             new MessageDialog( shell, title, null, message, MessageDialog.WARNING, new String[] { replaceButton,
               doNotReplaceButton }, 0 );
 
-          // there already exists a cluster with the new name, ask the user
+          // there already exists a cluster with the new getName, ask the user
           if ( RESULT_NO == dialog.open() ) {
             // do not exist dialog
             return;

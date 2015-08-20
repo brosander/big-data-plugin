@@ -30,7 +30,7 @@ public class ClusterTestModuleResultsImpl implements ClusterTestModuleResults {
     this.maxSeverity = ClusterTestEntrySeverity.maxSeverityResult( clusterTestResults );
   }
 
-  @Override public String name() {
+  @Override public String getName() {
     return name;
   }
 
@@ -52,7 +52,7 @@ public class ClusterTestModuleResultsImpl implements ClusterTestModuleResults {
 
   @Override public String toString() {
     return "ClusterTestModuleResultsImpl{" +
-      "name='" + name + '\'' +
+      "getName='" + name + '\'' +
       ", clusterTestResults=" + clusterTestResults +
       ", runningTests=" + runningTests +
       ", outstandingTests=" + outstandingTests +

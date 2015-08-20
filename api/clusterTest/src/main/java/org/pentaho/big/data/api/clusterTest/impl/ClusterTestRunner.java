@@ -40,8 +40,6 @@ public class ClusterTestRunner {
   private final Map<String, ClusterTestResult> clusterTestResultMap;
   private final Set<String> outstandingTestIds;
   private final Set<String> runningTestIds;
-
-
   public ClusterTestRunner( Collection<? extends ClusterTest> clusterTests, NamedCluster namedCluster,
                             ClusterTestProgressCallback clusterTestProgressCallback, ExecutorService executorService ) {
     clusterModuleList = new ArrayList<>();
@@ -214,5 +212,13 @@ public class ClusterTestRunner {
       }
     }
     callbackState( true );
+  }
+
+  public static class Factory {
+    public ClusterTestRunner create( Collection<? extends ClusterTest> clusterTests, NamedCluster namedCluster,
+                                     ClusterTestProgressCallback clusterTestProgressCallback,
+                                     ExecutorService executorService ) {
+      return new ClusterTestRunner( clusterTests, namedCluster, clusterTestProgressCallback, executorService );
+    }
   }
 }

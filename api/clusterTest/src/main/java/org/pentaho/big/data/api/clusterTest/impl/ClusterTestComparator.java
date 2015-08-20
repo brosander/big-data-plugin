@@ -18,7 +18,7 @@ public class ClusterTestComparator implements Comparator<ClusterTest> {
   private Integer nullSafeCompare( Object first, Object second ) {
     if ( first == null ) {
       if ( second == null ) {
-        return 0;
+        return null;
       } else {
         return 1;
       }
@@ -43,7 +43,7 @@ public class ClusterTestComparator implements Comparator<ClusterTest> {
     if ( result != null ) {
       return result;
     }
-    return o1OrderNum - o2OrderNum;
+    return o1Module.compareTo( o2Module );
   }
 
   @Override public int compare( ClusterTest o1, ClusterTest o2 ) {
@@ -51,11 +51,11 @@ public class ClusterTestComparator implements Comparator<ClusterTest> {
     if ( result != 0 ) {
       return result;
     }
-    String o1Name = o1.getName();
-    String o2Name = o2.getName();
-    result = nullSafeCompare( o1Name, o2Name );
+    String o1Id = o1.getId();
+    String o2Id = o2.getId();
+    result = nullSafeCompare( o1Id, o2Id );
     if ( result == null ) {
-      result = o1Name.compareTo( o2Name );
+      result = o1Id.compareTo( o2Id );
     }
     return result;
   }

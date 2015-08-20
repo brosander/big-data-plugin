@@ -17,12 +17,19 @@ import java.util.concurrent.ExecutorService;
 public class ClusterTesterImpl implements ClusterTester {
   private final List<ClusterTest> clusterTests;
   private final ExecutorService executorService;
+  private final ClusterTestRunner.Factory clusterTestRunnerFactory;
   private ClusterTestComparator clusterTestComparator;
 
   public ClusterTesterImpl( List<ClusterTest> clusterTests, ExecutorService executorService,
                             String orderedModulesString ) {
+    this( clusterTests, executorService, orderedModulesString, new ClusterTestRunner.Factory() );
+  }
+
+  public ClusterTesterImpl( List<ClusterTest> clusterTests, ExecutorService executorService,
+                            String orderedModulesString, ClusterTestRunner.Factory clusterTestRunnerFactory ) {
     this.clusterTests = clusterTests;
     this.executorService = executorService;
+    this.clusterTestRunnerFactory = clusterTestRunnerFactory;
     HashMap<String, Integer> orderedModules = new HashMap<>();
     String[] split = orderedModulesString.split( "," );
     for ( int module = 0; module < split.length; module++ ) {
@@ -38,7 +45,7 @@ public class ClusterTesterImpl implements ClusterTester {
     Collections.sort( clusterTests, clusterTestComparator );
     executorService.submit( new Runnable() {
       @Override public void run() {
-        new ClusterTestRunner( clusterTests, namedCluster, clusterTestProgressCallback, executorService )
+        clusterTestRunnerFactory.create( clusterTests, namedCluster, clusterTestProgressCallback, executorService )
           .runTests();
       }
     } );
