@@ -1,5 +1,6 @@
 package org.pentaho.big.data.impl.cluster.tests.hdfs;
 
+import org.pentaho.big.data.api.clusterTest.i18n.MessageGetterFactory;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemLocator;
 import org.pentaho.di.i18n.BaseMessages;
 
@@ -11,8 +12,9 @@ public class ListRootDirectoryTest extends ListDirectoryTest {
     "hadoopFileSystemListRootDirectoryTest";
   private static final Class<?> PKG = ListRootDirectoryTest.class;
 
-  public ListRootDirectoryTest( HadoopFileSystemLocator hadoopFileSystemLocator ) {
-    super( hadoopFileSystemLocator, "/", HADOOP_FILE_SYSTEM_LIST_ROOT_DIRECTORY_TEST,
+  public ListRootDirectoryTest( MessageGetterFactory messageGetterFactory,
+                                HadoopFileSystemLocator hadoopFileSystemLocator ) {
+    super( messageGetterFactory, hadoopFileSystemLocator, "/", HADOOP_FILE_SYSTEM_LIST_ROOT_DIRECTORY_TEST,
       BaseMessages.getString( PKG, "ListRootDirectoryTest.Name" ) );
   }
 }

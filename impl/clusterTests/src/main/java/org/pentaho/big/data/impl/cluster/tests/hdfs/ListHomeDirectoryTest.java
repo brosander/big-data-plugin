@@ -1,5 +1,6 @@
 package org.pentaho.big.data.impl.cluster.tests.hdfs;
 
+import org.pentaho.big.data.api.clusterTest.i18n.MessageGetterFactory;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemLocator;
 import org.pentaho.di.i18n.BaseMessages;
 
@@ -11,8 +12,9 @@ public class ListHomeDirectoryTest extends ListDirectoryTest {
     "hadoopFileSystemListHomeDirectoryTest";
   private static final Class<?> PKG = ListHomeDirectoryTest.class;
 
-  public ListHomeDirectoryTest( HadoopFileSystemLocator hadoopFileSystemLocator ) {
-    super( hadoopFileSystemLocator, "", HADOOP_FILE_SYSTEM_LIST_HOME_DIRECTORY_TEST,
+  public ListHomeDirectoryTest( MessageGetterFactory messageGetterFactory,
+                                HadoopFileSystemLocator hadoopFileSystemLocator ) {
+    super( messageGetterFactory, hadoopFileSystemLocator, "", HADOOP_FILE_SYSTEM_LIST_HOME_DIRECTORY_TEST,
       BaseMessages.getString( PKG, "ListHomeDirectoryTest.Name" ) );
   }
 }

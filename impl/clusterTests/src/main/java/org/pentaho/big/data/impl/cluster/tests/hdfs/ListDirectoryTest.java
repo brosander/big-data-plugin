@@ -1,6 +1,8 @@
 package org.pentaho.big.data.impl.cluster.tests.hdfs;
 
 import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.clusterTest.i18n.MessageGetter;
+import org.pentaho.big.data.api.clusterTest.i18n.MessageGetterFactory;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestEntrySeverity;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestResultEntry;
 import org.pentaho.big.data.api.clusterTest.test.impl.BaseClusterTest;
@@ -13,7 +15,6 @@ import org.pentaho.bigdata.api.hdfs.HadoopFileSystemLocator;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemPath;
 import org.pentaho.bigdata.api.hdfs.exceptions.AccessControlException;
 import org.pentaho.di.core.Const;
-import org.pentaho.di.i18n.BaseMessages;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,16 +26,36 @@ import java.util.List;
  * Created by bryan on 8/14/15.
  */
 public class ListDirectoryTest extends BaseClusterTest {
+  public static final String LIST_DIRECTORY_TEST_COULDNT_GET_FILE_SYSTEM_DESC =
+    "ListDirectoryTest.CouldntGetFileSystem.Desc";
+  public static final String LIST_DIRECTORY_TEST_COULDNT_GET_FILE_SYSTEM_MESSAGE =
+    "ListDirectoryTest.CouldntGetFileSystem.Message";
+  public static final String LIST_DIRECTORY_TEST_SUCCESS_DESC = "ListDirectoryTest.Success.Desc";
+  public static final String LIST_DIRECTORY_TEST_SUCCESS_MESSAGE = "ListDirectoryTest.Success.Message";
+  public static final String LIST_DIRECTORY_TEST_ACCESS_CONTROL_EXCEPTION_DESC =
+    "ListDirectoryTest.AccessControlException.Desc";
+  public static final String LIST_DIRECTORY_TEST_ACCESS_CONTROL_EXCEPTION_MESSAGE =
+    "ListDirectoryTest.AccessControlException.Message";
+  public static final String LIST_DIRECTORY_TEST_ERROR_LISTING_DIRECTORY_DESC =
+    "ListDirectoryTest.ErrorListingDirectory.Desc";
+  public static final String LIST_DIRECTORY_TEST_ERROR_LISTING_DIRECTORY_MESSAGE =
+    "ListDirectoryTest.ErrorListingDirectory.Message";
+  public static final String LIST_DIRECTORY_TEST_ERROR_INITIALIZING_CLUSTER_DESC =
+    "ListDirectoryTest.ErrorInitializingCluster.Desc";
+  public static final String LIST_DIRECTORY_TEST_ERROR_INITIALIZING_CLUSTER_MESSAGE =
+    "ListDirectoryTest.ErrorInitializingCluster.Message";
   private static final Class<?> PKG = ListDirectoryTest.class;
   private final HadoopFileSystemLocator hadoopFileSystemLocator;
   private final String directory;
+  private final MessageGetter messageGetter;
 
-  public ListDirectoryTest( HadoopFileSystemLocator hadoopFileSystemLocator, String directory, String id,
-                            String name ) {
+  public ListDirectoryTest( MessageGetterFactory messageGetterFactory, HadoopFileSystemLocator hadoopFileSystemLocator,
+                            String directory, String id, String name ) {
     super( Constants.HADOOP_FILE_SYSTEM, id, name, new HashSet<>(
       Arrays.asList( PingFileSystemEntryPointTest.HADOOP_FILE_SYSTEM_PING_FILE_SYSTEM_ENTRY_POINT_TEST ) ) );
     this.hadoopFileSystemLocator = hadoopFileSystemLocator;
     this.directory = directory;
+    this.messageGetter = messageGetterFactory.create( PKG );
   }
 
   @Override public List<ClusterTestResultEntry> runTest( NamedCluster namedCluster ) {
@@ -43,8 +64,8 @@ public class ListDirectoryTest extends BaseClusterTest {
       HadoopFileSystem hadoopFilesystem = hadoopFileSystemLocator.getHadoopFilesystem( namedCluster );
       if ( hadoopFilesystem == null ) {
         clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
-          BaseMessages.getString( PKG, "ListDirectoryTest.CouldntGetFileSystem.Desc" ),
-          BaseMessages.getString( PKG, "ListDirectoryTest.CouldntGetFileSystem.Message", namedCluster.getName() ) ) );
+          messageGetter.getMessage( LIST_DIRECTORY_TEST_COULDNT_GET_FILE_SYSTEM_DESC ),
+          messageGetter.getMessage( LIST_DIRECTORY_TEST_COULDNT_GET_FILE_SYSTEM_MESSAGE, namedCluster.getName() ) ) );
       } else {
         HadoopFileSystemPath hadoopFilesystemPath;
         if ( Const.isEmpty( directory ) ) {
@@ -63,26 +84,26 @@ public class ListDirectoryTest extends BaseClusterTest {
             paths.setLength( paths.length() - 2 );
           }
           clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.INFO,
-            BaseMessages.getString( PKG, "ListDirectoryTest.Success.Desc" ),
-            BaseMessages.getString( PKG, "ListDirectoryTest.Success.Message", paths.toString() ) ) );
+            messageGetter.getMessage( LIST_DIRECTORY_TEST_SUCCESS_DESC ),
+            messageGetter.getMessage( LIST_DIRECTORY_TEST_SUCCESS_MESSAGE, paths.toString() ) ) );
         } catch ( AccessControlException e ) {
           clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.WARNING,
-            BaseMessages.getString( PKG, "ListDirectoryTest.AccessControlException.Desc" ),
-            BaseMessages
-              .getString( PKG, "ListDirectoryTest.AccessControlException.Message", hadoopFilesystemPath.toString() ),
+            messageGetter.getMessage( LIST_DIRECTORY_TEST_ACCESS_CONTROL_EXCEPTION_DESC ),
+            messageGetter.getMessage( LIST_DIRECTORY_TEST_ACCESS_CONTROL_EXCEPTION_MESSAGE,
+              hadoopFilesystemPath.toString() ),
             e ) );
         } catch ( IOException e ) {
           clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
-            BaseMessages.getString( PKG, "ListDirectoryTest.ErrorListingDirectory.Desc" ),
-            BaseMessages
-              .getString( PKG, "ListDirectoryTest.ErrorListingDirectory.Message", hadoopFilesystemPath.toString() ),
+            messageGetter.getMessage( LIST_DIRECTORY_TEST_ERROR_LISTING_DIRECTORY_DESC ),
+            messageGetter
+              .getMessage( LIST_DIRECTORY_TEST_ERROR_LISTING_DIRECTORY_MESSAGE, hadoopFilesystemPath.toString() ),
             e ) );
         }
       }
     } catch ( ClusterInitializationException e ) {
       clusterTestResultEntries.add( new ClusterTestResultEntryImpl( ClusterTestEntrySeverity.FATAL,
-        BaseMessages.getString( PKG, "ListDirectoryTest.ErrorInitializingCluster.Desc" ),
-        BaseMessages.getString( PKG, "ListDirectoryTest.ErrorInitializingCluster.Message", namedCluster.getName() ),
+        messageGetter.getMessage( LIST_DIRECTORY_TEST_ERROR_INITIALIZING_CLUSTER_DESC ),
+        messageGetter.getMessage( LIST_DIRECTORY_TEST_ERROR_INITIALIZING_CLUSTER_MESSAGE, namedCluster.getName() ),
         e ) );
     }
     return clusterTestResultEntries;

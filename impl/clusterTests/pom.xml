@@ -64,5 +64,12 @@
       <version>${dependency.bean-matchers.revision}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>pentaho</groupId>
+      <artifactId>pentaho-big-data-api-clusterTest</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+      <classifier>tests</classifier>
+    </dependency>
   </dependencies>
 </project>
