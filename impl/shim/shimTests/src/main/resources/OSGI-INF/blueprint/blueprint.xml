@@ -8,9 +8,12 @@
       <value type="java.lang.String">org.pentaho.big.data.impl.shim.tests.TestShimLoad</value>
     </argument>
     <argument>
-      <list/>
+      <list>
+        <ref component-id="messageGetterFactory"/>
+      </list>
     </argument>
   </bean>
 
   <service ref="testShimLoad" interface="org.pentaho.big.data.api.clusterTest.test.ClusterTest"/>
+  <reference id="messageGetterFactory" interface="org.pentaho.big.data.api.clusterTest.i18n.MessageGetterFactory"/>
 </blueprint>

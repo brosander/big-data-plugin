@@ -17,7 +17,17 @@
     <argument ref="executorService"/>
     <argument value="${orderedModules}"/>
   </bean>
+  <bean id="connectivityTestFactoryImpl"
+        class="org.pentaho.big.data.api.clusterTest.network.impl.ConnectivityTestFactoryImpl" scope="singleton"/>
+  <bean id="baseMessagesMessageGetterFactoryImpl"
+        class="org.pentaho.big.data.api.clusterTest.i18n.impl.BaseMessagesMessageGetterFactoryImpl" scope="singleton"/>
+
   <reference-list id="clusterTests" interface="org.pentaho.big.data.api.clusterTest.test.ClusterTest"
                   availability="optional"/>
+
   <service ref="clusterTesterImpl" interface="org.pentaho.big.data.api.clusterTest.ClusterTester"/>
+  <service ref="connectivityTestFactoryImpl"
+           interface="org.pentaho.big.data.api.clusterTest.network.ConnectivityTestFactory"/>
+  <service ref="baseMessagesMessageGetterFactoryImpl"
+           interface="org.pentaho.big.data.api.clusterTest.i18n.MessageGetterFactory"/>
 </blueprint>
