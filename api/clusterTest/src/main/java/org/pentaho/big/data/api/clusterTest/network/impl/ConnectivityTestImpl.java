@@ -1,7 +1,8 @@
-package org.pentaho.big.data.impl.cluster.tests;
+package org.pentaho.big.data.api.clusterTest.network.impl;
 
 import org.pentaho.big.data.api.clusterTest.i18n.MessageGetter;
 import org.pentaho.big.data.api.clusterTest.i18n.MessageGetterFactory;
+import org.pentaho.big.data.api.clusterTest.network.ConnectivityTest;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestEntrySeverity;
 import org.pentaho.big.data.api.clusterTest.test.ClusterTestResultEntry;
 import org.pentaho.big.data.api.clusterTest.test.impl.ClusterTestResultEntryImpl;
@@ -17,7 +18,7 @@ import java.util.List;
 /**
  * Created by bryan on 8/14/15.
  */
-public class ConnectTest {
+public class ConnectivityTestImpl implements ConnectivityTest {
   public static final String CONNECT_TEST_HOST_BLANK_DESC = "ConnectTest.HostBlank.Desc";
   public static final String CONNECT_TEST_HOST_BLANK_MESSAGE = "ConnectTest.HostBlank.Message";
   public static final String CONNECT_TEST_HA_DESC = "ConnectTest.HA.Desc";
@@ -36,7 +37,7 @@ public class ConnectTest {
   public static final String CONNECT_TEST_PORT_NUMBER_FORMAT_MESSAGE = "ConnectTest.PortNumberFormat.Message";
   public static final String CONNECT_TEST_UNREACHABLE_DESC = "ConnectTest.Unreachable.Desc";
   public static final String CONNECT_TEST_UNREACHABLE_MESSAGE = "ConnectTest.Unreachable.Message";
-  private static final Class<?> PKG = ConnectTest.class;
+  private static final Class<?> PKG = ConnectivityTestImpl.class;
   private final MessageGetter messageGetter;
   private final String hostname;
   private final String port;
@@ -45,19 +46,22 @@ public class ConnectTest {
   private final SocketFactory socketFactory;
   private final InetAddressFactory inetAddressFactory;
 
-  public ConnectTest( MessageGetterFactory messageGetterFactory, String hostname, String port, boolean haPossible ) {
+  public ConnectivityTestImpl( MessageGetterFactory messageGetterFactory, String hostname, String port,
+                               boolean haPossible ) {
     this( messageGetterFactory, hostname, port, haPossible, ClusterTestEntrySeverity.FATAL );
   }
 
-  public ConnectTest( MessageGetterFactory messageGetterFactory, String hostname, String port, boolean haPossible,
-                      ClusterTestEntrySeverity severityOfFailures ) {
+  public ConnectivityTestImpl( MessageGetterFactory messageGetterFactory, String hostname, String port,
+                               boolean haPossible,
+                               ClusterTestEntrySeverity severityOfFailures ) {
     this( messageGetterFactory, hostname, port, haPossible, severityOfFailures, new SocketFactory(),
       new InetAddressFactory() );
   }
 
-  public ConnectTest( MessageGetterFactory messageGetterFactory, String hostname, String port, boolean haPossible,
-                      ClusterTestEntrySeverity severityOfFailures, SocketFactory socketFactory,
-                      InetAddressFactory inetAddressFactory ) {
+  public ConnectivityTestImpl( MessageGetterFactory messageGetterFactory, String hostname, String port,
+                               boolean haPossible,
+                               ClusterTestEntrySeverity severityOfFailures, SocketFactory socketFactory,
+                               InetAddressFactory inetAddressFactory ) {
     this.messageGetter = messageGetterFactory.create( PKG );
     this.hostname = hostname;
     this.port = port;
@@ -67,7 +71,7 @@ public class ConnectTest {
     this.inetAddressFactory = inetAddressFactory;
   }
 
-  public List<ClusterTestResultEntry> runTest() {
+  @Override public List<ClusterTestResultEntry> runTest() {
     List<ClusterTestResultEntry> clusterTestResultEntries = new ArrayList<>();
     if ( Const.isEmpty( hostname ) ) {
       clusterTestResultEntries.add( new ClusterTestResultEntryImpl( severityOfFalures,

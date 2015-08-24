@@ -10,11 +10,12 @@ import org.pentaho.di.i18n.BaseMessages;
 public class ListHomeDirectoryTest extends ListDirectoryTest {
   public static final String HADOOP_FILE_SYSTEM_LIST_HOME_DIRECTORY_TEST =
     "hadoopFileSystemListHomeDirectoryTest";
+  public static final String LIST_HOME_DIRECTORY_TEST_NAME = "ListHomeDirectoryTest.Name";
   private static final Class<?> PKG = ListHomeDirectoryTest.class;
 
   public ListHomeDirectoryTest( MessageGetterFactory messageGetterFactory,
                                 HadoopFileSystemLocator hadoopFileSystemLocator ) {
     super( messageGetterFactory, hadoopFileSystemLocator, "", HADOOP_FILE_SYSTEM_LIST_HOME_DIRECTORY_TEST,
-      BaseMessages.getString( PKG, "ListHomeDirectoryTest.Name" ) );
+      messageGetterFactory.create( PKG ).getMessage( LIST_HOME_DIRECTORY_TEST_NAME ) );
   }
 }

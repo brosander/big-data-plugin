@@ -1,4 +1,4 @@
-package org.pentaho.big.data.impl.cluster.tests;
+package org.pentaho.big.data.api.clusterTest.network.impl;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,14 +22,14 @@ import static org.pentaho.big.data.api.clusterTest.ClusterTestEntryUtil.verifyCl
 /**
  * Created by bryan on 8/21/15.
  */
-public class ConnectTestTest {
+public class ConnectivityTestImplTest {
   private String hostname;
   private String port;
   private boolean haPossible;
   private ClusterTestEntrySeverity severityOfFailures;
-  private ConnectTest.SocketFactory socketFactory;
-  private ConnectTest.InetAddressFactory inetAddressFactory;
-  private ConnectTest connectTest;
+  private ConnectivityTestImpl.SocketFactory socketFactory;
+  private ConnectivityTestImpl.InetAddressFactory inetAddressFactory;
+  private ConnectivityTestImpl connectTest;
   private MessageGetterFactory messageGetterFactory;
   private MessageGetter messageGetter;
   private InetAddress inetAddress;
@@ -38,15 +38,15 @@ public class ConnectTestTest {
   @Before
   public void setup() throws IOException {
     messageGetterFactory = new TestMessageGetterFactory();
-    messageGetter = messageGetterFactory.create( ConnectTest.class );
+    messageGetter = messageGetterFactory.create( ConnectivityTestImpl.class );
     hostname = "hostname";
     port = "89";
     haPossible = false;
     severityOfFailures = ClusterTestEntrySeverity.WARNING;
-    socketFactory = mock( ConnectTest.SocketFactory.class );
+    socketFactory = mock( ConnectivityTestImpl.SocketFactory.class );
     socket = mock( Socket.class );
     when( socketFactory.create( hostname, Integer.valueOf( port ) ) ).thenReturn( socket );
-    inetAddressFactory = mock( ConnectTest.InetAddressFactory.class );
+    inetAddressFactory = mock( ConnectivityTestImpl.InetAddressFactory.class );
     inetAddress = mock( InetAddress.class );
     when( inetAddressFactory.create( hostname ) ).thenReturn( inetAddress );
     when( inetAddress.isReachable( anyInt() ) ).thenReturn( true );
@@ -55,7 +55,7 @@ public class ConnectTestTest {
 
   private void init() {
     connectTest =
-      new ConnectTest( messageGetterFactory, hostname, port, haPossible, severityOfFailures, socketFactory,
+      new ConnectivityTestImpl( messageGetterFactory, hostname, port, haPossible, severityOfFailures, socketFactory,
         inetAddressFactory );
   }
 
@@ -64,8 +64,8 @@ public class ConnectTestTest {
     hostname = "";
     init();
     verifyClusterTestResultEntry( expectOneEntry( connectTest.runTest() ), severityOfFailures,
-      messageGetter.getMessage( ConnectTest.CONNECT_TEST_HOST_BLANK_DESC ), messageGetter.getMessage(
-        ConnectTest.CONNECT_TEST_HOST_BLANK_MESSAGE ) );
+      messageGetter.getMessage( ConnectivityTestImpl.CONNECT_TEST_HOST_BLANK_DESC ), messageGetter.getMessage(
+        ConnectivityTestImpl.CONNECT_TEST_HOST_BLANK_MESSAGE ) );
   }
 
   @Test
@@ -73,8 +73,8 @@ public class ConnectTestTest {
     port = "";
     init();
     verifyClusterTestResultEntry( expectOneEntry( connectTest.runTest() ), severityOfFailures,
-      messageGetter.getMessage( ConnectTest.CONNECT_TEST_PORT_BLANK_DESC ), messageGetter.getMessage(
-        ConnectTest.CONNECT_TEST_PORT_BLANK_MESSAGE ) );
+      messageGetter.getMessage( ConnectivityTestImpl.CONNECT_TEST_PORT_BLANK_DESC ), messageGetter.getMessage(
+        ConnectivityTestImpl.CONNECT_TEST_PORT_BLANK_MESSAGE ) );
   }
 
   @Test
@@ -83,8 +83,8 @@ public class ConnectTestTest {
     haPossible = true;
     init();
     verifyClusterTestResultEntry( expectOneEntry( connectTest.runTest() ), ClusterTestEntrySeverity.INFO,
-      messageGetter.getMessage( ConnectTest.CONNECT_TEST_HA_DESC ), messageGetter.getMessage(
-        ConnectTest.CONNECT_TEST_HA_MESSAGE ) );
+      messageGetter.getMessage( ConnectivityTestImpl.CONNECT_TEST_HA_DESC ), messageGetter.getMessage(
+        ConnectivityTestImpl.CONNECT_TEST_HA_MESSAGE ) );
   }
 
   @Test
@@ -93,44 +93,44 @@ public class ConnectTestTest {
     haPossible = true;
     init();
     verifyClusterTestResultEntry( expectOneEntry( connectTest.runTest() ), ClusterTestEntrySeverity.FATAL,
-      messageGetter.getMessage( ConnectTest.CONNECT_TEST_PORT_NUMBER_FORMAT_DESC ), messageGetter.getMessage(
-        ConnectTest.CONNECT_TEST_PORT_NUMBER_FORMAT_MESSAGE ), NumberFormatException.class );
+      messageGetter.getMessage( ConnectivityTestImpl.CONNECT_TEST_PORT_NUMBER_FORMAT_DESC ), messageGetter.getMessage(
+        ConnectivityTestImpl.CONNECT_TEST_PORT_NUMBER_FORMAT_MESSAGE ), NumberFormatException.class );
   }
 
   @Test
   public void testUnreachableHostname() throws IOException {
-    inetAddressFactory = mock( ConnectTest.InetAddressFactory.class );
+    inetAddressFactory = mock( ConnectivityTestImpl.InetAddressFactory.class );
     inetAddress = mock( InetAddress.class );
     when( inetAddressFactory.create( hostname ) ).thenReturn( inetAddress );
     when( inetAddress.isReachable( anyInt() ) ).thenReturn( false );
     init();
     verifyClusterTestResultEntry( expectOneEntry( connectTest.runTest() ), severityOfFailures,
-      messageGetter.getMessage( ConnectTest.CONNECT_TEST_UNREACHABLE_DESC ), messageGetter.getMessage(
-        ConnectTest.CONNECT_TEST_UNREACHABLE_MESSAGE, hostname ) );
+      messageGetter.getMessage( ConnectivityTestImpl.CONNECT_TEST_UNREACHABLE_DESC ), messageGetter.getMessage(
+        ConnectivityTestImpl.CONNECT_TEST_UNREACHABLE_MESSAGE, hostname ) );
   }
 
   @Test
   public void testUnknownHostException() throws IOException {
-    inetAddressFactory = mock( ConnectTest.InetAddressFactory.class );
+    inetAddressFactory = mock( ConnectivityTestImpl.InetAddressFactory.class );
     inetAddress = mock( InetAddress.class );
     when( inetAddressFactory.create( hostname ) ).thenReturn( inetAddress );
     when( inetAddress.isReachable( anyInt() ) ).thenThrow( new UnknownHostException() );
     init();
     verifyClusterTestResultEntry( expectOneEntry( connectTest.runTest() ), severityOfFailures,
-      messageGetter.getMessage( ConnectTest.CONNECT_TEST_UNKNOWN_HOSTNAME_DESC ), messageGetter.getMessage(
-        ConnectTest.CONNECT_TEST_UNKNOWN_HOSTNAME_MESSAGE, hostname ), UnknownHostException.class );
+      messageGetter.getMessage( ConnectivityTestImpl.CONNECT_TEST_UNKNOWN_HOSTNAME_DESC ), messageGetter.getMessage(
+        ConnectivityTestImpl.CONNECT_TEST_UNKNOWN_HOSTNAME_MESSAGE, hostname ), UnknownHostException.class );
   }
 
   @Test
   public void testReachableIOException() throws IOException {
-    inetAddressFactory = mock( ConnectTest.InetAddressFactory.class );
+    inetAddressFactory = mock( ConnectivityTestImpl.InetAddressFactory.class );
     inetAddress = mock( InetAddress.class );
     when( inetAddressFactory.create( hostname ) ).thenReturn( inetAddress );
     when( inetAddress.isReachable( anyInt() ) ).thenThrow( new IOException() );
     init();
     verifyClusterTestResultEntry( expectOneEntry( connectTest.runTest() ), severityOfFailures,
-      messageGetter.getMessage( ConnectTest.CONNECT_TEST_NETWORK_ERROR_DESC ), messageGetter.getMessage(
-        ConnectTest.CONNECT_TEST_NETWORK_ERROR_MESSAGE, hostname, port ), IOException.class );
+      messageGetter.getMessage( ConnectivityTestImpl.CONNECT_TEST_NETWORK_ERROR_DESC ), messageGetter.getMessage(
+        ConnectivityTestImpl.CONNECT_TEST_NETWORK_ERROR_MESSAGE, hostname, port ), IOException.class );
   }
 
   @Test
@@ -138,15 +138,15 @@ public class ConnectTestTest {
     when( socketFactory.create( hostname, Integer.valueOf( port ) ) ).thenThrow( new IOException() );
     init();
     verifyClusterTestResultEntry( expectOneEntry( connectTest.runTest() ), severityOfFailures,
-      messageGetter.getMessage( ConnectTest.CONNECT_TEST_CONNECT_FAIL_DESC ), messageGetter.getMessage(
-        ConnectTest.CONNECT_TEST_CONNECT_FAIL_MESSAGE, hostname, port ), IOException.class );
+      messageGetter.getMessage( ConnectivityTestImpl.CONNECT_TEST_CONNECT_FAIL_DESC ), messageGetter.getMessage(
+        ConnectivityTestImpl.CONNECT_TEST_CONNECT_FAIL_MESSAGE, hostname, port ), IOException.class );
   }
 
   @Test
   public void testSuccess() throws IOException {
     verifyClusterTestResultEntry( expectOneEntry( connectTest.runTest() ), ClusterTestEntrySeverity.INFO,
-      messageGetter.getMessage( ConnectTest.CONNECT_TEST_CONNECT_SUCCESS_DESC ), messageGetter.getMessage(
-        ConnectTest.CONNECT_TEST_CONNECT_SUCCESS_MESSAGE, hostname, port ) );
+      messageGetter.getMessage( ConnectivityTestImpl.CONNECT_TEST_CONNECT_SUCCESS_DESC ), messageGetter.getMessage(
+        ConnectivityTestImpl.CONNECT_TEST_CONNECT_SUCCESS_MESSAGE, hostname, port ) );
     verify( socket ).close();
   }
 }
