@@ -33,7 +33,13 @@ import java.util.List;
 public class NamedClusterUIHelper {
   private static final NamedClusterUIFactoryHolder NAMED_CLUSTER_UI_FACTORY_HOLDER = new NamedClusterUIFactoryHolder();
 
-  public static synchronized NamedClusterUIFactory getNamedClusterUIFactory() {
+  /**
+   * Being used to inject the widgets from OSGi (where all the test functionality is located) this should be removed
+   * once we OSGiify the rest of the big data stuff
+   *
+   * WARNING: THIS WILL BLOCK UNTIL THE FACTORY IS AVAILABLE, DO NOT CALL FROM ANYTHING THAT COULD BLOCK STARTUP
+   */
+  public static NamedClusterUIFactory getNamedClusterUIFactory() {
     return NAMED_CLUSTER_UI_FACTORY_HOLDER.getNamedClusterUIFactory();
   }
 
@@ -47,13 +53,6 @@ public class NamedClusterUIHelper {
     NamedClusterUIFactory namedClusterUIFactory ) {
     NAMED_CLUSTER_UI_FACTORY_HOLDER.setNamedClusterUIFactory( namedClusterUIFactory );
   }
-
-  /**
-   * Being used to inject the widgets from OSGi (where all the test functionality is located) this should be removed
-   * once we OSGiify the rest of the big data stuff
-   *
-   * WARNING: THIS WILL BLOCK UNTIL THE FACTORY IS AVAILABLE, DO NOT CALL FROM ANYTHING THAT COULD BLOCK STARTUP
-   */
   public static List<NamedCluster> getNamedClusters() {
     try {
       return NamedClusterManager.getInstance().list( Spoon.getInstance().getMetaStore() );
