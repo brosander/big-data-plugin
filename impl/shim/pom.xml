@@ -13,6 +13,7 @@
   <packaging>pom</packaging>
 
   <modules>
+    <module>pmrLifecycle</module>
     <module>common</module>
     <module>initializer</module>
     <module>hdfs</module>
