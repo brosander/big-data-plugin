@@ -66,7 +66,7 @@ public class PingOozieHostTest extends BaseRuntimeTest {
     String oozieUrl = namedCluster.getOozieUrl();
     try {
       URL url = new URL( oozieUrl );
-      return  new RuntimeTestResultSummaryImpl( connectivityTestFactory
+      return new RuntimeTestResultSummaryImpl( connectivityTestFactory
         .create( messageGetterFactory, url.getHost(), String.valueOf( url.getPort() ), false ).runTest() );
     } catch ( MalformedURLException e ) {
       return new RuntimeTestResultSummaryImpl( new RuntimeTestResultEntryImpl( RuntimeTestEntrySeverity.FATAL,

@@ -46,8 +46,7 @@ public class PingFileSystemEntryPointTest extends BaseRuntimeTest {
   public PingFileSystemEntryPointTest( MessageGetterFactory messageGetterFactory,
                                        ConnectivityTestFactory connectivityTestFactory ) {
     super( NamedCluster.class, Constants.HADOOP_FILE_SYSTEM, HADOOP_FILE_SYSTEM_PING_FILE_SYSTEM_ENTRY_POINT_TEST,
-      messageGetterFactory.create( PKG ).getMessage( PING_FILE_SYSTEM_ENTRY_POINT_TEST_NAME ),
-      new HashSet<String>() );
+      messageGetterFactory.create( PKG ).getMessage( PING_FILE_SYSTEM_ENTRY_POINT_TEST_NAME ), new HashSet<String>() );
     this.messageGetterFactory = messageGetterFactory;
     this.connectivityTestFactory = connectivityTestFactory;
   }

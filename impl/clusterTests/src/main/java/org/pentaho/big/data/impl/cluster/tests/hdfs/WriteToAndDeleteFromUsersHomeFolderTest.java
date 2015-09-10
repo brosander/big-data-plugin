@@ -24,6 +24,7 @@ package org.pentaho.big.data.impl.cluster.tests.hdfs;
 
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.initializer.ClusterInitializationException;
+import org.pentaho.big.data.impl.cluster.tests.ClusterRuntimeTestEntry;
 import org.pentaho.big.data.impl.cluster.tests.Constants;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystem;
 import org.pentaho.bigdata.api.hdfs.HadoopFileSystemLocator;
@@ -96,6 +97,7 @@ public class WriteToAndDeleteFromUsersHomeFolderTest extends BaseRuntimeTest {
     "WriteToAndDeleteFromUsersHomeFolderTest.ErrorWritingDeletingFile.Message";
   private static final Class<?> PKG = WriteToAndDeleteFromUsersHomeFolderTest.class;
   private final HadoopFileSystemLocator hadoopFileSystemLocator;
+  private final MessageGetterFactory messageGetterFactory;
   private final MessageGetter messageGetter;
 
   public WriteToAndDeleteFromUsersHomeFolderTest( MessageGetterFactory messageGetterFactory,
@@ -105,6 +107,7 @@ public class WriteToAndDeleteFromUsersHomeFolderTest extends BaseRuntimeTest {
       messageGetterFactory.create( PKG ).getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_NAME ),
       new HashSet<>( Arrays.asList( ListHomeDirectoryTest.HADOOP_FILE_SYSTEM_LIST_HOME_DIRECTORY_TEST ) ) );
     this.hadoopFileSystemLocator = hadoopFileSystemLocator;
+    this.messageGetterFactory = messageGetterFactory;
     this.messageGetter = messageGetterFactory.create( PKG );
   }
 
@@ -114,10 +117,11 @@ public class WriteToAndDeleteFromUsersHomeFolderTest extends BaseRuntimeTest {
     try {
       HadoopFileSystem hadoopFilesystem = hadoopFileSystemLocator.getHadoopFilesystem( namedCluster );
       if ( hadoopFilesystem == null ) {
-        return new RuntimeTestResultSummaryImpl( new RuntimeTestResultEntryImpl( RuntimeTestEntrySeverity.FATAL,
-          messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_COULDNT_GET_FILE_SYSTEM_DESC ),
-          messageGetter
-            .getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_COULDNT_GET_FILE_SYSTEM_MESSAGE,
+        return new RuntimeTestResultSummaryImpl(
+          new ClusterRuntimeTestEntry( messageGetterFactory, RuntimeTestEntrySeverity.FATAL,
+            messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_COULDNT_GET_FILE_SYSTEM_DESC ),
+            messageGetter.getMessage(
+              WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_COULDNT_GET_FILE_SYSTEM_MESSAGE,
               namedCluster.getName() ) ) );
       } else {
         HadoopFileSystemPath path = hadoopFilesystem.getPath( PENTAHO_SHIM_TEST_FILE_TEST );
@@ -126,34 +130,35 @@ public class WriteToAndDeleteFromUsersHomeFolderTest extends BaseRuntimeTest {
         try {
           exists = hadoopFilesystem.exists( path );
         } catch ( IOException e ) {
-          return new RuntimeTestResultSummaryImpl( new RuntimeTestResultEntryImpl( RuntimeTestEntrySeverity.FATAL,
-            messageGetter.getMessage(
-              WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_CHECKING_IF_FILE_EXISTS_DESC ),
-            messageGetter.getMessage(
-              WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_CHECKING_IF_FILE_EXISTS_MESSAGE,
-              qualifiedPath.toString() ),
-            e ) );
+          return new RuntimeTestResultSummaryImpl(
+            new ClusterRuntimeTestEntry( messageGetterFactory, RuntimeTestEntrySeverity.FATAL, messageGetter
+              .getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_CHECKING_IF_FILE_EXISTS_DESC ),
+              messageGetter
+                .getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_CHECKING_IF_FILE_EXISTS_MESSAGE,
+                  qualifiedPath.toString() ), e ) );
         }
         if ( exists ) {
-          return new RuntimeTestResultSummaryImpl( new RuntimeTestResultEntryImpl( RuntimeTestEntrySeverity.WARNING,
-            messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_FILE_EXISTS_DESC ),
-            messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_FILE_EXISTS_MESSAGE,
-              qualifiedPath.toString() ) ) );
+          return new RuntimeTestResultSummaryImpl(
+            new ClusterRuntimeTestEntry( messageGetterFactory, RuntimeTestEntrySeverity.WARNING,
+              messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_FILE_EXISTS_DESC ),
+              messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_FILE_EXISTS_MESSAGE,
+                qualifiedPath.toString() ) ) );
         } else {
           OutputStream outputStream;
           try {
             outputStream = hadoopFilesystem.create( path );
           } catch ( IOException e ) {
-            return new RuntimeTestResultSummaryImpl( new RuntimeTestResultEntryImpl( RuntimeTestEntrySeverity.WARNING,
-              messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_CREATING_FILE_DESC ),
-              messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_CREATING_FILE_MESSAGE,
-                qualifiedPath.toString() ), e ) );
+            return new RuntimeTestResultSummaryImpl(
+              new ClusterRuntimeTestEntry( messageGetterFactory, RuntimeTestEntrySeverity.WARNING,
+                messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_CREATING_FILE_DESC ),
+                messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_CREATING_FILE_MESSAGE,
+                  qualifiedPath.toString() ), e ) );
           }
           RuntimeTestResultEntry writeExceptionEntry = null;
           try {
             outputStream.write( HELLO_CLUSTER.getBytes( UTF8 ) );
           } catch ( IOException e ) {
-            writeExceptionEntry = new RuntimeTestResultEntryImpl( RuntimeTestEntrySeverity.WARNING,
+            writeExceptionEntry = new ClusterRuntimeTestEntry( messageGetterFactory, RuntimeTestEntrySeverity.WARNING,
               messageGetter
                 .getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_WRITING_TO_FILE_DESC ),
               messageGetter.getMessage(
@@ -170,17 +175,18 @@ public class WriteToAndDeleteFromUsersHomeFolderTest extends BaseRuntimeTest {
           try {
             if ( hadoopFilesystem.delete( path, false ) ) {
               if ( writeExceptionEntry == null ) {
-                return new RuntimeTestResultSummaryImpl( new RuntimeTestResultEntryImpl( RuntimeTestEntrySeverity.INFO,
-                  messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_SUCCESS_DESC ),
-                  messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_SUCCESS_MESSAGE,
-                    qualifiedPath.toString() ) ) );
+                return new RuntimeTestResultSummaryImpl(
+                  new ClusterRuntimeTestEntry( messageGetterFactory, RuntimeTestEntrySeverity.INFO,
+                    messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_SUCCESS_DESC ),
+                    messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_SUCCESS_MESSAGE,
+                      qualifiedPath.toString() ) ) );
               } else {
                 return new RuntimeTestResultSummaryImpl( writeExceptionEntry );
               }
             } else {
               if ( writeExceptionEntry == null ) {
                 return new RuntimeTestResultSummaryImpl(
-                  new RuntimeTestResultEntryImpl( RuntimeTestEntrySeverity.WARNING,
+                  new ClusterRuntimeTestEntry( messageGetterFactory, RuntimeTestEntrySeverity.WARNING,
                     messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_UNABLE_TO_DELETE_DESC ),
                     messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_UNABLE_TO_DELETE_MESSAGE,
                       qualifiedPath.toString() ) ) );
@@ -190,7 +196,7 @@ public class WriteToAndDeleteFromUsersHomeFolderTest extends BaseRuntimeTest {
             }
           } catch ( IOException e ) {
             RuntimeTestResultEntryImpl deleteExceptionEntry =
-              new RuntimeTestResultEntryImpl( RuntimeTestEntrySeverity.WARNING,
+              new ClusterRuntimeTestEntry( messageGetterFactory, RuntimeTestEntrySeverity.WARNING,
                 messageGetter
                   .getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_DELETING_FILE_DESC ),
                 messageGetter.getMessage(
@@ -200,21 +206,23 @@ public class WriteToAndDeleteFromUsersHomeFolderTest extends BaseRuntimeTest {
               return new RuntimeTestResultSummaryImpl( deleteExceptionEntry );
             } else {
               return new RuntimeTestResultSummaryImpl(
-                new RuntimeTestResultEntryImpl( RuntimeTestEntrySeverity.WARNING, messageGetter.getMessage(
-                  WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_WRITING_DELETING_FILE_DESC ), messageGetter
-                  .getMessage(
-                    WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_WRITING_DELETING_FILE_MESSAGE ) ),
+                new ClusterRuntimeTestEntry( messageGetterFactory, RuntimeTestEntrySeverity.WARNING,
+                  messageGetter.getMessage(
+                    WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_WRITING_DELETING_FILE_DESC ), messageGetter
+                    .getMessage(
+                      WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_WRITING_DELETING_FILE_MESSAGE ) ),
                 Arrays.asList( writeExceptionEntry, deleteExceptionEntry ) );
             }
           }
         }
       }
     } catch ( ClusterInitializationException e ) {
-      return new RuntimeTestResultSummaryImpl( new RuntimeTestResultEntryImpl( RuntimeTestEntrySeverity.FATAL,
-        messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_INITIALIZING_CLUSTER_DESC ),
-        messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_INITIALIZING_CLUSTER_MESSAGE,
-          namedCluster.getName() ),
-        e ) );
+      return new RuntimeTestResultSummaryImpl(
+        new ClusterRuntimeTestEntry( messageGetterFactory, RuntimeTestEntrySeverity.FATAL,
+          messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_INITIALIZING_CLUSTER_DESC ),
+          messageGetter.getMessage( WRITE_TO_AND_DELETE_FROM_USERS_HOME_FOLDER_TEST_ERROR_INITIALIZING_CLUSTER_MESSAGE,
+            namedCluster.getName() ),
+          e ) );
     }
   }
 }
