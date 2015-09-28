@@ -13,10 +13,18 @@
     <bundle>mvn:com.pentaho.hds/pentaho-big-data-api-pig/${project.version}</bundle>
     <bundle>mvn:com.pentaho.hds/pentaho-big-data-api-runtimeTest/${project.version}</bundle>
     <bundle>mvn:com.pentaho.hds/pentaho-big-data-impl-cluster/${project.version}</bundle>
+<<<<<<< HEAD
+=======
+    <bundle>mvn:com.pentaho.hds/pentaho-big-data-impl-clusterTests/${project.version}</bundle>
+>>>>>>> upstream/hsp
     <bundle>mvn:com.pentaho.hds/pentaho-big-data-impl-shim-common/${project.version}</bundle>
     <bundle>mvn:com.pentaho.hds/pentaho-big-data-impl-shim-initializer/${project.version}</bundle>
     <bundle>mvn:com.pentaho.hds/pentaho-big-data-impl-shim-hdfs/${project.version}</bundle>
     <bundle>mvn:com.pentaho.hds/pentaho-big-data-impl-shim-pig/${project.version}</bundle>
+<<<<<<< HEAD
+=======
+    <bundle>mvn:com.pentaho.hds/pentaho-big-data-impl-shim-shimTests/${project.version}</bundle>
+>>>>>>> upstream/hsp
     <bundle>mvn:com.pentaho.hds/pentaho-big-data-impl-vfs-hdfs/${project.version}</bundle>
     <bundle>mvn:com.pentaho.hds/pentaho-big-data-kettle-plugins-common-ui/${project.version}</bundle>
     <bundle>mvn:com.pentaho.hds/pentaho-big-data-kettle-plugins-common-named-cluster-bridge/${project.version}</bundle>

@@ -2015,7 +2015,12 @@ public class HadoopFileInputDialog extends BaseStepDialog implements StepDialogI
               clusterName.startsWith( HadoopFileInputMeta.STATIC_SOURCE_FILE ) ? STATIC_ENVIRONMENT : clusterName;
           clusterName = clusterName.startsWith( HadoopFileInputMeta.S3_SOURCE_FILE ) ? S3_ENVIRONMENT : clusterName;
           sourceUrl = clusterName.equals( LOCAL_ENVIRONMENT ) || clusterName.equals( STATIC_ENVIRONMENT )
+<<<<<<< HEAD
             || clusterName.equals( S3_ENVIRONMENT ) ? sourceUrl : hadoopFileInputMeta.getUrlPath( sourceUrl );
+=======
+            || clusterName.equals( S3_ENVIRONMENT ) ? sourceUrl
+                  : hadoopFileInputMeta.getUrlPath( sourceUrl );
+>>>>>>> upstream/hsp
           environment = clusterName;
         }
 

@@ -277,7 +277,11 @@ public class JobEntryHadoopCopyFilesDialog extends JobEntryCopyFilesDialog {
       } else if ( clusterName.equals( S3_ENVIRONMENT ) ) {
         selectedFile =
             fileChooserDialog.open( shell, new String[] { S3FileProvider.SCHEME }, S3FileProvider.SCHEME, true,
+<<<<<<< HEAD
               path, new String[] { "*.*" }, FILETYPES, false, VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE_OR_DIRECTORY,
+=======
+                path, new String[] { "*.*" }, FILETYPES, false, VfsFileChooserDialog.VFS_DIALOG_OPEN_FILE_OR_DIRECTORY,
+>>>>>>> upstream/hsp
                 false, true );
       } else {
         NamedCluster namedCluster =
@@ -324,7 +328,11 @@ public class JobEntryHadoopCopyFilesDialog extends JobEntryCopyFilesDialog {
         } else if ( namedClusterWidget != null && namedClusterWidget.getSelectedNamedCluster() != null ) {
           url = jobEntry.getUrlPath( url );
           wFields.getActiveTableItem().setText( wFields.getActiveTableColumn() - 1,
+<<<<<<< HEAD
             namedClusterWidget.getSelectedNamedCluster().getName() );
+=======
+              namedClusterWidget.getSelectedNamedCluster().getName() );
+>>>>>>> upstream/hsp
         }
         wFields.getActiveTableItem().setText( wFields.getActiveTableColumn(), url );
       }
