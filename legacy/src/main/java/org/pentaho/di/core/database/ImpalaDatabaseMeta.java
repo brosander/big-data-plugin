@@ -33,9 +33,7 @@ public class ImpalaDatabaseMeta extends Hive2DatabaseMeta implements DatabaseInt
   protected static final String JAR_FILE = "hive-jdbc-cdh4.2.0-release-pentaho.jar";
   protected static final String DRIVER_CLASS_NAME = "org.apache.hive.jdbc.HiveDriver";
   protected static final int DEFAULT_PORT = 21050;
-
-  protected Integer driverMajorVersion;
-  protected Integer driverMinorVersion;
+  public static final String AUTH_NO_SASL = ";auth=noSasl";
 
   public ImpalaDatabaseMeta() throws Throwable {
   }
@@ -48,8 +46,7 @@ public class ImpalaDatabaseMeta extends Hive2DatabaseMeta implements DatabaseInt
    * @throws Throwable
    */
   ImpalaDatabaseMeta( int majorVersion, int minorVersion ) throws Throwable {
-    driverMajorVersion = majorVersion;
-    driverMinorVersion = minorVersion;
+    super( majorVersion, minorVersion );
   }
 
   @Override
@@ -149,7 +146,7 @@ public class ImpalaDatabaseMeta extends Hive2DatabaseMeta implements DatabaseInt
     if ( principal != null || extraPrincipal != null ) {
       return "jdbc:hive2://" + hostname + ":" + port + "/" + databaseName;
     } else {
-      return "jdbc:hive2://" + hostname + ":" + port + "/" + databaseName + ";auth=noSasl";
+      return "jdbc:hive2://" + hostname + ":" + port + "/" + databaseName + AUTH_NO_SASL;
     }
   }
 
