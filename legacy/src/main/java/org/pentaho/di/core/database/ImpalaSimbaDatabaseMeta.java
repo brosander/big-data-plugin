@@ -34,8 +34,12 @@ public class ImpalaSimbaDatabaseMeta extends ImpalaDatabaseMeta implements Datab
 
   protected static final String JAR_FILE = "ImpalaJDBC41.jar";
   //protected static final String DRIVER_CLASS_NAME = "com.simba.impala.jdbc41.Driver";
+  protected static final String JDBC_URL_PREFIX = "jdbc:impala://";
   protected static final String DRIVER_CLASS_NAME = "org.apache.hive.jdbc.ImpalaSimbaDriver";
-  protected static final String JDBC_URL_TEMPLATE = "jdbc:impala://%s:%d/%s;AuthMech=%d%s";
+  protected static final String JDBC_URL_TEMPLATE = JDBC_URL_PREFIX + "%s:%d/%s;AuthMech=%d%s";
+  public static final String ODBC_DRIVER_CLASS_NAME = "sun.jdbc.odbc.JdbcOdbcDriver";
+  public static final String KRB_HOST_FQDN = "KrbHostFQDN";
+  public static final String KRB_SERVICE_NAME = "KrbServiceName";
 
   public ImpalaSimbaDatabaseMeta() throws Throwable {
   }
@@ -59,7 +63,7 @@ public class ImpalaSimbaDatabaseMeta extends ImpalaDatabaseMeta implements Datab
   @Override
   public String getDriverClass() {
     if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
+      return ODBC_DRIVER_CLASS_NAME;
     } else {
       return DRIVER_CLASS_NAME;
     }
@@ -88,9 +92,9 @@ public class ImpalaSimbaDatabaseMeta extends ImpalaDatabaseMeta implements Datab
         StringBuilder additional = new StringBuilder();
         String userName = getUsername();
         String password = getPassword();
-        String krbFQDN = getProperty( "KrbHostFQDN" );
+        String krbFQDN = getProperty( KRB_HOST_FQDN );
         String extraKrbFQDN = getExtraProperty( "KrbHostFQDN" );
-        String krbPrincipal = getProperty( "KrbServiceName" );
+        String krbPrincipal = getProperty( KRB_SERVICE_NAME );
         String extraKrbPrincipal = getExtraProperty( "KrbServiceName" );
         if ( ( !Const.isEmpty( krbPrincipal ) || !Const.isEmpty( extraKrbPrincipal ) ) && ( !Const.isEmpty( krbFQDN )
           || !Const.isEmpty( extraKrbFQDN ) ) ) {
