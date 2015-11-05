@@ -24,7 +24,7 @@ An initial implementation of the api that delegates to the shim.
 
 These are OSGi bundles that bridge over to the legacy plugin as well as the shim.  A [factory loader](https://github.com/pentaho/big-data-plugin/blob/master/impl/shim/pig/src/main/java/org/pentaho/big/data/impl/shim/pig/PigServiceFactoryLoader.java), a [factory](https://github.com/pentaho/big-data-plugin/blob/master/impl/shim/pig/src/main/java/org/pentaho/big/data/impl/shim/pig/PigServiceFactoryImpl.java), and a [service](https://github.com/pentaho/big-data-plugin/blob/master/impl/shim/pig/src/main/java/org/pentaho/big/data/impl/shim/pig/PigServiceImpl.java) need to be implemented.
 
-The factory loader implements the [HadoopConfigurationListener](https://github.com/pentaho/big-data-plugin/blob/master/legacy/src/main/java/org/pentaho/di/core/hadoop/HadoopConfigurationListener.java) interface. It's job is instantiate a new factory for each HadoopConfiguration that opens and unregister the factory when the HadoopConfiguration is closed.
+The factory loader implements the [HadoopConfigurationListener](https://github.com/pentaho/big-data-plugin/blob/master/legacy/src/main/java/org/pentaho/di/core/hadoop/HadoopConfigurationListener.java) interface. Its job is instantiate a new factory for each HadoopConfiguration that opens and unregister the factory when the HadoopConfiguration is closed.
 
 The factory has two parent classloaders, the OSGi Bundle Context Classloader and the Shim's classloader.  This way it is able to implement the Factory interface and the Service it instantiates can use the shim classes to do the work.
 
