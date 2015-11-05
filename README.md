@@ -5,7 +5,7 @@ The Pentaho Big Data Plugin Project provides support for an ever-expanding Big D
 
 Use
 ---
-This plugin provides big data oriented steps and job entries for Pentaho Kettle.  These can be used to interoperate with various [big data technologies]:(https://help.pentaho.com/Documentation/6.0/0L0/040/040).  It also provides [Hive](https://help.pentaho.com/Documentation/6.0/0D0/160/010#Hive2) and [Impala](https://help.pentaho.com/Documentation/6.0/0D0/160/010#Impala) support across the Pentaho Stack as well as VFS providers for big data sources.
+This plugin provides big data oriented steps and job entries for Pentaho Kettle.  These can be used to interoperate with various [big data technologies](https://help.pentaho.com/Documentation/6.0/0L0/040/040).  It also provides [Hive](https://help.pentaho.com/Documentation/6.0/0D0/160/010#Hive2) and [Impala](https://help.pentaho.com/Documentation/6.0/0D0/160/010#Impala) support across the Pentaho Stack as well as VFS providers for big data sources.
 
 Development
 --------
