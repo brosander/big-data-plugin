@@ -1,23 +1,18 @@
 /*******************************************************************************
- *
  * Pentaho Big Data
- *
+ * <p/>
  * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
+ * <p/>
+ * ******************************************************************************
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  ******************************************************************************/
 
 package org.pentaho.big.data.kettle.plugins.pig;
@@ -26,11 +21,11 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.VFS;
 import org.apache.pig.PigServer;
 import org.apache.pig.tools.grunt.GruntParser;
+import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
+import org.pentaho.big.data.api.cluster.service.locator.impl.NamedClusterServiceLocatorImpl;
 import org.pentaho.big.data.api.initializer.ClusterInitializer;
 import org.pentaho.big.data.impl.cluster.NamedClusterManager;
 import org.pentaho.big.data.impl.shim.pig.PigServiceFactoryImpl;
-import org.pentaho.bigdata.api.pig.PigServiceFactory;
-import org.pentaho.bigdata.api.pig.impl.PigServiceLocatorImpl;
 import org.pentaho.di.core.annotations.JobEntry;
 import org.pentaho.hadoop.shim.ConfigurationException;
 import org.pentaho.hadoop.shim.HadoopConfiguration;
@@ -43,6 +38,7 @@ import org.pentaho.runtime.test.action.RuntimeTestActionService;
 
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -61,8 +57,15 @@ public class NoArgJobEntryPigScriptExecutor extends JobEntryPigScriptExecutor {
 
   public NoArgJobEntryPigScriptExecutor() throws FileSystemException, ConfigurationException {
     super( new NamedClusterManager(), mock( RuntimeTestActionService.class ), mock( RuntimeTester.class ),
-      new PigServiceLocatorImpl( Arrays.<PigServiceFactory>asList(
-        new PigServiceFactoryImpl( true, provider.getConfiguration( null ) ) ), mock( ClusterInitializer.class ) ) );
+      initNamedClusterServiceLocator() );
+  }
+
+  private static NamedClusterServiceLocator initNamedClusterServiceLocator() throws ConfigurationException {
+    NamedClusterServiceLocatorImpl namedClusterServiceLocator =
+      new NamedClusterServiceLocatorImpl( mock( ClusterInitializer.class ) );
+    namedClusterServiceLocator.factoryAdded( new PigServiceFactoryImpl( true, provider.getConfiguration( null ) ),
+      Collections.emptyMap() );
+    return namedClusterServiceLocator;
   }
 
   public static HadoopConfigurationProvider getProvider() {
