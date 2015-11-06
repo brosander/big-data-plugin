@@ -51,7 +51,7 @@ public class ListHomeDirectoryTestTest {
 
   @Test
   public void testGetName() {
-    assertEquals( messageGetter.getMessage( ListHomeDirectoryTest.LIST_HOME_DIRECTORY_TEST_NAME ),
+    assertEquals( null,
       listHomeDirectoryTest.getName() );
   }
 }
