@@ -20,9 +20,9 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.trans.steps.hadoopexit;
+package org.pentaho.big.data.kettle.plugins.mapreduce.ui.step;
 
-import org.pentaho.di.trans.steps.hadoopexit.HadoopExitMeta;
+import org.pentaho.big.data.kettle.plugins.mapreduce.step.HadoopExitMeta;
 import org.pentaho.ui.xul.XulEventSourceAdapter;
 
 public class HadoopExitMetaMapper extends XulEventSourceAdapter {

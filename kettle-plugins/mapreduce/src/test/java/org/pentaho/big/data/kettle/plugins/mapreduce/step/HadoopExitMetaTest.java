@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.hadoopexit;
+package org.pentaho.big.data.kettle.plugins.mapreduce.step;
 
 import static org.junit.Assert.*;
 

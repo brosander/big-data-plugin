@@ -20,22 +20,21 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.job.entries.hadooptransjobexecutor;
-
-import java.util.Enumeration;
-import java.util.List;
-import java.util.ResourceBundle;
+package org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry;
 
 import org.dom4j.DocumentException;
 import org.eclipse.swt.widgets.Shell;
-import org.pentaho.di.core.namedcluster.model.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.kettle.plugins.mapreduce.entry.JobEntryHadoopTransJobExecutor;
+import org.pentaho.big.data.plugins.common.ui.HadoopClusterDelegateImpl;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.job.JobMeta;
-import org.pentaho.di.job.entries.hadooptransjobexecutor.JobEntryHadoopTransJobExecutor;
 import org.pentaho.di.job.entry.JobEntryDialogInterface;
 import org.pentaho.di.job.entry.JobEntryInterface;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.di.ui.job.entry.JobEntryDialog;
+import org.pentaho.di.ui.spoon.Spoon;
+import org.pentaho.metastore.api.exceptions.MetaStoreException;
 import org.pentaho.ui.xul.XulDomContainer;
 import org.pentaho.ui.xul.XulException;
 import org.pentaho.ui.xul.XulRunner;
@@ -50,12 +49,17 @@ import org.pentaho.ui.xul.containers.XulTree;
 import org.pentaho.ui.xul.swt.SwtXulLoader;
 import org.pentaho.ui.xul.swt.SwtXulRunner;
 
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.ResourceBundle;
+
 public class JobEntryHadoopTransJobExecutorDialog extends JobEntryDialog implements JobEntryDialogInterface {
   private static final Class<?> CLZ = JobEntryHadoopTransJobExecutor.class;
 
   private JobEntryHadoopTransJobExecutor jobEntry;
 
-  private JobEntryHadoopTransJobExecutorController controller = new JobEntryHadoopTransJobExecutorController();
+  private final JobEntryHadoopTransJobExecutorController controller;
 
   private XulDomContainer container;
 
@@ -79,6 +83,9 @@ public class JobEntryHadoopTransJobExecutorDialog extends JobEntryDialog impleme
     super( parent, jobEntry, rep, jobMeta );
 
     this.jobEntry = (JobEntryHadoopTransJobExecutor) jobEntry;
+    controller = new JobEntryHadoopTransJobExecutorController( new HadoopClusterDelegateImpl( Spoon
+      .getInstance(), this.jobEntry.getNamedClusterService(),
+      this.jobEntry.getRuntimeTestActionService(), this.jobEntry.getRuntimeTester() ), this.jobEntry.getNamedClusterService() );
 
     SwtXulLoader swtXulLoader = new SwtXulLoader();
     swtXulLoader.registerClassLoader( getClass().getClassLoader() );
@@ -192,7 +199,12 @@ public class JobEntryHadoopTransJobExecutorDialog extends JobEntryDialog impleme
     bf.createBinding( controller, "namedClusters", "named-clusters", "elements" ).fireSourceChanged();
     bf.createBinding( "named-clusters", "selectedIndex", controller, "selectedNamedCluster", new BindingConvertor<Integer, NamedCluster>() {
       public NamedCluster sourceToTarget( final Integer index ) {
-        List<NamedCluster> clusters = controller.getNamedClusters();
+        List<NamedCluster> clusters = Collections.emptyList();
+        try {
+          clusters = controller.getNamedClusters();
+        } catch ( MetaStoreException e ) {
+          // Ignore
+        }
         if ( index == -1 || clusters.isEmpty() ) {
           return null;
         }
@@ -200,7 +212,12 @@ public class JobEntryHadoopTransJobExecutorDialog extends JobEntryDialog impleme
       }
 
       public Integer targetToSource( final NamedCluster value ) {
-        List<NamedCluster> clusters = controller.getNamedClusters();
+        List<NamedCluster> clusters = Collections.emptyList();
+        try {
+          clusters = controller.getNamedClusters();
+        } catch ( MetaStoreException e ) {
+          // Ignore
+        }
         return clusters.indexOf( value );
       }
     } ).fireSourceChanged();
@@ -209,11 +226,15 @@ public class JobEntryHadoopTransJobExecutorDialog extends JobEntryDialog impleme
 
   }
 
-  private void selectNamedCluster() {
+  private void selectNamedCluster() throws MetaStoreException {
     @SuppressWarnings( "unchecked" )
     XulMenuList<NamedCluster> namedClusterMenu = (XulMenuList<NamedCluster>) container.getDocumentRoot().getElementById( "named-clusters" ); //$NON-NLS-1$
+    String cn = null;
+    NamedCluster namedCluster = jobEntry.getNamedCluster();
+    if ( namedCluster != null ) {
+      cn = namedCluster.getName();
+    }
     for ( NamedCluster nc : controller.getNamedClusters() ) {
-      String cn = this.jobEntry.getClusterName();
       if ( cn != null && cn.equals( nc.getName() ) ) {
         namedClusterMenu.setSelectedItem( nc );
         controller.setSelectedNamedCluster( nc );

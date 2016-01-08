@@ -20,11 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.hadoopexit;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+package org.pentaho.big.data.kettle.plugins.mapreduce.step;
 
 import org.pentaho.di.core.CheckResult;
 import org.pentaho.di.core.CheckResultInterface;
@@ -49,6 +45,10 @@ import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 import org.w3c.dom.Node;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @Step( id = "HadoopExitPlugin", image = "MRO.svg", name = "HadoopExitPlugin.Name",
     description = "HadoopExitPlugin.Description",

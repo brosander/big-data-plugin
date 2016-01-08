@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.hadoopenter;
+package org.pentaho.big.data.kettle.plugins.mapreduce.step;
 
 import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.trans.steps.injector.InjectorMeta;

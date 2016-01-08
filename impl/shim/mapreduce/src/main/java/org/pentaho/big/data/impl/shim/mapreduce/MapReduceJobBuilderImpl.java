@@ -58,10 +58,13 @@ public class MapReduceJobBuilderImpl implements MapReduceJobBuilder {
   private String reducerClass;
   private String inputFormatClass;
   private String outputFormatClass;
-  private String inputPath;
+  private String[] inputPaths;
   private int numMapTasks;
   private int numReduceTasks;
   private String outputPath;
+  private String mapOutputKeyClass;
+  private String mapOutputValueClass;
+  private String mapRunnerClass;
 
   public MapReduceJobBuilderImpl( NamedCluster namedCluster, HadoopShim hadoopShim, LogChannelInterface log,
                                   VariableSpace variableSpace ) {
@@ -89,6 +92,18 @@ public class MapReduceJobBuilderImpl implements MapReduceJobBuilder {
     this.outputKeyClass = outputKeyClass;
   }
 
+  @Override public void setMapOutputKeyClass( String mapOutputKeyClass ) {
+    this.mapOutputKeyClass = mapOutputKeyClass;
+  }
+
+  @Override public void setMapOutputValueClass( String mapOutputValueClass ) {
+    this.mapOutputValueClass = mapOutputValueClass;
+  }
+
+  @Override public void setMapRunnerClass( String mapRunnerClass ) {
+    this.mapRunnerClass = mapRunnerClass;
+  }
+
   @Override public void setOutputValueClass( String outputValueClass ) {
     this.outputValueClass = outputValueClass;
   }
@@ -113,8 +128,8 @@ public class MapReduceJobBuilderImpl implements MapReduceJobBuilder {
     this.outputFormatClass = outputFormatClass;
   }
 
-  @Override public void setInputPath( String inputPath ) {
-    this.inputPath = inputPath;
+  @Override public void setInputPaths( String[] inputPaths ) {
+    this.inputPaths = inputPaths;
   }
 
   @Override public void setNumMapTasks( int numMapTasks ) {
@@ -129,7 +144,7 @@ public class MapReduceJobBuilderImpl implements MapReduceJobBuilder {
     this.outputPath = outputPath;
   }
 
-  @Override public void putUserDefined( String key, String value ) {
+  @Override public void set( String key, String value ) {
     userDefined.put( key, value );
   }
 
@@ -177,9 +192,8 @@ public class MapReduceJobBuilderImpl implements MapReduceJobBuilder {
       log.logBasic( m );
     }
 
-    String[] inputPathParts = inputPath.split( "," );
     List<Path> paths = new ArrayList<Path>();
-    for ( String path : inputPathParts ) {
+    for ( String path : inputPaths ) {
       paths.add( fs.asPath( conf.getDefaultFileSystemURL(), path ) );
     }
     Path[] finalPaths = paths.toArray( new Path[ paths.size() ] );

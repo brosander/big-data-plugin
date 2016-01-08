@@ -20,23 +20,23 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.trans.steps.hadoopenter;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.pentaho.big.data.kettle.plugins.mapreduce.ui.step;
 
 import org.eclipse.swt.widgets.Shell;
+import org.pentaho.big.data.kettle.plugins.mapreduce.step.HadoopEnterMeta;
 import org.pentaho.di.core.row.ValueMeta;
 import org.pentaho.di.core.util.StringUtil;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepDialogInterface;
-import org.pentaho.di.trans.steps.hadoopenter.HadoopEnterMeta;
 import org.pentaho.di.ui.trans.step.BaseStepXulDialog;
 import org.pentaho.ui.xul.binding.Binding;
 import org.pentaho.ui.xul.components.XulMenuList;
 import org.pentaho.ui.xul.components.XulTextbox;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HadoopEnterDialog extends BaseStepXulDialog implements StepDialogInterface {
   private static final Class<?> PKG = HadoopEnterMeta.class;

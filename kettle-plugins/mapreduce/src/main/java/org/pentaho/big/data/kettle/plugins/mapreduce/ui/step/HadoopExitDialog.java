@@ -20,12 +20,11 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.trans.steps.hadoopexit;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.pentaho.big.data.kettle.plugins.mapreduce.ui.step;
 
 import org.eclipse.swt.widgets.Shell;
+import org.pentaho.big.data.kettle.plugins.mapreduce.step.HadoopExit;
+import org.pentaho.big.data.kettle.plugins.mapreduce.step.HadoopExitMeta;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMeta;
@@ -34,11 +33,12 @@ import org.pentaho.di.core.util.StringUtil;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepDialogInterface;
-import org.pentaho.di.trans.steps.hadoopexit.HadoopExit;
-import org.pentaho.di.trans.steps.hadoopexit.HadoopExitMeta;
 import org.pentaho.di.ui.trans.step.BaseStepXulDialog;
 import org.pentaho.ui.xul.binding.Binding;
 import org.pentaho.ui.xul.components.XulMenuList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HadoopExitDialog extends BaseStepXulDialog implements StepDialogInterface {
   @SuppressWarnings( "unused" )

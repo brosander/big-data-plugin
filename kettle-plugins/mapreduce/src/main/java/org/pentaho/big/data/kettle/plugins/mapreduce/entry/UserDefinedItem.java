@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.big.data.kettle.plugins.mapreduce;
+package org.pentaho.big.data.kettle.plugins.mapreduce.entry;
 
 import org.pentaho.ui.xul.XulEventSource;
 

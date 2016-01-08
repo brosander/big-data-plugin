@@ -20,9 +20,9 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.trans.steps.hadoopenter;
+package org.pentaho.big.data.kettle.plugins.mapreduce.ui.step;
 
-import org.pentaho.di.trans.steps.hadoopenter.HadoopEnterMeta;
+import org.pentaho.big.data.kettle.plugins.mapreduce.step.HadoopEnterMeta;
 import org.pentaho.ui.xul.XulEventSourceAdapter;
 
 public class HadoopEnterMetaMapper extends XulEventSourceAdapter {
