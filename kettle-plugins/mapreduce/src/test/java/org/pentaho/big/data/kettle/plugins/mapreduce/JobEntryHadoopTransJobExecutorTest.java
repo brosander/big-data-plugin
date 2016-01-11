@@ -22,12 +22,11 @@
 
 package org.pentaho.big.data.kettle.plugins.mapreduce;
 
-import org.apache.commons.vfs2.VFS;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.big.data.kettle.plugins.mapreduce.entry.JobEntryHadoopTransJobExecutor;
-import org.pentaho.big.data.kettle.plugins.mapreduce.step.HadoopEnterMeta;
-import org.pentaho.big.data.kettle.plugins.mapreduce.step.HadoopExitMeta;
+import org.pentaho.big.data.kettle.plugins.mapreduce.entry.pmr.JobEntryHadoopTransJobExecutor;
+import org.pentaho.big.data.kettle.plugins.mapreduce.step.enter.HadoopEnterMeta;
+import org.pentaho.big.data.kettle.plugins.mapreduce.step.exit.HadoopExitMeta;
 import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.Result;
 import org.pentaho.di.core.plugins.Plugin;
@@ -36,9 +35,6 @@ import org.pentaho.di.core.plugins.PluginMainClassType;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.plugins.StepPluginType;
 import org.pentaho.di.job.Job;
-import org.pentaho.hadoop.shim.ConfigurationException;
-import org.pentaho.hadoop.shim.HadoopConfiguration;
-import org.pentaho.hadoop.shim.common.CommonHadoopShim;
 
 import java.util.ArrayList;
 import java.util.HashMap;

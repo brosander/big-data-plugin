@@ -20,8 +20,9 @@
  *
  ******************************************************************************/
 
-package org.pentaho.big.data.kettle.plugins.mapreduce.step;
+package org.pentaho.big.data.kettle.plugins.mapreduce.step.exit;
 
+import org.pentaho.big.data.kettle.plugins.mapreduce.ui.step.exit.HadoopExitDialog;
 import org.pentaho.di.core.CheckResult;
 import org.pentaho.di.core.CheckResultInterface;
 import org.pentaho.di.core.Counter;
@@ -55,6 +56,7 @@ import java.util.Map;
     categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BigData",
     i18nPackageName = "org.pentaho.di.trans.steps.hadoopexit" )
 public class HadoopExitMeta extends BaseStepMeta implements StepMetaInterface {
+  public static final String DIALOG_NAME = HadoopExitDialog.class.getCanonicalName();
   private static Class<?> PKG = HadoopExit.class; // for i18n purposes, needed by Translator2!! $NON-NLS-1$
 
   private static String OUT_KEY_FIELDNAME = "outkeyfieldname";
@@ -200,5 +202,9 @@ public class HadoopExitMeta extends BaseStepMeta implements StepMetaInterface {
 
   public void setOutValueFieldname( String arg ) {
     outValueFieldname = arg;
+  }
+
+  @Override public String getDialogClassName() {
+    return DIALOG_NAME;
   }
 }

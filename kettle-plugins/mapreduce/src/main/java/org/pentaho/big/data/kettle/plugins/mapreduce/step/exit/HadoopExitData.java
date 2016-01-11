@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.big.data.kettle.plugins.mapreduce.step;
+package org.pentaho.big.data.kettle.plugins.mapreduce.step.exit;
 
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMetaInterface;

@@ -25,6 +25,7 @@ package org.pentaho.big.data.kettle.plugins.mapreduce.step;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.pentaho.big.data.kettle.plugins.mapreduce.step.exit.HadoopExitMeta;
 import org.pentaho.di.core.row.RowMeta;
 import org.pentaho.di.core.row.ValueMeta;
 import org.pentaho.di.core.row.ValueMetaInterface;

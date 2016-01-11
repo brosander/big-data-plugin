@@ -20,11 +20,11 @@
  *
  ******************************************************************************/
 
-package org.pentaho.big.data.kettle.plugins.mapreduce.ui.step;
+package org.pentaho.big.data.kettle.plugins.mapreduce.ui.step.exit;
 
 import org.eclipse.swt.widgets.Shell;
-import org.pentaho.big.data.kettle.plugins.mapreduce.step.HadoopExit;
-import org.pentaho.big.data.kettle.plugins.mapreduce.step.HadoopExitMeta;
+import org.pentaho.big.data.kettle.plugins.mapreduce.step.exit.HadoopExit;
+import org.pentaho.big.data.kettle.plugins.mapreduce.step.exit.HadoopExitMeta;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMeta;
@@ -54,7 +54,7 @@ public class HadoopExitDialog extends BaseStepXulDialog implements StepDialogInt
   private List<ValueMetaInterface> outValueFields = new ArrayList<ValueMetaInterface>();
 
   public HadoopExitDialog( Shell parent, Object in, TransMeta tr, String sname ) throws Throwable {
-    super( "org/pentaho/di/ui/trans/steps/hadoopexit/dialog.xul", parent, (BaseStepMeta) in, tr, sname );
+    super( "org/pentaho/big/data/kettle/plugins/mapreduce/ui/step/exit/dialog.xul", parent, (BaseStepMeta) in, tr, sname );
     init();
   }
 

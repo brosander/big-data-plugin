@@ -9,9 +9,10 @@ import org.pentaho.di.core.CheckResultInterface;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.exception.KettleFileException;
+import org.pentaho.di.core.hadoop.HadoopSpoonPlugin;
 import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.plugins.JobEntryPluginType;
+import org.pentaho.di.core.plugins.LifecyclePluginType;
 import org.pentaho.di.core.plugins.PluginInterface;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.row.RowMetaInterface;
@@ -56,6 +57,15 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
   private final LogChannelInterface log;
   private boolean cleanOutputPath;
   private LogLevel logLevel;
+  private String mapperTransformationXml;
+  private String mapperInputStep;
+  private String mapperOutputStep;
+  private String combinerTransformationXml;
+  private String combinerInputStep;
+  private String combinerOutputStep;
+  private String reducerTransformationXml;
+  private String reducerInputStep;
+  private String reducerOutputStep;
 
   public PentahoMapReduceJobBuilderImpl( NamedCluster namedCluster,
                                          HadoopConfiguration hadoopConfiguration,
@@ -157,10 +167,43 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
     }
   }
 
+  @Override public void setCombinerInfo( String combinerTransformationXml, String combinerInputStep, String combinerOutputStep ) {
+    this.combinerTransformationXml = combinerTransformationXml;
+    this.combinerInputStep = combinerInputStep;
+    this.combinerOutputStep = combinerOutputStep;
+  }
+
+  @Override public void setReducerInfo( String reducerTransformationXml, String reducerInputStep, String reducerOutputStep ) {
+    this.reducerTransformationXml = reducerTransformationXml;
+    this.reducerInputStep = reducerInputStep;
+    this.reducerOutputStep = reducerOutputStep;
+  }
+
+  @Override public void setMapperInfo( String mapperTransformationXml, String mapperInputStep, String mapperOutputStep ) {
+    this.mapperTransformationXml = mapperTransformationXml;
+    this.mapperInputStep = mapperInputStep;
+    this.mapperOutputStep = mapperOutputStep;
+  }
+
   @Override protected void configure( Configuration conf ) throws Exception {
-    conf.setMapperClass( hadoopShim.getPentahoMapReduceMapRunnerClass() );
-    conf.setCombinerClass( hadoopShim.getPentahoMapReduceCombinerClass() );
-    conf.setReducerClass( hadoopShim.getPentahoMapReduceReducerClass() );
+    conf.setMapRunnerClass( hadoopShim.getPentahoMapReduceMapRunnerClass() );
+    
+    conf.set( "transformation-map-xml", mapperTransformationXml );
+    conf.set( "transformation-map-input-stepname", mapperInputStep );
+    conf.set( "transformation-map-output-stepname", mapperOutputStep );
+
+    if (combinerTransformationXml != null) {
+      conf.set( "transformation-combiner-xml", combinerTransformationXml );
+      conf.set( "transformation-combiner-input-stepname", combinerInputStep );
+      conf.set( "transformation-combiner-output-stepname", combinerOutputStep );
+      conf.setCombinerClass( hadoopShim.getPentahoMapReduceCombinerClass() );
+    }
+    if ( reducerTransformationXml != null ) {
+      conf.set( "transformation-reduce-xml", reducerTransformationXml );
+      conf.set( "transformation-reduce-input-stepname", reducerInputStep );
+      conf.set( "transformation-reduce-output-stepname", reducerOutputStep );
+      conf.setReducerClass( hadoopShim.getPentahoMapReduceReducerClass() );
+    }
     conf.setJarByClass( hadoopShim.getPentahoMapReduceMapRunnerClass() );
     conf.setStrings( "logLevel", logLevel.toString() );
 
@@ -299,8 +342,7 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
    * @return the plugin interface for this job entry.
    */
   public PluginInterface getPluginInterface() {
-    String pluginId = PluginRegistry.getInstance().getPluginId( this );
-    return PluginRegistry.getInstance().findPluginWithId( JobEntryPluginType.class, pluginId );
+    return PluginRegistry.getInstance().findPluginWithId( LifecyclePluginType.class, HadoopSpoonPlugin.PLUGIN_ID );
   }
 
   /**

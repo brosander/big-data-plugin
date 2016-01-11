@@ -15,12 +15,15 @@
  * specific language governing permissions and limitations under the License.
  ******************************************************************************/
 
-package org.pentaho.big.data.kettle.plugins.mapreduce.entry;
+package org.pentaho.big.data.kettle.plugins.mapreduce.entry.pmr;
 
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
-import org.pentaho.big.data.kettle.plugins.mapreduce.step.HadoopExitMeta;
+import org.pentaho.big.data.kettle.plugins.mapreduce.entry.NamedClusterLoadSaveUtil;
+import org.pentaho.big.data.kettle.plugins.mapreduce.entry.UserDefinedItem;
+import org.pentaho.big.data.kettle.plugins.mapreduce.step.exit.HadoopExitMeta;
+import org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry.JobEntryHadoopTransJobExecutorDialog;
 import org.pentaho.bigdata.api.mapreduce.MapReduceJobAdvanced;
 import org.pentaho.bigdata.api.mapreduce.MapReduceJobBuilder;
 import org.pentaho.bigdata.api.mapreduce.MapReduceService;
@@ -87,6 +90,7 @@ public class JobEntryHadoopTransJobExecutor extends JobEntryBase implements Clon
   public static final String PENTAHO_MAPREDUCE_PROPERTY_KETTLE_HDFS_INSTALL_DIR = "pmr.kettle.dfs.install.dir";
   public static final String PENTAHO_MAPREDUCE_PROPERTY_KETTLE_INSTALLATION_ID = "pmr.kettle.installation.id";
   public static final String PENTAHO_MAPREDUCE_PROPERTY_ADDITIONAL_PLUGINS = "pmr.kettle.additional.plugins";
+  public static final String DIALOG_NAME = JobEntryHadoopTransJobExecutorDialog.class.getCanonicalName();
   private static Class<?> PKG = JobEntryHadoopTransJobExecutor.class; // for i18n purposes, needed by Translator2!!
   private final NamedClusterService namedClusterService;
   private final NamedClusterServiceLocator namedClusterServiceLocator;
@@ -489,9 +493,7 @@ public class JobEntryHadoopTransJobExecutor extends JobEntryBase implements Clon
           .getString( PKG, "JobEntryHadoopTransJobExecutor.MapConfiguration.Error" ), ex );
       }
 
-      jobBuilder.set( "transformation-map-xml", transConfig.getXML() ); //$NON-NLS-1$
-      jobBuilder.set( "transformation-map-input-stepname", mapInputStepNameS ); //$NON-NLS-1$
-      jobBuilder.set( "transformation-map-output-stepname", mapOutputStepNameS ); //$NON-NLS-1$
+      jobBuilder.setMapperInfo( transConfig.getXML(), mapInputStepNameS, mapOutputStepNameS );
 
       jobBuilder.set( MapReduceJobBuilder.STRING_COMBINE_SINGLE_THREADED, combiningSingleThreaded ? "true" : "false" );
 
@@ -551,13 +553,10 @@ public class JobEntryHadoopTransJobExecutor extends JobEntryBase implements Clon
           verifySingleThreadingValidity( transMeta );
         }
 
-        transConfig = new TransConfiguration( transMeta, transExecConfig );
-        jobBuilder.set( "transformation-combiner-xml", transConfig.getXML() ); //$NON-NLS-1$
         String combinerInputStepNameS = environmentSubstitute( combinerInputStepName );
         String combinerOutputStepNameS = environmentSubstitute( combinerOutputStepName );
-        jobBuilder.set( "transformation-combiner-input-stepname", combinerInputStepNameS ); //$NON-NLS-1$
-        jobBuilder.set( "transformation-combiner-output-stepname", combinerOutputStepNameS ); //$NON-NLS-1$
 
+        jobBuilder.setCombinerInfo( transConfig.getXML(), combinerInputStepNameS, combinerOutputStepNameS );
         try {
           jobBuilder.verifyTransMeta( transMeta, combinerInputStepNameS, combinerOutputStepNameS );
         } catch ( Exception ex ) {
@@ -578,12 +577,9 @@ public class JobEntryHadoopTransJobExecutor extends JobEntryBase implements Clon
           verifySingleThreadingValidity( transMeta );
         }
 
-        transConfig = new TransConfiguration( transMeta, transExecConfig );
-        jobBuilder.set( "transformation-reduce-xml", transConfig.getXML() ); //$NON-NLS-1$
         String reduceInputStepNameS = environmentSubstitute( reduceInputStepName );
         String reduceOutputStepNameS = environmentSubstitute( reduceOutputStepName );
-        jobBuilder.set( "transformation-reduce-input-stepname", reduceInputStepNameS ); //$NON-NLS-1$
-        jobBuilder.set( "transformation-reduce-output-stepname", reduceOutputStepNameS ); //$NON-NLS-1$
+        jobBuilder.setReducerInfo( transConfig.getXML(), reduceInputStepNameS, reduceOutputStepNameS );
 
         try {
           jobBuilder.verifyTransMeta( transMeta, reduceInputStepNameS, reduceOutputStepNameS );
@@ -1428,5 +1424,9 @@ public class JobEntryHadoopTransJobExecutor extends JobEntryBase implements Clon
 
   public RuntimeTestActionService getRuntimeTestActionService() {
     return runtimeTestActionService;
+  }
+
+  @Override public String getDialogClassName() {
+    return DIALOG_NAME;
   }
 }

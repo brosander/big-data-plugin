@@ -25,7 +25,7 @@ package org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry;
 import org.dom4j.DocumentException;
 import org.eclipse.swt.widgets.Shell;
 import org.pentaho.big.data.api.cluster.NamedCluster;
-import org.pentaho.big.data.kettle.plugins.mapreduce.entry.JobEntryHadoopTransJobExecutor;
+import org.pentaho.big.data.kettle.plugins.mapreduce.entry.pmr.JobEntryHadoopTransJobExecutor;
 import org.pentaho.big.data.plugins.common.ui.HadoopClusterDelegateImpl;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.job.JobMeta;
@@ -94,7 +94,7 @@ public class JobEntryHadoopTransJobExecutorDialog extends JobEntryDialog impleme
 
     container =
         swtXulLoader.loadXul(
-            "org/pentaho/di/ui/job/entries/hadooptransjobexecutor/JobEntryHadoopTransJobExecutorDialog.xul", bundle ); //$NON-NLS-1$
+            "org/pentaho/big/data/kettle/plugins/mapreduce/ui/entry/JobEntryHadoopTransJobExecutorDialog.xul", bundle ); //$NON-NLS-1$
 
     final XulRunner runner = new SwtXulRunner();
     runner.addContainer( container );

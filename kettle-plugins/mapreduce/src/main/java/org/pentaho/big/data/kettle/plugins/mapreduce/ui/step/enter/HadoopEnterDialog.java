@@ -20,10 +20,10 @@
  *
  ******************************************************************************/
 
-package org.pentaho.big.data.kettle.plugins.mapreduce.ui.step;
+package org.pentaho.big.data.kettle.plugins.mapreduce.ui.step.enter;
 
 import org.eclipse.swt.widgets.Shell;
-import org.pentaho.big.data.kettle.plugins.mapreduce.step.HadoopEnterMeta;
+import org.pentaho.big.data.kettle.plugins.mapreduce.step.enter.HadoopEnterMeta;
 import org.pentaho.di.core.row.ValueMeta;
 import org.pentaho.di.core.util.StringUtil;
 import org.pentaho.di.i18n.BaseMessages;
@@ -48,7 +48,7 @@ public class HadoopEnterDialog extends BaseStepXulDialog implements StepDialogIn
   private List<String> typeList;
 
   public HadoopEnterDialog( Shell parent, Object in, TransMeta tr, String sname ) throws Throwable {
-    super( "org/pentaho/di/ui/trans/steps/hadoopenter/dialog.xul", parent, (BaseStepMeta) in, tr, sname );
+    super( "org/pentaho/big/data/kettle/plugins/mapreduce/ui/step/enter/dialog.xul", parent, (BaseStepMeta) in, tr, sname );
 
     typeList = new ArrayList<String>();
     for ( String type : ValueMeta.getAllTypes() ) {

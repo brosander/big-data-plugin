@@ -155,8 +155,22 @@ public class MapReduceJobBuilderImpl implements MapReduceJobBuilder {
     URLClassLoader loader = new URLClassLoader( urls, hadoopShim.getClass().getClassLoader() );
     conf.setJobName( hadoopJobName );
 
-    conf.setOutputKeyClass( loader.loadClass( outputKeyClass ) );
-    conf.setOutputValueClass( loader.loadClass( outputValueClass ) );
+    if ( outputKeyClass != null ) {
+      Class<?> keyClass = loader.loadClass( outputKeyClass );
+      conf.setOutputKeyClass( keyClass );
+    }
+    if ( outputValueClass != null ) {
+      Class<?> valueClass = loader.loadClass( outputValueClass );
+      conf.setOutputValueClass( valueClass );
+    }
+    if ( mapOutputKeyClass != null ) {
+      Class<?> keyClass = loader.loadClass( mapOutputKeyClass );
+      conf.setMapOutputKeyClass( keyClass );
+    }
+    if ( mapOutputValueClass != null ) {
+      Class<?> valueClass = loader.loadClass( mapOutputValueClass );
+      conf.setMapOutputValueClass( valueClass );
+    }
 
     if ( mapperClass != null ) {
       Class<?> mapper = loader.loadClass( mapperClass );
@@ -170,6 +184,7 @@ public class MapReduceJobBuilderImpl implements MapReduceJobBuilder {
       Class<?> reducer = loader.loadClass( reducerClass );
       conf.setReducerClass( reducer );
     }
+
 
     if ( inputFormatClass != null ) {
       Class<?> inputFormat = loader.loadClass( inputFormatClass );
@@ -210,7 +225,9 @@ public class MapReduceJobBuilderImpl implements MapReduceJobBuilder {
       }
     }
 
-    conf.setJar( jarUrl );
+    if ( jarUrl != null ) {
+      conf.setJar( jarUrl );
+    }
 
     conf.setNumMapTasks( numMapTasks );
     conf.setNumReduceTasks( numReduceTasks );

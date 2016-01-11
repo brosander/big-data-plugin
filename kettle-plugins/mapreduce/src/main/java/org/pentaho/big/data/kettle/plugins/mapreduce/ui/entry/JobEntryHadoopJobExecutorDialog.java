@@ -28,7 +28,7 @@ import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry.JobEntryHadoopJobExecutorController.AdvancedConfiguration;
 import org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry.JobEntryHadoopJobExecutorController.SimpleConfiguration;
-import org.pentaho.big.data.kettle.plugins.mapreduce.entry.JobEntryHadoopJobExecutor;
+import org.pentaho.big.data.kettle.plugins.mapreduce.entry.hadoop.JobEntryHadoopJobExecutor;
 import org.pentaho.big.data.plugins.common.ui.HadoopClusterDelegateImpl;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.job.JobMeta;
@@ -100,7 +100,7 @@ public class JobEntryHadoopJobExecutorDialog extends JobEntryDialog implements J
     swtXulLoader.setOuterContext( shell );
 
     container =
-      swtXulLoader.loadXul( "org/pentaho/big/data/kettle/plugins/mapreduce/JobEntryHadoopJobExecutorDialog.xul",
+      swtXulLoader.loadXul( "org/pentaho/big/data/kettle/plugins/mapreduce/ui/entry/JobEntryHadoopJobExecutorDialog.xul",
         bundle ); //$NON-NLS-1$
 
     final XulRunner runner = new SwtXulRunner();
@@ -227,7 +227,7 @@ public class JobEntryHadoopJobExecutorDialog extends JobEntryDialog implements J
         (XulMenuList<NamedCluster>) container.getDocumentRoot().getElementById( "named-clusters" ); //$NON-NLS-1$
 
     NamedCluster namedCluster = jobEntry.getNamedCluster();
-    if ( isKnownNamedCluster( namedCluster, controller ) ) {
+    if ( namedCluster != null && isKnownNamedCluster( namedCluster, controller ) ) {
       namedClusterMenu.setSelectedItem( namedCluster );
       controller.getAdvancedConfiguration().setSelectedNamedCluster( namedCluster );
     }

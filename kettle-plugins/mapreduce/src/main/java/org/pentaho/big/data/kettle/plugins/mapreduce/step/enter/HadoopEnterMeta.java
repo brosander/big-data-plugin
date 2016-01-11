@@ -20,8 +20,9 @@
  *
  ******************************************************************************/
 
-package org.pentaho.big.data.kettle.plugins.mapreduce.step;
+package org.pentaho.big.data.kettle.plugins.mapreduce.step.enter;
 
+import org.pentaho.big.data.kettle.plugins.mapreduce.ui.step.enter.HadoopEnterDialog;
 import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.trans.steps.injector.InjectorMeta;
 
@@ -30,6 +31,7 @@ import org.pentaho.di.trans.steps.injector.InjectorMeta;
     categoryDescription = "i18n:org.pentaho.di.trans.step:BaseStep.Category.BigData",
     i18nPackageName = "org.pentaho.di.trans.steps.hadoopenter" )
 public class HadoopEnterMeta extends InjectorMeta {
+  public static final String DIALOG_NAME = HadoopEnterDialog.class.getCanonicalName();
   @SuppressWarnings( "unused" )
   private static Class<?> PKG = HadoopEnterMeta.class; // for i18n purposes, needed by Translator2!! $NON-NLS-1$
 
@@ -50,5 +52,9 @@ public class HadoopEnterMeta extends InjectorMeta {
 
     ( getFieldname() )[0] = HadoopEnterMeta.KEY_FIELDNAME;
     ( getFieldname() )[1] = HadoopEnterMeta.VALUE_FIELDNAME;
+  }
+
+  @Override public String getDialogClassName() {
+    return DIALOG_NAME;
   }
 }
