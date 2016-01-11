@@ -29,11 +29,13 @@ import org.pentaho.bigdata.api.mapreduce.MapReduceJarInfo;
 import org.pentaho.bigdata.api.mapreduce.MapReduceJobBuilder;
 import org.pentaho.bigdata.api.mapreduce.MapReduceJobSimple;
 import org.pentaho.bigdata.api.mapreduce.MapReduceService;
+import org.pentaho.bigdata.api.mapreduce.PentahoMapReduceJobBuilder;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.job.entries.hadoopjobexecutor.JarUtility;
+import org.pentaho.hadoop.shim.HadoopConfiguration;
 import org.pentaho.hadoop.shim.spi.HadoopShim;
 
 import java.io.IOException;
@@ -52,16 +54,18 @@ public class MapReduceServiceImpl implements MapReduceService {
   public static final String ERROR_MULTIPLE_DRIVER_CLASSES = "ErrorMultipleDriverClasses";
   private final NamedCluster namedCluster;
   private final HadoopShim hadoopShim;
+  private final HadoopConfiguration hadoopConfiguration;
   private final ExecutorService executorService;
   private final JarUtility jarUtility;
 
-  public MapReduceServiceImpl( NamedCluster namedCluster, HadoopShim hadoopShim, ExecutorService executorService ) {
-    this( namedCluster, hadoopShim, executorService, new JarUtility() );
+  public MapReduceServiceImpl( NamedCluster namedCluster, HadoopConfiguration hadoopConfiguration, ExecutorService executorService ) {
+    this( namedCluster, hadoopConfiguration, executorService, new JarUtility() );
   }
 
-  public MapReduceServiceImpl( NamedCluster namedCluster, HadoopShim hadoopShim, ExecutorService executorService, JarUtility jarUtility ) {
+  public MapReduceServiceImpl( NamedCluster namedCluster, HadoopConfiguration hadoopConfiguration, ExecutorService executorService, JarUtility jarUtility ) {
     this.namedCluster = namedCluster;
-    this.hadoopShim = hadoopShim;
+    this.hadoopConfiguration = hadoopConfiguration;
+    this.hadoopShim = hadoopConfiguration.getHadoopShim();
     this.executorService = executorService;
     this.jarUtility = jarUtility;
   }
@@ -75,6 +79,11 @@ public class MapReduceServiceImpl implements MapReduceService {
 
   @Override public MapReduceJobBuilder createJobBuilder( final LogChannelInterface log, VariableSpace variableSpace ) {
     return new MapReduceJobBuilderImpl( namedCluster, hadoopShim, log, variableSpace );
+  }
+
+  @Override public PentahoMapReduceJobBuilder createPentahoMapReduceJobBuilder( LogChannelInterface log,
+                                                                                VariableSpace variableSpace ) {
+    return new PentahoMapReduceJobBuilderImpl( namedCluster, hadoopConfiguration, log, variableSpace );
   }
 
   @Override public MapReduceJarInfo getJarInfo( URL resolvedJarUrl ) throws IOException, ClassNotFoundException {

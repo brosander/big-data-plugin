@@ -30,49 +30,28 @@ import org.pentaho.big.data.kettle.plugins.mapreduce.step.HadoopEnterMeta;
 import org.pentaho.big.data.kettle.plugins.mapreduce.step.HadoopExitMeta;
 import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.Result;
-import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.plugins.Plugin;
 import org.pentaho.di.core.plugins.PluginInterface;
 import org.pentaho.di.core.plugins.PluginMainClassType;
 import org.pentaho.di.core.plugins.PluginRegistry;
 import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.job.Job;
-import org.pentaho.di.repository.ObjectId;
-import org.pentaho.di.repository.Repository;
-import org.pentaho.di.resource.ResourceDefinition;
-import org.pentaho.di.resource.ResourceNamingInterface;
-import org.pentaho.di.trans.TransMeta;
 import org.pentaho.hadoop.shim.ConfigurationException;
 import org.pentaho.hadoop.shim.HadoopConfiguration;
-import org.pentaho.hadoop.shim.api.Configuration;
-import org.pentaho.hadoop.shim.api.DistributedCacheUtil;
-import org.pentaho.hadoop.shim.api.fs.FileSystem;
-import org.pentaho.hadoop.shim.api.fs.Path;
 import org.pentaho.hadoop.shim.common.CommonHadoopShim;
-import org.pentaho.hadoop.shim.common.ConfigurationProxy;
-import org.pentaho.hadoop.shim.spi.HadoopShim;
-import org.pentaho.metastore.api.IMetaStore;
 
-import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 import static org.easymock.EasyMock.anyObject;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 // TODO Refactor JobEntryHadoopTransJobExecutor so it can be tested better than this pseudo-integration test
 public class JobEntryHadoopTransJobExecutorTest {
@@ -106,7 +85,8 @@ public class JobEntryHadoopTransJobExecutorTest {
   @Test
   public void invalidMapperStepNames() throws Throwable {
     Job job = new Job();
-    JobEntryHadoopTransJobExecutor executor = new JobEntryHadoopTransJobExecutor( null, null ) {
+    JobEntryHadoopTransJobExecutor executor = null/*new JobEntryHadoopTransJobExecutor( null, runtimeTester,
+      runtimeTestActionService, null ) {
       protected HadoopConfiguration getHadoopConfiguration() throws ConfigurationException {
         try {
           return new HadoopConfiguration( VFS.getManager().resolveFile( "ram:///" ), "test", "test",
@@ -115,7 +95,7 @@ public class JobEntryHadoopTransJobExecutorTest {
           throw new ConfigurationException( "Error creating mock hadoop configuration", ex );
         }
       }
-    };
+    }*/;
     executor.setParentJob( job );
     executor.setHadoopJobName( "hadoop job name" );
 

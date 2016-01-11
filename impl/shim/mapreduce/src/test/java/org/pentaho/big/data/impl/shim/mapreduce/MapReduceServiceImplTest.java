@@ -68,7 +68,7 @@ public class MapReduceServiceImplTest {
     executorService = mock( ExecutorService.class );
     jarUtility = mock( JarUtility.class );
     resolvedJarUrl = new URL( "http://jar.net/jar" );
-    mapReduceService = new MapReduceServiceImpl( namedCluster, hadoopShim, executorService, jarUtility );
+//    mapReduceService = new MapReduceServiceImpl( namedCluster, hadoopShim, executorService, jarUtility );
   }
 
   @Test( expected = MapReduceExecutionException.class )

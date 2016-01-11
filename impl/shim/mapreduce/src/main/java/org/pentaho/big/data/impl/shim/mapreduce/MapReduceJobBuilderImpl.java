@@ -32,6 +32,7 @@ import org.pentaho.hadoop.shim.api.fs.FileSystem;
 import org.pentaho.hadoop.shim.api.fs.Path;
 import org.pentaho.hadoop.shim.spi.HadoopShim;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -148,8 +149,7 @@ public class MapReduceJobBuilderImpl implements MapReduceJobBuilder {
     userDefined.put( key, value );
   }
 
-  @Override public MapReduceJobAdvanced submit() throws Exception {
-    Configuration conf = hadoopShim.createConfiguration();
+  protected void configure( Configuration conf ) throws Exception {
     FileSystem fs = hadoopShim.getFileSystem( conf );
     URL[] urls = new URL[] { resolvedJarUrl };
     URLClassLoader loader = new URLClassLoader( urls, hadoopShim.getClass().getClassLoader() );
@@ -194,12 +194,12 @@ public class MapReduceJobBuilderImpl implements MapReduceJobBuilder {
 
     List<Path> paths = new ArrayList<Path>();
     for ( String path : inputPaths ) {
-      paths.add( fs.asPath( conf.getDefaultFileSystemURL(), path ) );
+      paths.add( getPath( conf, fs, path ) );
     }
     Path[] finalPaths = paths.toArray( new Path[ paths.size() ] );
 
     conf.setInputPaths( finalPaths );
-    conf.setOutputPath( fs.asPath( conf.getDefaultFileSystemURL(), outputPath ) );
+    conf.setOutputPath( getOutputPath( conf, fs ) );
 
     // process user defined values
     for ( Map.Entry<String, String> stringStringEntry : userDefined.entrySet() ) {
@@ -214,7 +214,23 @@ public class MapReduceJobBuilderImpl implements MapReduceJobBuilder {
 
     conf.setNumMapTasks( numMapTasks );
     conf.setNumReduceTasks( numReduceTasks );
+  }
 
+  protected Path getOutputPath( Configuration conf, FileSystem fs ) {
+    return getPath( conf, fs, outputPath );
+  }
+
+  private Path getPath( Configuration conf, FileSystem fs, String outputPath ) {
+    return fs.asPath( conf.getDefaultFileSystemURL(), outputPath );
+  }
+
+  protected MapReduceJobAdvanced submit( Configuration conf ) throws IOException {
     return new RunningJobMapReduceJobAdvancedImpl( hadoopShim.submitJob( conf ) );
+  }
+
+  @Override public final MapReduceJobAdvanced submit() throws Exception {
+    Configuration conf = hadoopShim.createConfiguration();
+    configure( conf );
+    return submit( conf );
   }
 }

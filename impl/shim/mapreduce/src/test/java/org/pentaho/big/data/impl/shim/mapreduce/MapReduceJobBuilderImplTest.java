@@ -135,7 +135,7 @@ public class MapReduceJobBuilderImplTest {
     mapReduceJobBuilder.setHadoopJobName( testJobName );
     mapReduceJobBuilder.setOutputKeyClass( String.class.getCanonicalName() );
     mapReduceJobBuilder.setOutputValueClass( String.class.getCanonicalName() );
-    mapReduceJobBuilder.setInputPath( inputPath );
+//    mapReduceJobBuilder.setInputPath( inputPath );
     mapReduceJobBuilder.setJarUrl( jarUrl );
     mapReduceJobBuilder.setResolvedJarUrl( resolvedJarUrl );
     mapReduceJobBuilder.setNumMapTasks( numMapTasks );
@@ -162,7 +162,7 @@ public class MapReduceJobBuilderImplTest {
     mapReduceJobBuilder.setReducerClass( Set.class.getCanonicalName() );
     mapReduceJobBuilder.setInputFormatClass( Integer.class.getCanonicalName() );
     mapReduceJobBuilder.setOutputFormatClass( Float.class.getCanonicalName() );
-    mapReduceJobBuilder.setInputPath( inputPath );
+//    mapReduceJobBuilder.setInputPath( inputPath );
     mapReduceJobBuilder.setOutputPath( userPath2 );
     mapReduceJobBuilder.setJarUrl( jarUrl );
     mapReduceJobBuilder.setResolvedJarUrl( resolvedJarUrl );
@@ -170,11 +170,11 @@ public class MapReduceJobBuilderImplTest {
     mapReduceJobBuilder.setNumReduceTasks( numReduceTasks );
     String defA = "defA";
     String valA = "valA";
-    mapReduceJobBuilder.putUserDefined( defA, valA );
-    mapReduceJobBuilder.putUserDefined( null, "valB" );
-    mapReduceJobBuilder.putUserDefined( "", "valB" );
-    mapReduceJobBuilder.putUserDefined( "valC", null );
-    mapReduceJobBuilder.putUserDefined( "valB", "" );
+//    mapReduceJobBuilder.putUserDefined( defA, valA );
+//    mapReduceJobBuilder.putUserDefined( null, "valB" );
+//    mapReduceJobBuilder.putUserDefined( "", "valB" );
+//    mapReduceJobBuilder.putUserDefined( "valC", null );
+//    mapReduceJobBuilder.putUserDefined( "valB", "" );
 
     doAnswer( new Answer<Void>() {
       @Override public Void answer( InvocationOnMock invocation ) throws Throwable {

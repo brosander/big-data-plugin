@@ -138,6 +138,7 @@ public class HadoopExitMeta extends BaseStepMeta implements StepMetaInterface {
     rowMeta.addValueMeta( valueMeta );
   }
 
+  @Override
   public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepinfo, RowMetaInterface prev,
       String[] input, String[] output, RowMetaInterface info ) {
     CheckResult cr;

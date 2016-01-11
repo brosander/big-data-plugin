@@ -14,6 +14,14 @@
     <pen:di-plugin type="org.pentaho.di.core.plugins.JobEntryPluginType"/>
   </bean>
 
+  <bean id="jobEntryHadoopTransJobExecutor" class="org.pentaho.big.data.kettle.plugins.mapreduce.entry.JobEntryHadoopTransJobExecutor" scope="prototype">
+    <argument ref="namedClusterService"/>
+    <argument ref="runtimeTestActionService"/>
+    <argument ref="runtimeTester"/>
+    <argument ref="namedClusterServiceLocator"/>
+    <pen:di-plugin type="org.pentaho.di.core.plugins.JobEntryPluginType"/>
+  </bean>
+
   <reference id="namedClusterService" interface="org.pentaho.big.data.api.cluster.NamedClusterService"/>
   <reference id="runtimeTester" interface="org.pentaho.runtime.test.RuntimeTester"/>
   <reference id="namedClusterServiceLocator" interface="org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator"/>

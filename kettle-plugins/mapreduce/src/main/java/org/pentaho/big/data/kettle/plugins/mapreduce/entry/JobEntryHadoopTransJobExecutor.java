@@ -127,13 +127,17 @@ public class JobEntryHadoopTransJobExecutor extends JobEntryBase implements Clon
   private String numMapTasks = "1";
   private String numReduceTasks = "1";
   private List<UserDefinedItem> userDefined = new ArrayList<UserDefinedItem>();
-  private RuntimeTester runtimeTester;
-  private RuntimeTestActionService runtimeTestActionService;
+  private final RuntimeTester runtimeTester;
+  private final RuntimeTestActionService runtimeTestActionService;
 
   public JobEntryHadoopTransJobExecutor( NamedClusterService namedClusterService,
+                                         RuntimeTestActionService runtimeTestActionService,
+                                         RuntimeTester runtimeTester,
                                          NamedClusterServiceLocator namedClusterServiceLocator ) throws Throwable {
     this.namedClusterService = namedClusterService;
+    this.runtimeTestActionService = runtimeTestActionService;
     this.namedClusterServiceLocator = namedClusterServiceLocator;
+    this.runtimeTester = runtimeTester;
     reducingSingleThreaded = false;
     combiningSingleThreaded = false;
   }
