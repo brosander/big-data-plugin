@@ -186,7 +186,7 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
   }
 
   @Override protected void configure( Configuration conf ) throws Exception {
-    conf.setMapRunnerClass( hadoopShim.getPentahoMapReduceMapRunnerClass() );
+    setMapRunnerClass( hadoopShim.getPentahoMapReduceMapRunnerClass().getCanonicalName() );
 
     conf.set( "transformation-map-xml", mapperTransformationXml );
     conf.set( "transformation-map-input-stepname", mapperInputStep );
@@ -196,16 +196,16 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
       conf.set( "transformation-combiner-xml", combinerTransformationXml );
       conf.set( "transformation-combiner-input-stepname", combinerInputStep );
       conf.set( "transformation-combiner-output-stepname", combinerOutputStep );
-      conf.setCombinerClass( hadoopShim.getPentahoMapReduceCombinerClass() );
+      setCombinerClass( hadoopShim.getPentahoMapReduceCombinerClass().getCanonicalName() );
     }
     if ( reducerTransformationXml != null ) {
       conf.set( "transformation-reduce-xml", reducerTransformationXml );
       conf.set( "transformation-reduce-input-stepname", reducerInputStep );
       conf.set( "transformation-reduce-output-stepname", reducerOutputStep );
-      conf.setReducerClass( hadoopShim.getPentahoMapReduceReducerClass() );
+      setReducerClass( hadoopShim.getPentahoMapReduceReducerClass().getCanonicalName() );
     }
     conf.setJarByClass( hadoopShim.getPentahoMapReduceMapRunnerClass() );
-    conf.setStrings( "logLevel", logLevel.toString() );
+    conf.set( "logLevel", logLevel.toString() );
 
     super.configure( conf );
   }
