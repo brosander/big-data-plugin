@@ -22,7 +22,6 @@
 
 package org.pentaho.big.data.kettle.plugins.mapreduce.step.exit;
 
-import org.pentaho.big.data.kettle.plugins.mapreduce.ui.step.exit.HadoopExitDialog;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;

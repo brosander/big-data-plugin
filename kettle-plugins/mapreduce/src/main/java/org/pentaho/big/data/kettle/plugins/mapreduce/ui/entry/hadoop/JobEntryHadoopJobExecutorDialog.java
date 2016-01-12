@@ -20,14 +20,12 @@
  *
  ******************************************************************************/
 
-package org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry;
+package org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry.hadoop;
 
 import org.dom4j.DocumentException;
 import org.eclipse.swt.widgets.Shell;
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
-import org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry.JobEntryHadoopJobExecutorController.AdvancedConfiguration;
-import org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry.JobEntryHadoopJobExecutorController.SimpleConfiguration;
 import org.pentaho.big.data.kettle.plugins.mapreduce.entry.hadoop.JobEntryHadoopJobExecutor;
 import org.pentaho.big.data.plugins.common.ui.HadoopClusterDelegateImpl;
 import org.pentaho.di.i18n.BaseMessages;
@@ -126,44 +124,44 @@ public class JobEntryHadoopJobExecutorDialog extends JobEntryDialog implements J
     bf.createBinding( "driver-class", "elements", controller,
       JobEntryHadoopJobExecutorController.DRIVER_CLASSES ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     bf.createBinding( "command-line-arguments", "value", controller.getSimpleConfiguration(),
-      SimpleConfiguration.CMD_LINE_ARGS ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+      JobEntryHadoopJobExecutorController.SimpleConfiguration.CMD_LINE_ARGS ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
     bf.createBinding( "classes-output-key-class", "value", controller.getAdvancedConfiguration(),
-      AdvancedConfiguration.OUTPUT_KEY_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.AdvancedConfiguration.OUTPUT_KEY_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( "classes-output-value-class", "value", controller.getAdvancedConfiguration(),
-      AdvancedConfiguration.OUTPUT_VALUE_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.AdvancedConfiguration.OUTPUT_VALUE_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( "classes-mapper-class", "value", controller.getAdvancedConfiguration(),
-      AdvancedConfiguration.MAPPER_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.AdvancedConfiguration.MAPPER_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( "classes-combiner-class", "value", controller.getAdvancedConfiguration(),
-      AdvancedConfiguration.COMBINER_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.AdvancedConfiguration.COMBINER_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( "classes-reducer-class", "value", controller.getAdvancedConfiguration(),
-      AdvancedConfiguration.REDUCER_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.AdvancedConfiguration.REDUCER_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( "classes-input-format", "value", controller.getAdvancedConfiguration(),
-      AdvancedConfiguration.INPUT_FORMAT_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.AdvancedConfiguration.INPUT_FORMAT_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( "classes-output-format", "value", controller.getAdvancedConfiguration(),
-      AdvancedConfiguration.OUTPUT_FORMAT_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.AdvancedConfiguration.OUTPUT_FORMAT_CLASS ); //$NON-NLS-1$ //$NON-NLS-2$
 
     // bf.createBinding("num-map-tasks", "value", controller.getAdvancedConfiguration(),
     // AdvancedConfiguration.NUM_MAP_TASKS, bindingConverter); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( "num-map-tasks", "value", controller.getAdvancedConfiguration(),
-      AdvancedConfiguration.NUM_MAP_TASKS ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.AdvancedConfiguration.NUM_MAP_TASKS ); //$NON-NLS-1$ //$NON-NLS-2$
     // bf.createBinding("num-reduce-tasks", "value", controller.getAdvancedConfiguration(),
     // AdvancedConfiguration.NUM_REDUCE_TASKS, bindingConverter); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( "num-reduce-tasks", "value", controller.getAdvancedConfiguration(),
-      AdvancedConfiguration.NUM_REDUCE_TASKS ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.AdvancedConfiguration.NUM_REDUCE_TASKS ); //$NON-NLS-1$ //$NON-NLS-2$
 
     bf.createBinding( "simple-blocking", "selected", controller.getSimpleConfiguration(),
-      SimpleConfiguration.BLOCKING ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.SimpleConfiguration.BLOCKING ); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( "blocking", "selected", controller.getAdvancedConfiguration(),
-      AdvancedConfiguration.BLOCKING ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.AdvancedConfiguration.BLOCKING ); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( "simple-logging-interval", "value", controller.getSimpleConfiguration(),
-      SimpleConfiguration.LOGGING_INTERVAL ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.SimpleConfiguration.LOGGING_INTERVAL ); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( "logging-interval", "value", controller.getAdvancedConfiguration(),
-      AdvancedConfiguration.LOGGING_INTERVAL ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.AdvancedConfiguration.LOGGING_INTERVAL ); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( "input-path", "value", controller.getAdvancedConfiguration(),
-      AdvancedConfiguration.INPUT_PATH ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.AdvancedConfiguration.INPUT_PATH ); //$NON-NLS-1$ //$NON-NLS-2$
     bf.createBinding( "output-path", "value", controller.getAdvancedConfiguration(),
-      AdvancedConfiguration.OUTPUT_PATH ); //$NON-NLS-1$ //$NON-NLS-2$
+      JobEntryHadoopJobExecutorController.AdvancedConfiguration.OUTPUT_PATH ); //$NON-NLS-1$ //$NON-NLS-2$
 
     ( (XulRadio) container.getDocumentRoot().getElementById( "simpleRadioButton" ) ).setSelected( this.jobEntry
       .isSimple() ); //$NON-NLS-1$

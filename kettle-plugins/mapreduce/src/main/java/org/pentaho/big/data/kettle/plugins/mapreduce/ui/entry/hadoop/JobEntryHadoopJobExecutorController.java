@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry;
+package org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry.hadoop;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;

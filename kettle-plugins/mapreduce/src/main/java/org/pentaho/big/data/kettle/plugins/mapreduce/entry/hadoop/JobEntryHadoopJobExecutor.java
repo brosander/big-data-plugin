@@ -26,10 +26,10 @@ import com.google.common.annotations.VisibleForTesting;
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
+import org.pentaho.big.data.kettle.plugins.mapreduce.DialogClassUtil;
 import org.pentaho.big.data.kettle.plugins.mapreduce.entry.NamedClusterLoadSaveUtil;
 import org.pentaho.big.data.kettle.plugins.mapreduce.entry.UserDefinedItem;
 import org.pentaho.big.data.kettle.plugins.mapreduce.entry.pmr.JobEntryHadoopTransJobExecutor;
-import org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry.JobEntryHadoopJobExecutorDialog;
 import org.pentaho.bigdata.api.mapreduce.MapReduceJobAdvanced;
 import org.pentaho.bigdata.api.mapreduce.MapReduceJobBuilder;
 import org.pentaho.bigdata.api.mapreduce.MapReduceJobSimple;
@@ -73,7 +73,6 @@ import java.util.concurrent.TimeUnit;
   i18nPackageName = "org.pentaho.big.data.kettle.plugins.mapreduce",
   documentationUrl = "http://wiki.pentaho.com/display/EAI/Hadoop+Job+Executor" )
 public class JobEntryHadoopJobExecutor extends JobEntryBase implements Cloneable, JobEntryInterface {
-  public static final String DIALOG_NAME = JobEntryHadoopJobExecutorDialog.class.getCanonicalName();
   private static final String DEFAULT_LOGGING_INTERVAL = "60";
   public static final String CLUSTER_NAME = "cluster_name";
   public static final String HDFS_HOSTNAME = "hdfs_hostname";
@@ -81,6 +80,7 @@ public class JobEntryHadoopJobExecutor extends JobEntryBase implements Cloneable
   public static final String JOB_TRACKER_HOSTNAME = "job_tracker_hostname";
   public static final String JOB_TRACKER_PORT = "job_tracker_port";
   private static Class<?> PKG = JobEntryHadoopJobExecutor.class; // for i18n purposes, needed by Translator2!!
+  public static final String DIALOG_NAME = DialogClassUtil.getDialogClassName( PKG );
   // $NON-NLS-1$
   private final NamedClusterService namedClusterService;
   private final RuntimeTestActionService runtimeTestActionService;

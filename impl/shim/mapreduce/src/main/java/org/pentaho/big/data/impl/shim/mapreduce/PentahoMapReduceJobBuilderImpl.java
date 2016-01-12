@@ -187,7 +187,7 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
 
   @Override protected void configure( Configuration conf ) throws Exception {
     conf.setMapRunnerClass( hadoopShim.getPentahoMapReduceMapRunnerClass() );
-    
+
     conf.set( "transformation-map-xml", mapperTransformationXml );
     conf.set( "transformation-map-input-stepname", mapperInputStep );
     conf.set( "transformation-map-output-stepname", mapperOutputStep );
@@ -214,7 +214,7 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
     cleanOutputPath( conf );
 
     FileSystem fs = hadoopShim.getFileSystem( conf );
-    Properties pmrProperties = null;
+    Properties pmrProperties;
     try {
       pmrProperties = loadPMRProperties();
     } catch ( KettleFileException e ) {

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry;
+package org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry.pmr;
 
 import org.dom4j.DocumentException;
 import org.eclipse.swt.widgets.Shell;

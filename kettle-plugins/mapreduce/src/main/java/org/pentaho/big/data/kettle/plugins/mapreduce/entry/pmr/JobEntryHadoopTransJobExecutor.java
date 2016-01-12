@@ -20,10 +20,10 @@ package org.pentaho.big.data.kettle.plugins.mapreduce.entry.pmr;
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
+import org.pentaho.big.data.kettle.plugins.mapreduce.DialogClassUtil;
 import org.pentaho.big.data.kettle.plugins.mapreduce.entry.NamedClusterLoadSaveUtil;
 import org.pentaho.big.data.kettle.plugins.mapreduce.entry.UserDefinedItem;
 import org.pentaho.big.data.kettle.plugins.mapreduce.step.exit.HadoopExitMeta;
-import org.pentaho.big.data.kettle.plugins.mapreduce.ui.entry.JobEntryHadoopTransJobExecutorDialog;
 import org.pentaho.bigdata.api.mapreduce.MapReduceJobAdvanced;
 import org.pentaho.bigdata.api.mapreduce.MapReduceJobBuilder;
 import org.pentaho.bigdata.api.mapreduce.MapReduceService;
@@ -90,8 +90,8 @@ public class JobEntryHadoopTransJobExecutor extends JobEntryBase implements Clon
   public static final String PENTAHO_MAPREDUCE_PROPERTY_KETTLE_HDFS_INSTALL_DIR = "pmr.kettle.dfs.install.dir";
   public static final String PENTAHO_MAPREDUCE_PROPERTY_KETTLE_INSTALLATION_ID = "pmr.kettle.installation.id";
   public static final String PENTAHO_MAPREDUCE_PROPERTY_ADDITIONAL_PLUGINS = "pmr.kettle.additional.plugins";
-  public static final String DIALOG_NAME = JobEntryHadoopTransJobExecutorDialog.class.getCanonicalName();
   private static Class<?> PKG = JobEntryHadoopTransJobExecutor.class; // for i18n purposes, needed by Translator2!!
+  public static final String DIALOG_NAME = DialogClassUtil.getDialogClassName( PKG );
   private final NamedClusterService namedClusterService;
   private final NamedClusterServiceLocator namedClusterServiceLocator;
   private final NamedClusterLoadSaveUtil namedClusterLoadSaveUtil = new NamedClusterLoadSaveUtil();
