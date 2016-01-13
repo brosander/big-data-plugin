@@ -17,8 +17,6 @@
 
 package org.pentaho.bigdata.api.mapreduce;
 
-import org.pentaho.di.core.row.ValueMetaInterface;
-
 import java.net.URL;
 
 /**

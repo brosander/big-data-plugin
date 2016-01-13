@@ -768,7 +768,7 @@ public class JobEntryHadoopTransJobExecutor extends JobEntryBase implements Clon
       }
 
       TaskCompletionEvent.Status status = tcEvents[ i ].getTaskStatus();
-      switch( tcEvents[ i ].getTaskStatus() ) {
+      switch ( tcEvents[ i ].getTaskStatus() ) {
         case KILLED:
         case FAILED:
         case TIPFAILED:
@@ -946,8 +946,7 @@ public class JobEntryHadoopTransJobExecutor extends JobEntryBase implements Clon
       XMLHandler.addTagValue( "combiner_trans_repo_file", combinerRepositoryFile ) ); //$NON-NLS-1$ //$NON-NLS-2$
     retval
       .append( "      " ).append( XMLHandler.addTagValue( "combiner_trans_repo_reference",
-      combinerRepositoryReference == null ? null :
-        combinerRepositoryReference.toString() ) ); //$NON-NLS-1$ //$NON-NLS-2$
+      combinerRepositoryReference == null ? null : combinerRepositoryReference.toString() ) ); //$NON-NLS-1$ //$NON-NLS-2$
     retval.append( "      " )
       .append( XMLHandler.addTagValue( "combiner_trans", combinerTrans ) ); //$NON-NLS-1$ //$NON-NLS-2$
     retval.append( "      " ).append(
@@ -1267,7 +1266,7 @@ public class JobEntryHadoopTransJobExecutor extends JobEntryBase implements Clon
    * @throws KettleException
    */
   public Object loadReferencedObject( int index, Repository rep, VariableSpace space ) throws KettleException {
-    switch( index ) {
+    switch ( index ) {
       case 0:
         return loadTransMeta( space, rep, mapTrans, mapRepositoryReference, mapRepositoryDir, mapRepositoryFile );
       case 1:
@@ -1348,9 +1347,9 @@ public class JobEntryHadoopTransJobExecutor extends JobEntryBase implements Clon
 
   private void setSpecificationMethodAndValue( int i, ObjectLocationSpecificationMethod specification, String filename,
                                                String repositoryDir, ObjectId referrence ) {
-    switch( specification ) {
+    switch ( specification ) {
       case FILENAME: {
-        switch( i ) {
+        switch ( i ) {
           case 0: {
             setMapTrans( filename );
             break;
@@ -1367,7 +1366,7 @@ public class JobEntryHadoopTransJobExecutor extends JobEntryBase implements Clon
         break;
       }
       case REPOSITORY_BY_NAME: {
-        switch( i ) {
+        switch ( i ) {
           case 0: {
             setMapRepositoryDir( repositoryDir );
             setMapRepositoryFile( filename );
@@ -1387,7 +1386,7 @@ public class JobEntryHadoopTransJobExecutor extends JobEntryBase implements Clon
         break;
       }
       case REPOSITORY_BY_REFERENCE: {
-        switch( i ) {
+        switch ( i ) {
           case 0: {
             setMapRepositoryReference( referrence );
             break;

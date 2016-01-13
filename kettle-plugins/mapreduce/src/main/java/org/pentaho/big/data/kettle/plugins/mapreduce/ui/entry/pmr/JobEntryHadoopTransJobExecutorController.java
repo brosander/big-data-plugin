@@ -631,11 +631,11 @@ public class JobEntryHadoopTransJobExecutorController extends AbstractXulEventHa
   }
 
   private interface StringResultSetter {
-    public void set(String val);
+    public void set( String val );
   }
 
   private interface ObjectIdResultSetter {
-    public void set(ObjectId val);
+    public void set( ObjectId val );
   }
 
   public void mapTransBrowse() {
