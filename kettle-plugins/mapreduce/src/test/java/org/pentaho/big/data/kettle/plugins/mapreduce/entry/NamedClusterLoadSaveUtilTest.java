@@ -1,26 +1,4 @@
-/*******************************************************************************
- *
- * Pentaho Big Data
- *
- * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- ******************************************************************************/
-
-package org.pentaho.big.data.kettle.plugins.mapreduce;
+package org.pentaho.big.data.kettle.plugins.mapreduce.entry;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +7,7 @@ import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
 import org.pentaho.big.data.kettle.plugins.mapreduce.entry.hadoop.JobEntryHadoopJobExecutor;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.di.repository.ObjectId;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.metastore.api.IMetaStore;
@@ -42,7 +21,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -50,18 +28,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * User: Dzmitry Stsiapanau Date: 9/11/14 Time: 1:36 PM
+ * Created by bryan on 1/13/16.
  */
-public class JobEntryHadoopJobExecutorTest {
+public class NamedClusterLoadSaveUtilTest {
   private NamedClusterService namedClusterService;
   private RuntimeTestActionService runtimeTestActionService;
   private RuntimeTester runtimeTester;
   private NamedClusterServiceLocator namedClusterServiceLocator;
-  private JobEntryHadoopJobExecutor jobExecutor;
   private IMetaStore metaStore;
   private NamedCluster namedCluster;
   private Repository repository;
   private ObjectId objectId;
+  private NamedClusterLoadSaveUtil namedClusterLoadSaveUtil;
+  private LogChannelInterface logChannelInterface;
 
   @Before
   public void setup() {
@@ -74,17 +53,8 @@ public class JobEntryHadoopJobExecutorTest {
     repository = mock( Repository.class );
     when( repository.getMetaStore() ).thenReturn( metaStore );
     objectId = mock( ObjectId.class );
-
-    jobExecutor = new JobEntryHadoopJobExecutor( namedClusterService, runtimeTestActionService, runtimeTester,
-      namedClusterServiceLocator );
-  }
-
-  @Test
-  public void testResolveJobUrl() throws MalformedURLException {
-    String variableValue = "http://jar.net/url";
-    String testvar = "testvar";
-    jobExecutor.setVariable( testvar, variableValue );
-//    assertEquals( new URL( variableValue ), jobExecutor.resolveJarUrl( "${" + testvar + "}" ) );
+    logChannelInterface = mock( LogChannelInterface.class );
+    namedClusterLoadSaveUtil = new NamedClusterLoadSaveUtil();
   }
 
   private void addTag( StringBuilder builder, String tag, String value ) {
@@ -106,8 +76,8 @@ public class JobEntryHadoopJobExecutorTest {
     Element documentElement =
       DocumentBuilderFactory.newInstance().newDocumentBuilder().parse( new ByteArrayInputStream( xml.getBytes() ) )
         .getDocumentElement();
-//    jobExecutor.loadClusterConfig( null, null, metaStore, documentElement );
-    assertEquals( namedCluster, jobExecutor.getNamedCluster() );
+    assertEquals( namedCluster, namedClusterLoadSaveUtil
+      .loadClusterConfig( namedClusterService, null, null, metaStore, documentElement, logChannelInterface ) );
   }
 
   @Test
@@ -131,8 +101,8 @@ public class JobEntryHadoopJobExecutorTest {
     Element documentElement =
       DocumentBuilderFactory.newInstance().newDocumentBuilder().parse( new ByteArrayInputStream( xml.getBytes() ) )
         .getDocumentElement();
-//    jobExecutor.loadClusterConfig( null, null, metaStore, documentElement );
-    assertEquals( namedCluster, jobExecutor.getNamedCluster() );
+    assertEquals( namedCluster, namedClusterLoadSaveUtil
+      .loadClusterConfig( namedClusterService, null, null, metaStore, documentElement, logChannelInterface ) );
     verify( namedCluster ).setHdfsHost( testHost );
     verify( namedCluster ).setHdfsPort( hdfsPort );
     verify( namedCluster ).setJobTrackerHost( jobTrackerHost );
@@ -145,9 +115,10 @@ public class JobEntryHadoopJobExecutorTest {
     String testName = "testName";
     when( namedClusterService.contains( testName, metaStore ) ).thenReturn( true );
     when( namedClusterService.read( testName, metaStore ) ).thenReturn( namedCluster );
-    when( repository.getJobEntryAttributeString( objectId, JobEntryHadoopJobExecutor.CLUSTER_NAME ) ).thenReturn( testName );
-//    jobExecutor.loadClusterConfig( objectId, repository, metaStore, null );
-    assertEquals( namedCluster, jobExecutor.getNamedCluster() );
+    when( repository.getJobEntryAttributeString( objectId, JobEntryHadoopJobExecutor.CLUSTER_NAME ) )
+      .thenReturn( testName );
+    assertEquals( namedCluster, namedClusterLoadSaveUtil
+      .loadClusterConfig( namedClusterService, objectId, repository, metaStore, null, logChannelInterface ) );
   }
 
   @Test
@@ -160,13 +131,18 @@ public class JobEntryHadoopJobExecutorTest {
     String jobTrackerPort = "8081";
     when( namedClusterService.contains( testName, metaStore ) ).thenReturn( false );
     when( namedClusterService.getClusterTemplate() ).thenReturn( namedCluster );
-    when( repository.getJobEntryAttributeString( objectId, JobEntryHadoopJobExecutor.CLUSTER_NAME ) ).thenReturn( testName );
-    when( repository.getJobEntryAttributeString( objectId, JobEntryHadoopJobExecutor.HDFS_HOSTNAME ) ).thenReturn( testHost );
-    when( repository.getJobEntryAttributeString( objectId, JobEntryHadoopJobExecutor.HDFS_PORT ) ).thenReturn( hdfsPort );
-    when( repository.getJobEntryAttributeString( objectId, JobEntryHadoopJobExecutor.JOB_TRACKER_HOSTNAME ) ).thenReturn( jobTrackerHost );
-    when( repository.getJobEntryAttributeString( objectId, JobEntryHadoopJobExecutor.JOB_TRACKER_PORT ) ).thenReturn( jobTrackerPort );
-//    jobExecutor.loadClusterConfig( objectId, repository, metaStore, null );
-    assertEquals( namedCluster, jobExecutor.getNamedCluster() );
+    when( repository.getJobEntryAttributeString( objectId, JobEntryHadoopJobExecutor.CLUSTER_NAME ) )
+      .thenReturn( testName );
+    when( repository.getJobEntryAttributeString( objectId, JobEntryHadoopJobExecutor.HDFS_HOSTNAME ) )
+      .thenReturn( testHost );
+    when( repository.getJobEntryAttributeString( objectId, JobEntryHadoopJobExecutor.HDFS_PORT ) )
+      .thenReturn( hdfsPort );
+    when( repository.getJobEntryAttributeString( objectId, JobEntryHadoopJobExecutor.JOB_TRACKER_HOSTNAME ) )
+      .thenReturn( jobTrackerHost );
+    when( repository.getJobEntryAttributeString( objectId, JobEntryHadoopJobExecutor.JOB_TRACKER_PORT ) )
+      .thenReturn( jobTrackerPort );
+    assertEquals( namedCluster, namedClusterLoadSaveUtil
+      .loadClusterConfig( namedClusterService, objectId, repository, metaStore, null, logChannelInterface ) );
     verify( namedCluster ).setHdfsHost( testHost );
     verify( namedCluster ).setHdfsPort( hdfsPort );
     verify( namedCluster ).setJobTrackerHost( jobTrackerHost );

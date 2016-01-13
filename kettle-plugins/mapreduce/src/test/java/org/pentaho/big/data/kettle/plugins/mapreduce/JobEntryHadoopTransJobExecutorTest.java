@@ -1,378 +1,117 @@
 /*******************************************************************************
-*
-* Pentaho Big Data
-*
-* Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
-*
-*******************************************************************************
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with
-* the License. You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-******************************************************************************/
+ * Pentaho Big Data
+ * <p/>
+ * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
+ * <p/>
+ * ******************************************************************************
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ ******************************************************************************/
 
 package org.pentaho.big.data.kettle.plugins.mapreduce;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.pentaho.big.data.api.cluster.NamedCluster;
+import org.pentaho.big.data.api.cluster.NamedClusterService;
+import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
 import org.pentaho.big.data.kettle.plugins.mapreduce.entry.pmr.JobEntryHadoopTransJobExecutor;
-import org.pentaho.big.data.kettle.plugins.mapreduce.step.enter.HadoopEnterMeta;
-import org.pentaho.big.data.kettle.plugins.mapreduce.step.exit.HadoopExitMeta;
-import org.pentaho.di.core.KettleEnvironment;
-import org.pentaho.di.core.Result;
-import org.pentaho.di.core.plugins.Plugin;
-import org.pentaho.di.core.plugins.PluginInterface;
-import org.pentaho.di.core.plugins.PluginMainClassType;
-import org.pentaho.di.core.plugins.PluginRegistry;
-import org.pentaho.di.core.plugins.StepPluginType;
-import org.pentaho.di.job.Job;
+import org.pentaho.di.repository.ObjectId;
+import org.pentaho.di.repository.Repository;
+import org.pentaho.metastore.api.IMetaStore;
+import org.pentaho.runtime.test.RuntimeTester;
+import org.pentaho.runtime.test.action.RuntimeTestActionService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.anyObject;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-// TODO Refactor JobEntryHadoopTransJobExecutor so it can be tested better than this pseudo-integration test
 public class JobEntryHadoopTransJobExecutorTest {
+  private static NamedClusterService namedClusterService;
+  private static RuntimeTestActionService runtimeTestActionService;
+  private static RuntimeTester runtimeTester;
+  private static NamedClusterServiceLocator namedClusterServiceLocator;
+  private static JobEntryHadoopTransJobExecutor exec;
+  private static Repository rep;
+  private static ObjectId oid;
+  private static IMetaStore metaStore;
 
   @BeforeClass
-  public static final void setup() throws Exception {
-    KettleEnvironment.init();
-
-    // Register Map/Reduce Input and Map/Reduce Output plugin steps
-    PluginMainClassType mainClassTypesAnnotation = StepPluginType.class.getAnnotation( PluginMainClassType.class );
-
-    Map<Class<?>, String> inputClassMap = new HashMap<Class<?>, String>();
-    inputClassMap.put( mainClassTypesAnnotation.value(), HadoopEnterMeta.class.getName() );
-    PluginInterface inputStepPlugin =
-        new Plugin( new String[] { "HadoopEnterPlugin" }, StepPluginType.class, mainClassTypesAnnotation.value(),
-            "Hadoop", "MapReduce Input", "Enter a Hadoop Mapper or Reducer transformation", "MRI.png", false, false,
-            inputClassMap, new ArrayList<String>(), null, null );
-    PluginRegistry.getInstance().registerPlugin( StepPluginType.class, inputStepPlugin );
-
-    Map<Class<?>, String> outputClassMap = new HashMap<Class<?>, String>();
-    outputClassMap.put( mainClassTypesAnnotation.value(), HadoopExitMeta.class.getName() );
-    PluginInterface outputStepPlugin =
-        new Plugin( new String[] { "HadoopExitPlugin" }, StepPluginType.class, mainClassTypesAnnotation.value(),
-            "Hadoop", "MapReduce Output", "Exit a Hadoop Mapper or Reducer transformation", "MRO.png", false, false,
-            outputClassMap, new ArrayList<String>(), null, null );
-    PluginRegistry.getInstance().registerPlugin( StepPluginType.class, outputStepPlugin );
-
-  }
-
-  // TODO Remove throws Throwable when those contructors are fixed!
-  @Test
-  public void invalidMapperStepNames() throws Throwable {
-    Job job = new Job();
-    JobEntryHadoopTransJobExecutor executor = null/*new JobEntryHadoopTransJobExecutor( null, runtimeTester,
-      runtimeTestActionService, null ) {
-      protected HadoopConfiguration getHadoopConfiguration() throws ConfigurationException {
-        try {
-          return new HadoopConfiguration( VFS.getManager().resolveFile( "ram:///" ), "test", "test",
-              new CommonHadoopShim() );
-        } catch ( Exception ex ) {
-          throw new ConfigurationException( "Error creating mock hadoop configuration", ex );
-        }
-      }
-    }*/;
-    executor.setParentJob( job );
-    executor.setHadoopJobName( "hadoop job name" );
-
-    executor.setMapTrans( "src/test/resources/mr-passthrough.ktr" );
-
-    Result result = new Result();
-
-    // No input step name should fail
-    executor.execute( result, 0 );
-    assertEquals( 1, result.getNrErrors() );
-
-    // Invalid input step name should fail
-    result.clear();
-    executor.setMapInputStepName( "Testing" );
-    executor.execute( result, 0 );
-    assertEquals( 1, result.getNrErrors() );
-
-    // No output step name should fail
-    result.clear();
-    executor.setMapInputStepName( "Injector" );
-    executor.execute( result, 0 );
-    assertEquals( 1, result.getNrErrors() );
-
-    // Invalid output step name should fail
-    result.clear();
-    executor.setMapInputStepName( "Injector" );
-    executor.setMapOutputStepName( "Testing" );
-    executor.execute( result, 0 );
-    assertEquals( 1, result.getNrErrors() );
-  }
-
-  /*@Test
-  public void getProperty() throws Throwable {
-    JobEntryHadoopTransJobExecutor executor = new JobEntryHadoopTransJobExecutor();
-    Configuration conf = new ConfigurationProxy();
-    Properties p = new Properties();
-
-    String propertyName = "property";
-    String value = "value";
-    p.setProperty( propertyName, value );
-
-    assertEquals( value, executor.getProperty( conf, p, propertyName, null ) );
-  }
-
-  @Test
-  public void getProperty_overridden() throws Throwable {
-    JobEntryHadoopTransJobExecutor executor = new JobEntryHadoopTransJobExecutor();
-    Configuration conf = new ConfigurationProxy();
-    Properties p = new Properties();
-
-    String propertyName = "property";
-    String value = "custom";
-    conf.set( propertyName, value );
-
-    assertEquals( value, executor.getProperty( conf, p, propertyName, null ) );
-  }
-
-  @Test
-  public void getProperty_default() throws Throwable {
-    JobEntryHadoopTransJobExecutor executor = new JobEntryHadoopTransJobExecutor();
-    Configuration conf = new ConfigurationProxy();
-    Properties p = new Properties();
-
-    String propertyName = "property";
-    String value = "default-value";
-
-    assertEquals( value, executor.getProperty( conf, p, propertyName, value ) );
-  }
-
-  @Test
-  public void useDistributedCache() throws Throwable {
-    JobEntryHadoopTransJobExecutor executor = new JobEntryHadoopTransJobExecutor();
-
-    Configuration conf = new ConfigurationProxy();
-    Properties p = new Properties();
-
-    // Default
-    assertTrue( executor.useDistributedCache( conf, p ) );
-
-    // False if set in properties only
-    p.setProperty( JobEntryHadoopTransJobExecutor.PENTAHO_MAPREDUCE_PROPERTY_USE_DISTRIBUTED_CACHE, Boolean
-        .toString( false ) );
-    assertFalse( executor.useDistributedCache( conf, p ) );
-
-    // True if set in properties only
-    p.setProperty( JobEntryHadoopTransJobExecutor.PENTAHO_MAPREDUCE_PROPERTY_USE_DISTRIBUTED_CACHE, Boolean
-        .toString( true ) );
-    assertTrue( executor.useDistributedCache( conf, p ) );
-
-    // False if set in conf, conf overrides properties
-    conf.set( JobEntryHadoopTransJobExecutor.PENTAHO_MAPREDUCE_PROPERTY_USE_DISTRIBUTED_CACHE, Boolean.toString( false ) );
-    assertFalse( executor.useDistributedCache( conf, p ) );
-
-    // True if set in conf, conf overrides properties
-    conf.set( JobEntryHadoopTransJobExecutor.PENTAHO_MAPREDUCE_PROPERTY_USE_DISTRIBUTED_CACHE, Boolean.toString( true ) );
-    p.setProperty( JobEntryHadoopTransJobExecutor.PENTAHO_MAPREDUCE_PROPERTY_USE_DISTRIBUTED_CACHE, Boolean
-        .toString( false ) );
-    assertTrue( executor.useDistributedCache( conf, p ) );
-  }
-
-  @Test
-  public void verifyTransMetaBadOutputFields() throws IOException, KettleException {
-    try {
-      TransMeta transMeta = new TransMeta( "./src/test/resources/bad-output-fields.ktr" );
-
-      JobEntryHadoopTransJobExecutor.verifyTransMeta( transMeta, "Injector", "Output" );
-      fail( "Should have thrown an exception" );
-    } catch ( KettleException e ) {
-      assertTrue( "Test for KettleException", e.getMessage().contains(
-          "outKey or outValue is not defined in output stream" ) );
-    }
+  public static final void setup() throws Throwable {
+    namedClusterService = mock( NamedClusterService.class );
+    when( namedClusterService.getClusterTemplate() ).thenReturn( mock( NamedCluster.class ) );
+    runtimeTestActionService = mock( RuntimeTestActionService.class );
+    runtimeTester = mock(
+      RuntimeTester.class );
+    namedClusterServiceLocator = mock( NamedClusterServiceLocator.class );
+    rep = mock( Repository.class );
+    metaStore = mock( IMetaStore.class );
+    when( rep.getMetaStore() ).thenReturn( metaStore );
+    oid = mock( ObjectId.class );
+    exec = new JobEntryHadoopTransJobExecutor( namedClusterService, runtimeTestActionService, runtimeTester,
+      namedClusterServiceLocator );
   }
 
   @Test
   public void loadRep_num_map_tasks_null() throws Throwable {
-    JobEntryHadoopTransJobExecutor exec = new JobEntryHadoopTransJobExecutor();
-    Repository rep = EasyMock.createNiceMock( Repository.class );
-    ObjectId oid = EasyMock.createMock( ObjectId.class );
-
-    EasyMock.expect( rep.getJobEntryAttributeString( oid, "num_map_tasks" ) ).andReturn( null );
-    EasyMock.replay( rep );
-
-    exec.loadRep( rep, oid, null, null );
-    EasyMock.verify( rep );
-
+    when( rep.getJobEntryAttributeString( oid, "num_map_tasks" ) ).thenReturn( null );
+    exec.loadRep( rep, metaStore, oid, null, null );
     assertEquals( null, exec.getNumMapTasks() );
   }
 
   @Test
   public void loadRep_num_map_tasks_empty() throws Throwable {
-    JobEntryHadoopTransJobExecutor exec = new JobEntryHadoopTransJobExecutor();
-    Repository rep = EasyMock.createNiceMock( Repository.class );
-    ObjectId oid = EasyMock.createMock( ObjectId.class );
-
-    EasyMock.expect( rep.getJobEntryAttributeString( oid, "num_map_tasks" ) ).andReturn( "" );
-    EasyMock.replay( rep );
-
-    exec.loadRep( rep, oid, null, null );
-    EasyMock.verify( rep );
-
+    when( rep.getJobEntryAttributeString( oid, "num_map_tasks" ) ).thenReturn( "" );
+    exec.loadRep( rep, metaStore, oid, null, null );
     assertEquals( "", exec.getNumMapTasks() );
   }
 
   @Test
   public void loadRep_num_map_tasks_variable() throws Throwable {
-    JobEntryHadoopTransJobExecutor exec = new JobEntryHadoopTransJobExecutor();
-    Repository rep = EasyMock.createNiceMock( Repository.class );
-    ObjectId oid = EasyMock.createMock( ObjectId.class );
-
-    EasyMock.expect( rep.getJobEntryAttributeString( oid, "num_map_tasks" ) ).andReturn( "${test}" );
-    EasyMock.replay( rep );
-
-    exec.loadRep( rep, oid, null, null );
-    EasyMock.verify( rep );
-
+    when( rep.getJobEntryAttributeString( oid, "num_map_tasks" ) ).thenReturn( "${test}" );
+    exec.loadRep( rep, metaStore, oid, null, null );
     assertEquals( "${test}", exec.getNumMapTasks() );
   }
 
   @Test
   public void loadRep_num_map_tasks_number() throws Throwable {
-    JobEntryHadoopTransJobExecutor exec = new JobEntryHadoopTransJobExecutor();
-    Repository rep = EasyMock.createNiceMock( Repository.class );
-    ObjectId oid = EasyMock.createMock( ObjectId.class );
-
-    EasyMock.expect( rep.getJobEntryAttributeString( oid, "num_map_tasks" ) ).andReturn( "5" );
-    EasyMock.replay( rep );
-
-    exec.loadRep( rep, oid, null, null );
-    EasyMock.verify( rep );
-
+    when( rep.getJobEntryAttributeString( oid, "num_map_tasks" ) ).thenReturn( "5" );
+    exec.loadRep( rep, metaStore, oid, null, null );
     assertEquals( "5", exec.getNumMapTasks() );
   }
 
   @Test
   public void loadRep_num_reduce_tasks_null() throws Throwable {
-    JobEntryHadoopTransJobExecutor exec = new JobEntryHadoopTransJobExecutor();
-    Repository rep = EasyMock.createNiceMock( Repository.class );
-    ObjectId oid = EasyMock.createMock( ObjectId.class );
-
-    EasyMock.expect( rep.getJobEntryAttributeString( oid, "num_reduce_tasks" ) ).andReturn( null );
-    EasyMock.replay( rep );
-
-    exec.loadRep( rep, oid, null, null );
-    EasyMock.verify( rep );
-
+    when( rep.getJobEntryAttributeString( oid, "num_reduce_tasks" ) ).thenReturn( null );
+    exec.loadRep( rep, metaStore, oid, null, null );
     assertEquals( null, exec.getNumReduceTasks() );
   }
 
   @Test
   public void loadRep_num_reduce_tasks_empty() throws Throwable {
-    JobEntryHadoopTransJobExecutor exec = new JobEntryHadoopTransJobExecutor();
-    Repository rep = EasyMock.createNiceMock( Repository.class );
-    ObjectId oid = EasyMock.createMock( ObjectId.class );
-
-    EasyMock.expect( rep.getJobEntryAttributeString( oid, "num_reduce_tasks" ) ).andReturn( "" );
-    EasyMock.replay( rep );
-
-    exec.loadRep( rep, oid, null, null );
-    EasyMock.verify( rep );
-
+    when( rep.getJobEntryAttributeString( oid, "num_reduce_tasks" ) ).thenReturn( "" );
+    exec.loadRep( rep, metaStore, oid, null, null );
     assertEquals( "", exec.getNumReduceTasks() );
   }
 
   @Test
   public void loadRep_num_reduce_tasks_variable() throws Throwable {
-    JobEntryHadoopTransJobExecutor exec = new JobEntryHadoopTransJobExecutor();
-    Repository rep = EasyMock.createNiceMock( Repository.class );
-    ObjectId oid = EasyMock.createMock( ObjectId.class );
-
-    EasyMock.expect( rep.getJobEntryAttributeString( oid, "num_reduce_tasks" ) ).andReturn( "${test}" );
-    EasyMock.replay( rep );
-
-    exec.loadRep( rep, oid, null, null );
-    EasyMock.verify( rep );
-
+    when( rep.getJobEntryAttributeString( oid, "num_reduce_tasks" ) ).thenReturn( "${test}" );
+    exec.loadRep( rep, metaStore, oid, null, null );
     assertEquals( "${test}", exec.getNumReduceTasks() );
   }
 
   @Test
   public void loadRep_num_reduce_tasks_number() throws Throwable {
-    JobEntryHadoopTransJobExecutor exec = new JobEntryHadoopTransJobExecutor();
-    Repository rep = EasyMock.createNiceMock( Repository.class );
-    ObjectId oid = EasyMock.createMock( ObjectId.class );
-
-    EasyMock.expect( rep.getJobEntryAttributeString( oid, "num_reduce_tasks" ) ).andReturn( "5" );
-    EasyMock.replay( rep );
-
-    exec.loadRep( rep, oid, null, null );
-    EasyMock.verify( rep );
-
+    when( rep.getJobEntryAttributeString( oid, "num_reduce_tasks" ) ).thenReturn( "5" );
+    exec.loadRep( rep, metaStore, oid, null, null );
     assertEquals( "5", exec.getNumReduceTasks() );
   }
-
-  @Test
-  public void exportResources() throws Throwable {
-
-    // Init mocks
-    Map<String, ResourceDefinition> definitions = new HashMap<String, ResourceDefinition>();
-    Repository rep = EasyMock.createNiceMock( Repository.class );
-    ObjectId oid = EasyMock.createMock( ObjectId.class );
-    TransMeta tm = EasyMock.createNiceMock( TransMeta.class );
-    ResourceNamingInterface rni = EasyMock.createNiceMock( ResourceNamingInterface.class );
-    IMetaStore metaStore = EasyMock.createNiceMock( IMetaStore.class );
-
-    // fill with sample data
-    JobEntryHadoopTransJobExecutor exec = new JobEntryHadoopTransJobExecutor();
-    exec.setReduceRepositoryReference( oid );
-
-    EasyMock.expect(
-      tm.exportResources( EasyMock.anyObject( VariableSpace.class ), (Map<String, ResourceDefinition>) EasyMock
-          .anyObject(),
-        EasyMock.anyObject( ResourceNamingInterface.class ),
-        EasyMock.anyObject( Repository.class ), EasyMock.anyObject( IMetaStore.class ) ) ).andStubReturn( "newPath" );
-    EasyMock.replay( tm );
-    EasyMock.expect( rep.loadTransformation( oid, null ) ).andReturn( tm );
-    EasyMock.replay( rep );
-
-    exec.exportResources( null, definitions, rni, rep, metaStore );
-    EasyMock.verify( rep );
-
-    assertEquals( "${Internal.Job.Filename.Directory}/newPath", exec.getReduceTrans() );
-  }
-  
-  @Test
-  public void testConfigureMapreduceClasspath() throws Throwable {
-    JobEntryHadoopTransJobExecutor jobEntryHadoopTransJobExecutor = new JobEntryHadoopTransJobExecutor();
-    HadoopShim hadoopShim = mock( HadoopShim.class );
-    DistributedCacheUtil distributedCacheUtil = mock( DistributedCacheUtil.class );
-    when( hadoopShim.getDistributedCacheUtil() ).thenReturn( distributedCacheUtil );
-    FileSystem fileSystem = mock( FileSystem.class );
-    Path kettleEnvInstallDir = mock( Path.class );
-    when( kettleEnvInstallDir.toUri() ).thenReturn( URI.create( "hdfs:///" ) );
-    Configuration configuration = mock( Configuration.class );
-    String testClasspath = "TEST_CLASSPATH";
-    when( configuration.get( JobEntryHadoopTransJobExecutor.MAPREDUCE_APPLICATION_CLASSPATH,
-      JobEntryHadoopTransJobExecutor.DEFAULT_MAPREDUCE_APPLICATION_CLASSPATH ) )
-      .thenReturn( testClasspath );
-    when( distributedCacheUtil.isKettleEnvironmentInstalledAt( fileSystem, kettleEnvInstallDir ) ).thenReturn( true );
-    jobEntryHadoopTransJobExecutor.configureWithKettleEnvironment( hadoopShim, configuration, fileSystem,
-      kettleEnvInstallDir );
-    org.mockito.Mockito.verify( configuration ).set( JobEntryHadoopTransJobExecutor.MAPREDUCE_APPLICATION_CLASSPATH,
-      "classes/," + testClasspath );
-  }*/
 }
