@@ -53,7 +53,8 @@ public interface MapReduceService {
    */
   MapReduceJobBuilder createJobBuilder( LogChannelInterface log, VariableSpace variableSpace );
 
-  PentahoMapReduceJobBuilder createPentahoMapReduceJobBuilder( LogChannelInterface log, VariableSpace variableSpace );
+  PentahoMapReduceJobBuilder createPentahoMapReduceJobBuilder( LogChannelInterface log, VariableSpace variableSpace )
+    throws IOException;
 
   /**
    * Returns relevant information on a jar

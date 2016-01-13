@@ -1,23 +1,18 @@
 /*******************************************************************************
- *
  * Pentaho Big Data
- *
+ * <p/>
  * Copyright (C) 2002-2015 by Pentaho : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
+ * <p/>
+ * ******************************************************************************
+ * <p/>
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  ******************************************************************************/
 
 package org.pentaho.big.data.impl.shim.mapreduce;
@@ -29,10 +24,13 @@ import org.pentaho.bigdata.api.mapreduce.MapReduceExecutionException;
 import org.pentaho.bigdata.api.mapreduce.MapReduceJarInfo;
 import org.pentaho.bigdata.api.mapreduce.MapReduceJobBuilder;
 import org.pentaho.bigdata.api.mapreduce.MapReduceJobSimple;
+import org.pentaho.bigdata.api.mapreduce.PentahoMapReduceJobBuilder;
 import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.i18n.BaseMessages;
 import org.pentaho.di.job.entries.hadoopjobexecutor.JarUtility;
+import org.pentaho.hadoop.PluginPropertiesUtil;
+import org.pentaho.hadoop.shim.HadoopConfiguration;
 import org.pentaho.hadoop.shim.spi.HadoopShim;
 
 import java.io.FileNotFoundException;
@@ -44,9 +42,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -60,15 +56,22 @@ public class MapReduceServiceImplTest {
   private JarUtility jarUtility;
   private MapReduceServiceImpl mapReduceService;
   private URL resolvedJarUrl;
+  private HadoopConfiguration hadoopConfiguration;
+  private PluginPropertiesUtil pluginPropertiesUtil;
 
   @Before
   public void setup() throws MalformedURLException {
     namedCluster = mock( NamedCluster.class );
+    hadoopConfiguration = mock( HadoopConfiguration.class );
     hadoopShim = mock( HadoopShim.class );
+    when( hadoopConfiguration.getHadoopShim() ).thenReturn( hadoopShim );
     executorService = mock( ExecutorService.class );
     jarUtility = mock( JarUtility.class );
     resolvedJarUrl = new URL( "http://jar.net/jar" );
-//    mapReduceService = new MapReduceServiceImpl( namedCluster, hadoopShim, executorService, jarUtility );
+    pluginPropertiesUtil = mock(
+      PluginPropertiesUtil.class );
+    mapReduceService =
+      new MapReduceServiceImpl( namedCluster, hadoopConfiguration, executorService, jarUtility, pluginPropertiesUtil );
   }
 
   @Test( expected = MapReduceExecutionException.class )
@@ -160,6 +163,14 @@ public class MapReduceServiceImplTest {
   }
 
   @Test
+  public void testCreatePmrJobBuilder() throws IOException {
+    PentahoMapReduceJobBuilder jobBuilder =
+      mapReduceService
+        .createPentahoMapReduceJobBuilder( mock( LogChannelInterface.class ), mock( VariableSpace.class ) );
+    assertNotNull( jobBuilder );
+  }
+
+  @Test
   public void testGetJarInfoNoMain() throws IOException, ClassNotFoundException {
     when(
       jarUtility.getClassesInJarWithMain( resolvedJarUrl.toExternalForm(), hadoopShim.getClass().getClassLoader() ) )
@@ -185,7 +196,7 @@ public class MapReduceServiceImplTest {
   public void testGetJarInfoMainException() throws IOException, ClassNotFoundException {
     when(
       jarUtility.getMainClassFromManifest( resolvedJarUrl, hadoopShim.getClass().getClassLoader() ) )
-      .thenThrow( new FileNotFoundException(  ) );
+      .thenThrow( new FileNotFoundException() );
     MapReduceJarInfo jarInfo = mapReduceService.getJarInfo( resolvedJarUrl );
     assertEquals( new ArrayList<>(), jarInfo.getClassesWithMain() );
     assertNull( jarInfo.getMainClass() );
