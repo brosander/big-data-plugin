@@ -171,7 +171,7 @@ public class MapReduceJobBuilderImpl implements MapReduceJobBuilder {
       Class<?> valueClass = loader.loadClass( mapOutputValueClass );
       conf.setMapOutputValueClass( valueClass );
     }
-    if( mapRunnerClass != null ) {
+    if ( mapRunnerClass != null ) {
       Class<?> runnerClass = loader.loadClass( mapRunnerClass );
       conf.setMapRunnerClass( runnerClass );
     }

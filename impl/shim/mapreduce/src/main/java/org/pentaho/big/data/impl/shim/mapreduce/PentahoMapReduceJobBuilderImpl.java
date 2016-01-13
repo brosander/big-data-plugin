@@ -71,6 +71,26 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
     "PentahoMapReduceJobBuilderImpl.NoOutputKeyOrdinal";
   public static final String PENTAHO_MAP_REDUCE_JOB_BUILDER_IMPL_NO_OUTPUT_VALUE_ORDINAL =
     "PentahoMapReduceJobBuilderImpl.NoOutputValueOrdinal";
+  public static final String TRANSFORMATION_MAP_XML = "transformation-map-xml";
+  public static final String TRANSFORMATION_MAP_INPUT_STEPNAME = "transformation-map-input-stepname";
+  public static final String TRANSFORMATION_MAP_OUTPUT_STEPNAME = "transformation-map-output-stepname";
+  public static final String LOG_LEVEL = "logLevel";
+  public static final String TRANSFORMATION_COMBINER_XML = "transformation-combiner-xml";
+  public static final String TRANSFORMATION_COMBINER_INPUT_STEPNAME = "transformation-combiner-input-stepname";
+  public static final String TRANSFORMATION_COMBINER_OUTPUT_STEPNAME = "transformation-combiner-output-stepname";
+  public static final String TRANSFORMATION_REDUCE_XML = "transformation-reduce-xml";
+  public static final String TRANSFORMATION_REDUCE_INPUT_STEPNAME = "transformation-reduce-input-stepname";
+  public static final String TRANSFORMATION_REDUCE_OUTPUT_STEPNAME = "transformation-reduce-output-stepname";
+  public static final String JOB_ENTRY_HADOOP_TRANS_JOB_EXECUTOR_CLEANING_OUTPUT_PATH =
+    "JobEntryHadoopTransJobExecutor.CleaningOutputPath";
+  public static final String JOB_ENTRY_HADOOP_TRANS_JOB_EXECUTOR_FAILED_TO_CLEAN_OUTPUT_PATH =
+    "JobEntryHadoopTransJobExecutor.FailedToCleanOutputPath";
+  public static final String JOB_ENTRY_HADOOP_TRANS_JOB_EXECUTOR_ERROR_CLEANING_OUTPUT_PATH =
+    "JobEntryHadoopTransJobExecutor.ErrorCleaningOutputPath";
+  public static final String JOB_ENTRY_HADOOP_TRANS_JOB_EXECUTOR_KETTLE_HDFS_INSTALL_DIR_MISSING =
+    "JobEntryHadoopTransJobExecutor.KettleHdfsInstallDirMissing";
+  public static final String JOB_ENTRY_HADOOP_TRANS_JOB_EXECUTOR_INSTALLATION_OF_KETTLE_FAILED =
+    "JobEntryHadoopTransJobExecutor.InstallationOfKettleFailed";
   private final HadoopConfiguration hadoopConfiguration;
   private final HadoopShim hadoopShim;
   private final LogChannelInterface log;
@@ -240,24 +260,24 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
   @Override protected void configure( Configuration conf ) throws Exception {
     setMapRunnerClass( hadoopShim.getPentahoMapReduceMapRunnerClass().getCanonicalName() );
 
-    conf.set( "transformation-map-xml", mapperTransformationXml );
-    conf.set( "transformation-map-input-stepname", mapperInputStep );
-    conf.set( "transformation-map-output-stepname", mapperOutputStep );
+    conf.set( TRANSFORMATION_MAP_XML, mapperTransformationXml );
+    conf.set( TRANSFORMATION_MAP_INPUT_STEPNAME, mapperInputStep );
+    conf.set( TRANSFORMATION_MAP_OUTPUT_STEPNAME, mapperOutputStep );
 
     if ( combinerTransformationXml != null ) {
-      conf.set( "transformation-combiner-xml", combinerTransformationXml );
-      conf.set( "transformation-combiner-input-stepname", combinerInputStep );
-      conf.set( "transformation-combiner-output-stepname", combinerOutputStep );
+      conf.set( TRANSFORMATION_COMBINER_XML, combinerTransformationXml );
+      conf.set( TRANSFORMATION_COMBINER_INPUT_STEPNAME, combinerInputStep );
+      conf.set( TRANSFORMATION_COMBINER_OUTPUT_STEPNAME, combinerOutputStep );
       setCombinerClass( hadoopShim.getPentahoMapReduceCombinerClass().getCanonicalName() );
     }
     if ( reducerTransformationXml != null ) {
-      conf.set( "transformation-reduce-xml", reducerTransformationXml );
-      conf.set( "transformation-reduce-input-stepname", reducerInputStep );
-      conf.set( "transformation-reduce-output-stepname", reducerOutputStep );
+      conf.set( TRANSFORMATION_REDUCE_XML, reducerTransformationXml );
+      conf.set( TRANSFORMATION_REDUCE_INPUT_STEPNAME, reducerInputStep );
+      conf.set( TRANSFORMATION_REDUCE_OUTPUT_STEPNAME, reducerOutputStep );
       setReducerClass( hadoopShim.getPentahoMapReduceReducerClass().getCanonicalName() );
     }
     conf.setJarByClass( hadoopShim.getPentahoMapReduceMapRunnerClass() );
-    conf.set( "logLevel", logLevel.toString() );
+    conf.set( LOG_LEVEL, logLevel.toString() );
 
     super.configure( conf );
   }
@@ -266,8 +286,9 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
     cleanOutputPath( conf );
 
     FileSystem fs = hadoopShim.getFileSystem( conf );
-    // Only configure our job to use the Distributed Cache if the pentaho-mapreduce
-    if ( useDistributedCache( conf, pmrProperties ) ) {
+
+    if ( Boolean.parseBoolean( getProperty( conf, pmrProperties, PENTAHO_MAPREDUCE_PROPERTY_USE_DISTRIBUTED_CACHE,
+      Boolean.toString( true ) ) ) ) {
       String installPath =
         getProperty( conf, pmrProperties, PENTAHO_MAPREDUCE_PROPERTY_KETTLE_HDFS_INSTALL_DIR, null );
       String installId =
@@ -276,7 +297,7 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
       try {
         if ( Const.isEmpty( installPath ) ) {
           throw new IllegalArgumentException( BaseMessages.getString( PKG,
-            "JobEntryHadoopTransJobExecutor.KettleHdfsInstallDirMissing" ) );
+            JOB_ENTRY_HADOOP_TRANS_JOB_EXECUTOR_KETTLE_HDFS_INSTALL_DIR_MISSING ) );
         }
         if ( Const.isEmpty( installId ) ) {
           String pluginVersion = new PluginPropertiesUtil().getVersion();
@@ -303,88 +324,42 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
           // Load additional plugin folders as requested
           String additionalPluginNames =
             getProperty( conf, pmrProperties, PENTAHO_MAPREDUCE_PROPERTY_ADDITIONAL_PLUGINS, null );
-          installKettleEnvironment( hadoopShim, pmrLibArchive, fs, kettleEnvInstallDir, additionalPluginNames );
+          if ( pmrLibArchive == null ) {
+            throw new KettleException( BaseMessages.getString( PKG, "JobEntryHadoopTransJobExecutor.UnableToLocateArchive",
+
+              pmrLibArchive ) );
+          }
+
+          log.logBasic( BaseMessages.getString( PKG, "JobEntryHadoopTransJobExecutor.InstallingKettleAt",
+            kettleEnvInstallDir ) );
+
+          FileObject bigDataPluginFolder = KettleVFS.getFileObject( pluginInterface.getPluginDirectory().getPath() );
+          hadoopShim.getDistributedCacheUtil().installKettleEnvironment( pmrLibArchive, fs, kettleEnvInstallDir, bigDataPluginFolder,
+            additionalPluginNames );
+
+          log.logBasic( BaseMessages
+            .getString( PKG, "JobEntryHadoopTransJobExecutor.InstallationOfKettleSuccessful", kettleEnvInstallDir ) );
         }
-        configureWithKettleEnvironment( hadoopShim, conf, fs, kettleEnvInstallDir );
+        if ( !hadoopShim.getDistributedCacheUtil().isKettleEnvironmentInstalledAt( fs, kettleEnvInstallDir ) ) {
+          throw new KettleException( BaseMessages.getString( PKG,
+            "JobEntryHadoopTransJobExecutor.KettleInstallationMissingFrom", kettleEnvInstallDir.toUri().getPath() ) );
+        }
+
+        log.logBasic( BaseMessages.getString( PKG, "JobEntryHadoopTransJobExecutor.ConfiguringJobWithKettleAt",
+          kettleEnvInstallDir.toUri().getPath() ) );
+
+        String mapreduceClasspath = conf.get( MAPREDUCE_APPLICATION_CLASSPATH, DEFAULT_MAPREDUCE_APPLICATION_CLASSPATH );
+        conf.set( MAPREDUCE_APPLICATION_CLASSPATH, "classes/," + mapreduceClasspath );
+
+        hadoopShim.getDistributedCacheUtil().configureWithKettleEnvironment( conf, fs, kettleEnvInstallDir );
+        log.logBasic( MAPREDUCE_APPLICATION_CLASSPATH + ": " + conf.get( MAPREDUCE_APPLICATION_CLASSPATH ) );
       } catch ( Exception ex ) {
         throw new IOException(
-          BaseMessages.getString( PKG, "JobEntryHadoopTransJobExecutor.InstallationOfKettleFailed" ), ex );
+          BaseMessages.getString( PKG, JOB_ENTRY_HADOOP_TRANS_JOB_EXECUTOR_INSTALLATION_OF_KETTLE_FAILED ), ex );
       }
     }
 
     return super.submit( conf );
-  }
-
-  /**
-   * Install the Kettle environment, packaged in {@code pmrLibArchive} into the destination within the file systme
-   * provided.
-   *
-   * @param shim              Hadoop Shim to work with
-   * @param pmrLibArchive     Archive that contains the libraries required to run Pentaho MapReduce (Kettle's
-   *                          dependencies)
-   * @param fs                File system to install the Kettle environment into
-   * @param destination       Destination path within {@code fs} to install into
-   * @param additionalPlugins Any additional plugin directories to copy into the installation
-   * @throws KettleException
-   * @throws IOException
-   */
-  @VisibleForTesting void installKettleEnvironment( HadoopShim shim, FileObject pmrLibArchive, FileSystem fs,
-                                                    Path destination,
-                                                    String additionalPlugins ) throws Exception {
-    if ( pmrLibArchive == null ) {
-      throw new KettleException( BaseMessages.getString( PKG, "JobEntryHadoopTransJobExecutor.UnableToLocateArchive",
-        pmrLibArchive ) );
-    }
-
-    log.logBasic( BaseMessages.getString( PKG, "JobEntryHadoopTransJobExecutor.InstallingKettleAt", destination ) );
-
-    FileObject bigDataPluginFolder = KettleVFS.getFileObject( pluginInterface.getPluginDirectory().getPath() );
-    shim.getDistributedCacheUtil().installKettleEnvironment( pmrLibArchive, fs, destination, bigDataPluginFolder,
-      additionalPlugins );
-
-    log.logBasic( BaseMessages
-      .getString( PKG, "JobEntryHadoopTransJobExecutor.InstallationOfKettleSuccessful", destination ) );
-  }
-
-  /**
-   * Configure the provided configuration to use the Distributed Cache backed by the Kettle Environment installed at the
-   * installation directory provided.
-   *
-   * @param shim                Hadoop Shim to work with
-   * @param conf                Configuration to update
-   * @param fs                  File system that contains the Kettle environment to use
-   * @param kettleEnvInstallDir Kettle environment installation path
-   * @throws IOException
-   * @throws KettleException
-   */
-  @VisibleForTesting void configureWithKettleEnvironment( HadoopShim shim, Configuration conf, FileSystem fs,
-                                                          Path kettleEnvInstallDir ) throws Exception {
-    if ( !shim.getDistributedCacheUtil().isKettleEnvironmentInstalledAt( fs, kettleEnvInstallDir ) ) {
-      throw new KettleException( BaseMessages.getString( PKG,
-        "JobEntryHadoopTransJobExecutor.KettleInstallationMissingFrom", kettleEnvInstallDir.toUri().getPath() ) );
-    }
-
-    log.logBasic( BaseMessages.getString( PKG, "JobEntryHadoopTransJobExecutor.ConfiguringJobWithKettleAt",
-      kettleEnvInstallDir.toUri().getPath() ) );
-
-    String mapreduceClasspath = conf.get( MAPREDUCE_APPLICATION_CLASSPATH, DEFAULT_MAPREDUCE_APPLICATION_CLASSPATH );
-    conf.set( MAPREDUCE_APPLICATION_CLASSPATH, "classes/," + mapreduceClasspath );
-
-    shim.getDistributedCacheUtil().configureWithKettleEnvironment( conf, fs, kettleEnvInstallDir );
-    log.logBasic( MAPREDUCE_APPLICATION_CLASSPATH + ": " + conf.get( MAPREDUCE_APPLICATION_CLASSPATH ) );
-  }
-
-  /**
-   * Should the DistributedCache be used for this job execution?
-   *
-   * @param conf          Configuration to check for the property
-   * @param pmrProperties Properties to check for the property
-   * @return {@code true} if either {@code conf} or {@code pmrProperties} contains {@code
-   * PENTAHO_MAPREDUCE_PROPERTY_USE_DISTRIBUTED_CACHE}
-   */
-  public boolean useDistributedCache( Configuration conf, Properties pmrProperties ) {
-    return Boolean.parseBoolean( getProperty( conf, pmrProperties, PENTAHO_MAPREDUCE_PROPERTY_USE_DISTRIBUTED_CACHE,
-      Boolean.toString( true ) ) );
   }
 
   /**
@@ -409,7 +384,7 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
       Path path = getOutputPath( conf, fs );
       String outputPath = path.toUri().toString();
       if ( log.isBasic() ) {
-        log.logBasic( BaseMessages.getString( PKG, "JobEntryHadoopTransJobExecutor.CleaningOutputPath", outputPath ) );
+        log.logBasic( BaseMessages.getString( PKG, JOB_ENTRY_HADOOP_TRANS_JOB_EXECUTOR_CLEANING_OUTPUT_PATH, outputPath ) );
       }
       try {
         if ( !fs.exists( path ) ) {
@@ -419,12 +394,12 @@ public class PentahoMapReduceJobBuilderImpl extends MapReduceJobBuilderImpl impl
         if ( !fs.delete( path, true ) ) {
           if ( log.isBasic() ) {
             log.logBasic(
-              BaseMessages.getString( PKG, "JobEntryHadoopTransJobExecutor.FailedToCleanOutputPath", outputPath ) );
+              BaseMessages.getString( PKG, JOB_ENTRY_HADOOP_TRANS_JOB_EXECUTOR_FAILED_TO_CLEAN_OUTPUT_PATH, outputPath ) );
           }
         }
       } catch ( IOException ex ) {
         throw new IOException(
-          BaseMessages.getString( PKG, "JobEntryHadoopTransJobExecutor.ErrorCleaningOutputPath", outputPath ), ex );
+          BaseMessages.getString( PKG, JOB_ENTRY_HADOOP_TRANS_JOB_EXECUTOR_ERROR_CLEANING_OUTPUT_PATH, outputPath ), ex );
       }
     }
   }
