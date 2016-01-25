@@ -804,7 +804,7 @@ public class HBaseOutputDialog extends BaseStepDialog implements StepDialogInter
           "MappingDialog.Error.Message.CantConnectNoConnectionDetailsProvided" ) );
     }
 
-    return namedClusterServiceLocator.getService( nc, HBaseService.class ).getHBaseConnection( coreConf, defaultConf, null );
+    return namedClusterServiceLocator.getService( nc, HBaseService.class ).getHBaseConnection( transMeta, coreConf, defaultConf, null );
   }
 
   private void setupMappedTableNames() {

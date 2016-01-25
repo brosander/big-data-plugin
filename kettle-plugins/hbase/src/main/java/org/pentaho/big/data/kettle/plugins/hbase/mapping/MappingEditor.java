@@ -1182,7 +1182,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
     if ( nc == null ) {
       return null;
     }
-    return namedClusterServiceLocator.getService( nc, HBaseService.class ).getHBaseConnection( null, null, null );
+    return namedClusterServiceLocator.getService( nc, HBaseService.class ).getHBaseConnection( null, null, null, null );
   }
 
   public String getCurrentConfiguration() {

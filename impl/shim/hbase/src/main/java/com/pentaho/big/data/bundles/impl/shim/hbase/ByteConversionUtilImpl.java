@@ -3,7 +3,6 @@ package com.pentaho.big.data.bundles.impl.shim.hbase;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.pentaho.bigdata.api.hbase.ByteConversionUtil;
 import org.pentaho.bigdata.api.hbase.mapping.Mapping;
-import org.pentaho.bigdata.api.hbase.meta.HBaseValueMetaInterface;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.hbase.shim.api.HBaseValueMeta;
@@ -129,24 +128,12 @@ public class ByteConversionUtilImpl implements ByteConversionUtil {
 
   @Override public byte[] encodeKeyValue( Object o, ValueMetaInterface valueMetaInterface, Mapping.KeyType keyType )
     throws KettleException {
-    return HBaseValueMeta.encodeKeyValue( o, valueMetaInterface, org.pentaho.hbase.shim.api.Mapping.KeyType.valueOf( keyType.name() ), hBaseBytesUtilShim );
-  }
-
-  @Override public byte[] encodeColumnValue( Object o, ValueMetaInterface valueMetaInterface,
-                                             HBaseValueMetaInterface hbaseColMeta ) throws KettleException {
-    return HBaseValueMeta.encodeColumnValue( o, valueMetaInterface, (HBaseValueMeta) hbaseColMeta, hBaseBytesUtilShim );
+    return HBaseValueMeta
+      .encodeKeyValue( o, valueMetaInterface, org.pentaho.hbase.shim.api.Mapping.KeyType.valueOf( keyType.name() ),
+        hBaseBytesUtilShim );
   }
 
   @Override public boolean isImmutableBytesWritable( Object o ) {
     return o instanceof ImmutableBytesWritable;
-  }
-
-  @Override public Object decodeColumnValue( byte[] bytes, HBaseValueMetaInterface valueMetaInterface )
-    throws KettleException {
-    return HBaseValueMeta.decodeColumnValue( bytes, (HBaseValueMeta) valueMetaInterface, hBaseBytesUtilShim );
-  }
-
-  @Override public Object decodeKeyValue( byte[] rowKey, Mapping m_tableMapping ) throws KettleException {
-    return HBaseValueMeta.decodeKeyValue( rowKey, (org.pentaho.hbase.shim.api.Mapping) m_tableMapping, hBaseBytesUtilShim );
   }
 }

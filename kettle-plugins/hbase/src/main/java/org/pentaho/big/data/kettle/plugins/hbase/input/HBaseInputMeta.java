@@ -408,21 +408,7 @@ public class HBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
       retval.append( "\n    " ).append( XMLHandler.openTag( "output_fields" ) );
 
       for ( HBaseValueMetaInterface vm : m_outputFields ) {
-        retval.append( "\n        " ).append( XMLHandler.openTag( "field" ) );
-        retval.append( "\n            " ).append( XMLHandler.addTagValue( "table_name", vm.getTableName() ) );
-        retval.append( "\n            " ).append( XMLHandler.addTagValue( "mapping_name", vm.getMappingName() ) );
-        retval.append( "\n            " ).append( XMLHandler.addTagValue( "alias", vm.getAlias() ) );
-        retval.append( "\n            " ).append( XMLHandler.addTagValue( "family", vm.getColumnFamily() ) );
-        retval.append( "\n            " ).append( XMLHandler.addTagValue( "column", vm.getColumnName() ) );
-        retval.append( "\n            " ).append( XMLHandler.addTagValue( "key", vm.isKey() ) );
-        retval.append( "\n            " ).append(
-            XMLHandler.addTagValue( "type", ValueMeta.getTypeDesc( vm.getType() ) ) );
-        String format = vm.getConversionMask();
-        retval.append( "\n            " ).append( XMLHandler.addTagValue( "format", format ) );
-        if ( vm.getStorageType() == ValueMetaInterface.STORAGE_TYPE_INDEXED ) {
-          retval.append( "\n            " ).append( XMLHandler.addTagValue( "index_values", getIndexValues( vm ) ) );
-        }
-        retval.append( "\n        " ).append( XMLHandler.closeTag( "field" ) );
+        vm.getXml( retval );
       }
 
       retval.append( "\n    " ).append( XMLHandler.closeTag( "output_fields" ) );
@@ -474,56 +460,7 @@ public class HBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
       m_matchAnyFilter = m.equalsIgnoreCase( "Y" );
     }
 
-    Node fields = XMLHandler.getSubNode( stepnode, "output_fields" );
-    if ( fields != null && XMLHandler.countNodes( fields, "field" ) > 0 ) {
-      int nrfields = XMLHandler.countNodes( fields, "field" );
-      m_outputFields = new ArrayList<HBaseValueMetaInterface>();
-
-      for ( int i = 0; i < nrfields; i++ ) {
-        Node fieldNode = XMLHandler.getSubNodeByNr( fields, "field", i );
-
-        String isKey = XMLHandler.getTagValue( fieldNode, "key" ).trim();
-        String alias = XMLHandler.getTagValue( fieldNode, "alias" ).trim();
-        String colFamily = "";
-        String colName = alias;
-        if ( !isKey.equalsIgnoreCase( "Y" ) ) {
-          if ( XMLHandler.getTagValue( fieldNode, "family" ) != null ) {
-            colFamily = XMLHandler.getTagValue( fieldNode, "family" ).trim();
-          }
-
-          if ( XMLHandler.getTagValue( fieldNode, "column" ) != null ) {
-            colName = XMLHandler.getTagValue( fieldNode, "column" ).trim();
-          }
-        }
-
-        String typeS = XMLHandler.getTagValue( fieldNode, "type" ).trim();
-        HBaseValueMetaInterface vm = valueMetaInterfaceFactory
-          .createHBaseValueMetaInterface( colFamily, colName, alias, ValueMeta.getType( typeS ), -1, -1 );
-        vm.setTableName( XMLHandler.getTagValue( fieldNode, "table_name" ) );
-        vm.setTableName( XMLHandler.getTagValue( fieldNode, "mapping_name" ) );
-        vm.setKey( isKey.equalsIgnoreCase( "Y" ) );
-
-        String format = XMLHandler.getTagValue( fieldNode, "format" );
-        if ( !Const.isEmpty( format ) ) {
-          vm.setConversionMask( format );
-        }
-
-        String indexValues = XMLHandler.getTagValue( fieldNode, "index_values" );
-        if ( !Const.isEmpty( indexValues ) ) {
-          String[] labels = indexValues.replace( "{", "" ).replace( "}", "" ).split( "," );
-          if ( labels.length < 1 ) {
-            throw new KettleXMLException( "Indexed/nominal type must have at least one " + "label declared" );
-          }
-          for ( int j = 0; j < labels.length; j++ ) {
-            labels[j] = labels[j].trim();
-          }
-          vm.setIndex( labels );
-          vm.setStorageType( ValueMetaInterface.STORAGE_TYPE_INDEXED );
-        }
-
-        m_outputFields.add( vm );
-      }
-    }
+    m_outputFields = valueMetaInterfaceFactory.createListFromNode( stepnode );
 
     Node filters = XMLHandler.getSubNode( stepnode, "column_filters" );
     if ( filters != null && XMLHandler.countNodes( filters, "filter" ) > 0 ) {
@@ -572,20 +509,7 @@ public class HBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
     if ( m_outputFields != null && m_outputFields.size() > 0 ) {
 
       for ( int i = 0; i < m_outputFields.size(); i++ ) {
-        HBaseValueMetaInterface vm = m_outputFields.get( i );
-
-        rep.saveStepAttribute( id_transformation, id_step, i, "table_name", vm.getTableName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "mapping_name", vm.getMappingName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "alias", vm.getAlias() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "family", vm.getColumnFamily() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "column", vm.getColumnName() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "key", vm.isKey() );
-        rep.saveStepAttribute( id_transformation, id_step, i, "type", ValueMeta.getTypeDesc( vm.getType() ) );
-        String format = vm.getConversionMask();
-        rep.saveStepAttribute( id_transformation, id_step, i, "format", format );
-        if ( vm.getStorageType() == ValueMetaInterface.STORAGE_TYPE_INDEXED ) {
-          rep.saveStepAttribute( id_transformation, id_step, i, "index_values", getIndexValues( vm ) );
-        }
+        m_outputFields.get( i ).saveRep( rep, id_transformation, id_step, i );
       }
     }
 
@@ -627,56 +551,7 @@ public class HBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
     m_matchAnyFilter = rep.getStepAttributeBoolean( id_step, 0, "match_any_filter" );
     m_scannerCacheSize = rep.getStepAttributeString( id_step, 0, "scanner_cache_size" );
 
-    int nrfields = rep.countNrStepAttributes( id_step, "table_name" );
-
-    if ( nrfields > 0 ) {
-      m_outputFields = new ArrayList<HBaseValueMetaInterface>();
-
-      for ( int i = 0; i < nrfields; i++ ) {
-
-        String colFamily = rep.getStepAttributeString( id_step, i, "family" );
-        if ( !Const.isEmpty( colFamily ) ) {
-          colFamily = colFamily.trim();
-        }
-        String colName = rep.getStepAttributeString( id_step, i, "column" );
-        if ( !Const.isEmpty( colName ) ) {
-          colName = colName.trim();
-        }
-        String alias = rep.getStepAttributeString( id_step, i, "alias" );
-        if ( !Const.isEmpty( alias ) ) {
-          alias = alias.trim();
-        }
-        String typeS = rep.getStepAttributeString( id_step, i, "type" );
-        if ( !Const.isEmpty( typeS ) ) {
-          typeS = typeS.trim();
-        }
-        boolean isKey = rep.getStepAttributeBoolean( id_step, i, "key" );
-        HBaseValueMetaInterface vm = valueMetaInterfaceFactory
-          .createHBaseValueMetaInterface( colFamily, colName, alias, ValueMeta.getType( typeS ), -1, -1 );
-        vm.setTableName( rep.getStepAttributeString( id_step, i, "table_name" ) );
-        vm.setTableName( rep.getStepAttributeString( id_step, i, "mapping_name" ) );
-        vm.setKey( isKey );
-
-        String format = rep.getStepAttributeString( id_step, i, "format" );
-        if ( !Const.isEmpty( format ) ) {
-          vm.setConversionMask( format );
-        }
-
-        String indexValues = rep.getStepAttributeString( id_step, i, "index_values" );
-        if ( !Const.isEmpty( indexValues ) ) {
-          String[] labels = indexValues.replace( "{", "" ).replace( "}", "" ).split( "," );
-          if ( labels.length < 1 ) {
-            throw new KettleXMLException( "Indexed/nominal type must have at least one " + "label declared" );
-          }
-          for ( int j = 0; j < labels.length; j++ ) {
-            labels[j] = labels[j].trim();
-          }
-          vm.setIndex( labels );
-          vm.setStorageType( ValueMetaInterface.STORAGE_TYPE_INDEXED );
-        }
-        m_outputFields.add( vm );
-      }
-    }
+    m_outputFields = valueMetaInterfaceFactory.createListFromRepository( rep, id_step );
 
     int nrFilters = rep.countNrStepAttributes( id_step, "cf_comparison_opp" );
     if ( nrFilters > 0 ) {
@@ -759,7 +634,7 @@ public class HBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
 
         List<String> forLogging = new ArrayList<String>();
 
-        try ( HBaseConnection conf = hBaseService.getHBaseConnection( coreConf, defaultConf, forLogging ) ) {
+        try ( HBaseConnection conf = hBaseService.getHBaseConnection( space, coreConf, defaultConf, log ) ) {
           MappingAdmin mappingAdmin = null;
 
           for ( String m : forLogging ) {

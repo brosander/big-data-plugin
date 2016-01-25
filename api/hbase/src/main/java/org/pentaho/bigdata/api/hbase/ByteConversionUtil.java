@@ -62,12 +62,5 @@ public interface ByteConversionUtil {
   byte[] encodeKeyValue( Object o, ValueMetaInterface valueMetaInterface, Mapping.KeyType keyType )
     throws KettleException;
 
-  byte[] encodeColumnValue( Object o, ValueMetaInterface valueMetaInterface, HBaseValueMetaInterface hbaseColMeta )
-    throws KettleException;
-
   boolean isImmutableBytesWritable( Object o );
-
-  Object decodeColumnValue( byte[] bytes, HBaseValueMetaInterface valueMetaInterface ) throws KettleException;
-
-  Object decodeKeyValue( byte[] rowKey, Mapping m_tableMapping ) throws KettleException;
 }

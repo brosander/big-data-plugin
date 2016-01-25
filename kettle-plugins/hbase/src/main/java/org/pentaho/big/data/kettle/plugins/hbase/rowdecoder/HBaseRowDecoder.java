@@ -110,7 +110,7 @@ public class HBaseRowDecoder extends BaseStep implements StepInterface {
 
       try {
         hBaseService = namedClusterServiceLocator.getService( null, HBaseService.class );
-        m_hbAdmin = hBaseService.getHBaseConnection( null, null, null );
+        m_hbAdmin = hBaseService.getHBaseConnection( this, null, null, null );
         m_bytesUtil = hBaseService.getByteConversionUtil();
 
         // no configuration needed here because we don't need access to the
@@ -186,7 +186,7 @@ public class HBaseRowDecoder extends BaseStep implements StepInterface {
         } catch ( Exception ex ) {
           throw new KettleException( BaseMessages.getString( PKG, "HBaseRowDecoder.Error.UnableToGetRowKey" ), ex );
         }
-        Object decodedKey = m_bytesUtil.decodeKeyValue( rowKey, m_tableMapping );
+        Object decodedKey = m_tableMapping.decodeKeyValue( rowKey );
         outputRowData[0] = decodedKey;
 
         for ( int i = 0; i < m_outputColumns.length; i++ ) {
@@ -203,7 +203,7 @@ public class HBaseRowDecoder extends BaseStep implements StepInterface {
                 ex );
           }
 
-          Object decodedVal = m_bytesUtil.decodeColumnValue( ( kv == null ) ? null : kv, current );
+          Object decodedVal = current.decodeColumnValue( ( kv == null ) ? null : kv );
           outputRowData[i + 1] = decodedVal;
         }
 
