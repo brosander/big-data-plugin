@@ -23,10 +23,10 @@
 package org.pentaho.big.data.kettle.plugins.hbase.input;
 
 import org.pentaho.big.data.kettle.plugins.hbase.mapping.HBaseRowToKettleTuple;
-import org.pentaho.bigdata.api.hbase.mapping.ColumnFilter;
 import org.pentaho.bigdata.api.hbase.HBaseService;
-import org.pentaho.bigdata.api.hbase.meta.HBaseValueMetaInterface;
+import org.pentaho.bigdata.api.hbase.mapping.ColumnFilter;
 import org.pentaho.bigdata.api.hbase.mapping.Mapping;
+import org.pentaho.bigdata.api.hbase.meta.HBaseValueMetaInterface;
 import org.pentaho.bigdata.api.hbase.table.Result;
 import org.pentaho.bigdata.api.hbase.table.ResultScannerBuilder;
 import org.pentaho.di.core.Const;
@@ -236,12 +236,8 @@ public class HBaseInputData extends BaseStepData implements StepDataInterface {
   public static Object[] getOutputRow( Result result, List<HBaseValueMetaInterface> userOutputColumns,
       Map<String, HBaseValueMetaInterface> columnsMappedByAlias, Mapping tableMapping, RowMetaInterface outputRowMeta ) throws KettleException {
 
-    int size =
-        ( userOutputColumns != null && userOutputColumns.size() > 0 ) ? userOutputColumns.size() : tableMapping
-            .getMappedColumns().keySet().size() + 1; // + 1
-                                                     // for
-                                                     // the
-                                                     // key
+    int size = ( userOutputColumns != null && userOutputColumns.size() > 0 ) ? userOutputColumns.size() :
+      tableMapping.numMappedColumns() + 1; // + 1 for the key
 
     Object[] outputRowData = RowDataUtil.allocateRowData( size );
 

@@ -1,6 +1,7 @@
 package com.pentaho.big.data.bundles.impl.shim.hbase.mapping;
 
-import org.pentaho.bigdata.api.hbase.ByteConversionUtil;
+import com.google.common.collect.Maps;
+import com.pentaho.big.data.bundles.impl.shim.hbase.meta.HBaseValueMetaInterfaceFactoryImpl;
 import org.pentaho.bigdata.api.hbase.mapping.Mapping;
 import org.pentaho.bigdata.api.hbase.meta.HBaseValueMetaInterface;
 import org.pentaho.di.core.exception.KettleException;
@@ -8,8 +9,12 @@ import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.repository.ObjectId;
 import org.pentaho.di.repository.Repository;
 import org.pentaho.hbase.shim.api.HBaseValueMeta;
+import org.pentaho.hbase.shim.spi.HBaseBytesUtilShim;
 import org.w3c.dom.Node;
 
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,9 +22,14 @@ import java.util.Map;
  */
 public class MappingImpl implements Mapping {
   private final org.pentaho.hbase.shim.api.Mapping delegate;
+  private final HBaseBytesUtilShim hBaseBytesUtilShim;
+  private final HBaseValueMetaInterfaceFactoryImpl hBaseValueMetaInterfaceFactory;
 
-  public MappingImpl( org.pentaho.hbase.shim.api.Mapping delegate, ByteConversionUtil byteConversionUtil ) {
+  public MappingImpl( org.pentaho.hbase.shim.api.Mapping delegate, HBaseBytesUtilShim hBaseBytesUtilShim,
+                      HBaseValueMetaInterfaceFactoryImpl hBaseValueMetaInterfaceFactory ) {
     this.delegate = delegate;
+    this.hBaseBytesUtilShim = hBaseBytesUtilShim;
+    this.hBaseValueMetaInterfaceFactory = hBaseValueMetaInterfaceFactory;
   }
 
   @Override public String addMappedColumn( HBaseValueMetaInterface column, boolean isTupleColumn ) throws Exception {
@@ -86,16 +96,38 @@ public class MappingImpl implements Mapping {
     delegate.setTupleFamilies( f );
   }
 
+  @Override public int numMappedColumns() {
+    return delegate.getMappedColumns().size();
+  }
+
   @Override public String[] getTupleFamiliesSplit() {
     return getTupleFamilies().split( HBaseValueMeta.SEPARATOR );
   }
 
   @Override public Map<String, HBaseValueMetaInterface> getMappedColumns() {
-    return delegate.getMappedColumns();
+    return Collections.unmodifiableMap( Maps.transformEntries( delegate.getMappedColumns(),
+      new Maps.EntryTransformer<String, HBaseValueMeta, HBaseValueMetaInterface>() {
+        @Override
+        public HBaseValueMetaInterface transformEntry( @Nullable String key, @Nullable HBaseValueMeta value ) {
+          if ( value instanceof HBaseValueMetaInterface ) {
+            return (HBaseValueMetaInterface) value;
+          }
+          return hBaseValueMetaInterfaceFactory.copy( value );
+        }
+      } ) );
   }
 
   @Override public void setMappedColumns( Map<String, HBaseValueMetaInterface> cols ) {
-    delegate.setMappedColumns( cols );
+    delegate.setMappedColumns( new HashMap<String, HBaseValueMeta>( Maps.transformEntries( cols,
+      new Maps.EntryTransformer<String, HBaseValueMetaInterface, HBaseValueMeta>() {
+        @Override
+        public HBaseValueMeta transformEntry( @Nullable String key, @Nullable HBaseValueMetaInterface value ) {
+          if ( value instanceof HBaseValueMeta ) {
+            return (HBaseValueMeta) value;
+          }
+          return hBaseValueMetaInterfaceFactory.copy( value );
+        }
+      } ) ) );
   }
 
   @Override public void saveRep( Repository rep, ObjectId id_transformation, ObjectId id_step ) throws KettleException {
@@ -116,5 +148,9 @@ public class MappingImpl implements Mapping {
 
   @Override public String getFriendlyName() {
     return delegate.getMappingName() + HBaseValueMeta.SEPARATOR + delegate.getTableName();
+  }
+
+  @Override public Object decodeKeyValue( byte[] rawval ) throws KettleException {
+    return HBaseValueMeta.decodeKeyValue( rawval, delegate, hBaseBytesUtilShim );
   }
 }

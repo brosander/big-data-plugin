@@ -68,7 +68,7 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-            <!--<Export-Package>org.pentaho.bigdata.api.pig,org.pentaho.bigdata.api.pig.impl</Export-Package>-->
+            <Export-Package>org.pentaho.bigdata.api.hbase,org.pentaho.bigdata.api.hbase.*</Export-Package>
           </instructions>
         </configuration>
       </plugin>

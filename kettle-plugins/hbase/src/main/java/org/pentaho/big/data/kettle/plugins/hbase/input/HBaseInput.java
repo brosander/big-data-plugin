@@ -112,8 +112,8 @@ public class HBaseInput extends BaseStep implements StepInterface {
       try {
         List<String> connectionMessages = new ArrayList<String>();
         hBaseService = namedClusterServiceLocator.getService( m_meta.getNamedCluster(), HBaseService.class );
-        m_hbAdmin = hBaseService.getHBaseConnection( environmentSubstitute( m_meta.getCoreConfigURL() ),
-          environmentSubstitute( m_meta.getDefaultConfigURL() ), connectionMessages );
+        m_hbAdmin = hBaseService.getHBaseConnection( this, environmentSubstitute( m_meta.getCoreConfigURL() ),
+          environmentSubstitute( m_meta.getDefaultConfigURL() ), log );
         m_bytesUtil = hBaseService.getByteConversionUtil();
         hBaseValueMetaInterfaceFactory = hBaseService.getHBaseValueMetaInterfaceFactory();
 

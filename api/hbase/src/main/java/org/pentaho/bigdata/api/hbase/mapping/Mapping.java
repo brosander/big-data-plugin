@@ -44,6 +44,8 @@ public interface Mapping {
 
   void setTupleFamilies( String f );
 
+  int numMappedColumns();
+
   Map<String, HBaseValueMetaInterface> getMappedColumns();
 
   void setMappedColumns( Map<String, HBaseValueMetaInterface> cols );
@@ -57,6 +59,8 @@ public interface Mapping {
   boolean readRep( Repository rep, ObjectId id_step ) throws KettleException;
 
   String getFriendlyName();
+
+  Object decodeKeyValue( byte[] rawval ) throws KettleException;
 
   enum TupleMapping {
     KEY( "KEY" ),

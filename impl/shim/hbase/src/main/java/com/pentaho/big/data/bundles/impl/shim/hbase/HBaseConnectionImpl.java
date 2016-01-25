@@ -1,5 +1,8 @@
 package com.pentaho.big.data.bundles.impl.shim.hbase;
 
+import com.pentaho.big.data.bundles.impl.shim.hbase.connectionPool.HBaseConnectionHandle;
+import com.pentaho.big.data.bundles.impl.shim.hbase.connectionPool.HBaseConnectionPool;
+import com.pentaho.big.data.bundles.impl.shim.hbase.table.HBaseTableImpl;
 import org.pentaho.bigdata.api.hbase.HBaseConnection;
 import org.pentaho.bigdata.api.hbase.HBaseService;
 import org.pentaho.bigdata.api.hbase.table.HBaseTable;
@@ -15,16 +18,12 @@ import java.util.Properties;
  */
 public class HBaseConnectionImpl implements HBaseConnection {
   private final HBaseService hBaseService;
-  private final HBaseShim hBaseShim;
-  private final Properties connectionProps;
-  private final LogChannelInterface logChannelInterface;
+  private final HBaseConnectionPool hBaseConnectionPool;
 
   public HBaseConnectionImpl( HBaseService hBaseService, HBaseShim hBaseShim, Properties connectionProps,
-                              LogChannelInterface logChannelInterface ) {
+                              LogChannelInterface logChannelInterface ) throws IOException {
     this.hBaseService = hBaseService;
-    this.hBaseShim = hBaseShim;
-    this.connectionProps = connectionProps;
-    this.logChannelInterface = logChannelInterface;
+    this.hBaseConnectionPool = new HBaseConnectionPool( hBaseShim, connectionProps, logChannelInterface );
   }
 
   @Override public HBaseService getService() {
@@ -32,18 +31,26 @@ public class HBaseConnectionImpl implements HBaseConnection {
   }
 
   @Override public HBaseTable getTable( String tableName ) throws IOException {
-    return null;
+    return new HBaseTableImpl( hBaseConnectionPool, tableName );
   }
 
   @Override public void checkHBaseAvailable() throws IOException {
-
+    try ( HBaseConnectionHandle hBaseConnectionHandle = hBaseConnectionPool.getConnectionHandle() ) {
+      hBaseConnectionHandle.getConnection().checkHBaseAvailable();
+    } catch ( Exception e ) {
+      throw new IOException( e );
+    }
   }
 
   @Override public List<String> listTableNames() throws IOException {
-    return null;
+    try ( HBaseConnectionHandle hBaseConnectionHandle = hBaseConnectionPool.getConnectionHandle() ) {
+      return hBaseConnectionHandle.getConnection().listTableNames();
+    } catch ( Exception e ) {
+      throw new IOException( e );
+    }
   }
 
   @Override public void close() throws IOException {
-
+    hBaseConnectionPool.close();
   }
 }

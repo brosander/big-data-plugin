@@ -1243,7 +1243,7 @@ public class HBaseInputDialog extends BaseStepDialog implements StepDialogInterf
       throw new Exception( BaseMessages.getString( HBaseInputMeta.PKG,
           "MappingDialog.Error.Message.CantConnectNoConnectionDetailsProvided" ) );
     }
-    return hBaseService.getHBaseConnection( coreConf, defaultConf, null );
+    return hBaseService.getHBaseConnection( transMeta, coreConf, defaultConf, null );
   }
 
   private void checkKeyInformation( boolean quiet, boolean readFieldsFromMapping ) {

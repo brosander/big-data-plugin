@@ -132,7 +132,7 @@ public class HBaseOutputData extends BaseStepData implements StepDataInterface {
           columnName = columnName.replace( "@@@binary@@@", "" );
           binaryColName = true;
         }
-        byte[] encoded = bu.encodeColumnValue( kettleRow[i], current, hbaseColMeta );
+        byte[] encoded = hbaseColMeta.encodeColumnValue( kettleRow[i], current );
 
         try {
           hBasePut.addColumn( columnFamily, columnName, binaryColName, encoded );
