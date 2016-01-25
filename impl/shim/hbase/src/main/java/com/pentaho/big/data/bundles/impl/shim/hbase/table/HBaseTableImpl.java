@@ -2,16 +2,26 @@ package com.pentaho.big.data.bundles.impl.shim.hbase.table;
 
 import com.pentaho.big.data.bundles.impl.shim.hbase.connectionPool.HBaseConnectionHandle;
 import com.pentaho.big.data.bundles.impl.shim.hbase.connectionPool.HBaseConnectionPool;
+import com.pentaho.big.data.bundles.impl.shim.hbase.meta.HBaseValueMetaInterfaceFactoryImpl;
 import org.pentaho.bigdata.api.hbase.mapping.Mapping;
 import org.pentaho.bigdata.api.hbase.table.HBaseDelete;
 import org.pentaho.bigdata.api.hbase.table.HBaseGet;
 import org.pentaho.bigdata.api.hbase.table.HBasePut;
 import org.pentaho.bigdata.api.hbase.table.HBaseTable;
 import org.pentaho.bigdata.api.hbase.table.ResultScannerBuilder;
+import org.pentaho.di.core.Const;
+import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.di.core.variables.VariableSpace;
+import org.pentaho.di.i18n.BaseMessages;
+import org.pentaho.hbase.shim.api.HBaseValueMeta;
+import org.pentaho.hbase.shim.spi.HBaseBytesUtilShim;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -19,11 +29,18 @@ import java.util.Properties;
  * Created by bryan on 1/22/16.
  */
 public class HBaseTableImpl implements HBaseTable {
+  private static final Class<?> PKG = HBaseTableImpl.class;
   private final HBaseConnectionPool hBaseConnectionPool;
+  private final HBaseValueMetaInterfaceFactoryImpl hBaseValueMetaInterfaceFactory;
+  private final HBaseBytesUtilShim hBaseBytesUtilShim;
   private final String name;
 
-  public HBaseTableImpl( HBaseConnectionPool hBaseConnectionPool, String name ) {
+  public HBaseTableImpl( HBaseConnectionPool hBaseConnectionPool,
+                         HBaseValueMetaInterfaceFactoryImpl hBaseValueMetaInterfaceFactory,
+                         HBaseBytesUtilShim hBaseBytesUtilShim, String name ) {
     this.hBaseConnectionPool = hBaseConnectionPool;
+    this.hBaseValueMetaInterfaceFactory = hBaseValueMetaInterfaceFactory;
+    this.hBaseBytesUtilShim = hBaseBytesUtilShim;
     this.name = name;
   }
 
@@ -84,14 +101,142 @@ public class HBaseTableImpl implements HBaseTable {
   }
 
   @Override public ResultScannerBuilder createScannerBuilder( byte[] keyLowerBound, byte[] keyUpperBound ) {
-    return null;
+    return new ResultScannerBuilderImpl( hBaseConnectionPool, hBaseValueMetaInterfaceFactory, hBaseBytesUtilShim, name,
+      keyLowerBound, keyUpperBound );
   }
 
   @Override
   public ResultScannerBuilder createScannerBuilder( Mapping tableMapping, String dateOrNumberConversionMaskForKey,
                                                     String keyStartS, String keyStopS, String scannerCacheSize,
-                                                    LogChannelInterface log, VariableSpace vars ) {
-    return null;
+                                                    LogChannelInterface log, VariableSpace vars )
+    throws KettleException {
+    byte[] keyLowerBound = null;
+    byte[] keyUpperBound = null;
+    org.pentaho.hbase.shim.api.Mapping.KeyType keyType =
+      org.pentaho.hbase.shim.api.Mapping.KeyType.valueOf( tableMapping.getKeyType().name() );
+    // Set up the scan
+    if ( !Const.isEmpty( keyStartS ) ) {
+      keyStartS = vars.environmentSubstitute( keyStartS );
+      String convM = dateOrNumberConversionMaskForKey;
+
+      if ( tableMapping.getKeyType() == Mapping.KeyType.BINARY ) {
+        // assume we have a hex encoded string
+        keyLowerBound = HBaseValueMeta.encodeKeyValue( keyStartS, keyType, hBaseBytesUtilShim );
+      } else if ( tableMapping.getKeyType() != Mapping.KeyType.STRING ) {
+        // allow a conversion mask in the start key field to override any
+        // specified for
+        // the key in the user specified fields
+        String[] parts = keyStartS.split( "@" );
+        if ( parts.length == 2 ) {
+          keyStartS = parts[ 0 ];
+          convM = parts[ 1 ];
+        }
+
+        if ( !Const.isEmpty( convM ) && convM.length() > 0 ) {
+
+          if ( tableMapping.getKeyType() == Mapping.KeyType.DATE
+            || tableMapping.getKeyType() == Mapping.KeyType.UNSIGNED_DATE ) {
+            SimpleDateFormat sdf = new SimpleDateFormat();
+            sdf.applyPattern( convM );
+            try {
+              Date d = sdf.parse( keyStartS );
+              keyLowerBound = HBaseValueMeta.encodeKeyValue( d, keyType, hBaseBytesUtilShim );
+            } catch ( ParseException e ) {
+              throw new KettleException( BaseMessages.getString( PKG,
+                "HBaseInput.Error.UnableToParseLowerBoundKeyValue", keyStartS ), e );
+            }
+          } else {
+            // Number type
+            // Double/Float or Long/Integer
+            DecimalFormat df = new DecimalFormat();
+            df.applyPattern( convM );
+            Number num = null;
+            try {
+              num = df.parse( keyStartS );
+              keyLowerBound = HBaseValueMeta.encodeKeyValue( num, keyType, hBaseBytesUtilShim );
+            } catch ( ParseException e ) {
+              throw new KettleException( BaseMessages.getString( PKG,
+                "HBaseInput.Error.UnableToParseLowerBoundKeyValue", keyStartS ), e );
+            }
+          }
+        } else {
+          // just try it as a string
+          keyLowerBound = HBaseValueMeta.encodeKeyValue( keyStartS, keyType, hBaseBytesUtilShim );
+        }
+      } else {
+        // it is a string
+        keyLowerBound = HBaseValueMeta.encodeKeyValue( keyStartS, keyType, hBaseBytesUtilShim );
+      }
+
+      if ( !Const.isEmpty( keyStopS ) ) {
+        keyStopS = vars.environmentSubstitute( keyStopS );
+        convM = dateOrNumberConversionMaskForKey;
+
+        if ( tableMapping.getKeyType() == Mapping.KeyType.BINARY ) {
+          // assume we have a hex encoded string
+          keyUpperBound = HBaseValueMeta.encodeKeyValue( keyStopS, keyType, hBaseBytesUtilShim );
+        } else if ( tableMapping.getKeyType() != Mapping.KeyType.STRING ) {
+
+          // allow a conversion mask in the stop key field to override any
+          // specified for
+          // the key in the user specified fields
+          String[] parts = keyStopS.split( "@" );
+          if ( parts.length == 2 ) {
+            keyStopS = parts[ 0 ];
+            convM = parts[ 1 ];
+          }
+
+          if ( !Const.isEmpty( convM ) && convM.length() > 0 ) {
+            if ( tableMapping.getKeyType() == Mapping.KeyType.DATE
+              || tableMapping.getKeyType() == Mapping.KeyType.UNSIGNED_DATE ) {
+              SimpleDateFormat sdf = new SimpleDateFormat();
+              sdf.applyPattern( convM );
+              try {
+                Date d = sdf.parse( keyStopS );
+                keyUpperBound = HBaseValueMeta.encodeKeyValue( d, keyType, hBaseBytesUtilShim );
+              } catch ( ParseException e ) {
+                throw new KettleException( BaseMessages.getString( PKG,
+                  "HBaseInput.Error.UnableToParseUpperBoundKeyValue", keyStopS ), e );
+              }
+            } else {
+              // Number type
+              // Double/Float or Long/Integer
+              DecimalFormat df = new DecimalFormat();
+              df.applyPattern( convM );
+              Number num = null;
+              try {
+                num = df.parse( keyStopS );
+                keyUpperBound = HBaseValueMeta.encodeKeyValue( num, keyType, hBaseBytesUtilShim );
+              } catch ( ParseException e ) {
+                throw new KettleException( BaseMessages.getString( PKG,
+                  "HBaseInput.Error.UnableToParseUpperBoundKeyValue", keyStopS ), e );
+              }
+            }
+          } else {
+            // just try it as a string
+            keyUpperBound = HBaseValueMeta.encodeKeyValue( keyStopS, keyType, hBaseBytesUtilShim );
+          }
+        } else {
+          // it is a string
+          keyUpperBound = HBaseValueMeta.encodeKeyValue( keyStopS, keyType, hBaseBytesUtilShim );
+        }
+      }
+    }
+
+    int cacheSize = 0;
+
+    // set any user-specified scanner caching
+    if ( !Const.isEmpty( scannerCacheSize ) ) {
+      String temp = vars.environmentSubstitute( scannerCacheSize );
+      cacheSize = Integer.parseInt( temp );
+
+      if ( log != null ) {
+        log.logBasic( BaseMessages
+          .getString( PKG, "HBaseInput.Message.SettingScannerCaching", cacheSize ) );
+      }
+    }
+    return new ResultScannerBuilderImpl( hBaseConnectionPool, hBaseValueMetaInterfaceFactory, hBaseBytesUtilShim, name,
+      keyLowerBound, keyUpperBound );
   }
 
   @Override public void setWriteBufferSize( long value ) {
@@ -119,7 +264,11 @@ public class HBaseTableImpl implements HBaseTable {
   }
 
   @Override public List<String> getColumnFamilies() throws IOException {
-    return null;
+    try ( HBaseConnectionHandle hBaseConnectionHandle = hBaseConnectionPool.getConnectionHandle() ) {
+      return hBaseConnectionHandle.getConnection().getTableFamiles( name );
+    } catch ( Exception e ) {
+      throw new IOException( e );
+    }
   }
 
   @Override public void flushCommits() throws IOException {

@@ -1,5 +1,6 @@
 package com.pentaho.big.data.bundles.impl.shim.hbase.connectionPool;
 
+import com.pentaho.big.data.bundles.impl.shim.hbase.HBaseConnectionWrapper;
 import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.hbase.shim.spi.HBaseConnection;
 import org.pentaho.hbase.shim.spi.HBaseShim;
@@ -15,8 +16,8 @@ import java.util.Set;
  * Created by bryan on 1/25/16.
  */
 public class HBaseConnectionPool implements Closeable {
-  private final Set<HBaseConnectionHandle> availableConnections;
-  private final Set<HBaseConnectionHandle> inUseConnections;
+  private final Set<HBaseConnectionWrapper> availableConnections;
+  private final Set<HBaseConnectionWrapper> inUseConnections;
   private final HBaseShim hBaseShim;
   private final Properties connectionProps;
   private final LogChannelInterface logChannelInterface;
@@ -32,9 +33,10 @@ public class HBaseConnectionPool implements Closeable {
 
   public synchronized HBaseConnectionHandle getConnectionHandle() throws IOException {
     if ( availableConnections.size() > 0 ) {
-      final HBaseConnectionHandle hBaseConnectionHandle = availableConnections.iterator().next();
-      availableConnections.remove( hBaseConnectionHandle );
-      inUseConnections.add( hBaseConnectionHandle );
+      final HBaseConnectionWrapper hBaseConnectionWrapper = availableConnections.iterator().next();
+      availableConnections.remove( hBaseConnectionWrapper );
+      HBaseConnectionHandleImpl hBaseConnectionHandle = new HBaseConnectionHandleImpl( this, hBaseConnectionWrapper );
+      inUseConnections.add( hBaseConnectionWrapper );
       return hBaseConnectionHandle;
     }
 
@@ -44,29 +46,29 @@ public class HBaseConnectionPool implements Closeable {
     } catch ( Exception e ) {
       throw new IOException( e );
     }
-    HBaseConnectionPoolConnection hBaseConnectionPoolConnection = new HBaseConnectionPoolConnection( hBaseConnection );
-    HBaseConnectionHandleImpl hBaseConnectionHandle = new HBaseConnectionHandleImpl( this, hBaseConnectionPoolConnection );
-    hBaseConnectionPoolConnection.init( hBaseConnectionHandle );
-    inUseConnections.add( hBaseConnectionHandle );
+    HBaseConnectionWrapper hBaseConnectionPoolConnection = new HBaseConnectionWrapper( hBaseConnection );
+    HBaseConnectionHandleImpl hBaseConnectionHandle =
+      new HBaseConnectionHandleImpl( this, hBaseConnectionPoolConnection );
+    inUseConnections.add( hBaseConnectionPoolConnection );
     return hBaseConnectionHandle;
   }
 
-  protected synchronized void releaseConnection( HBaseConnectionHandle hBaseConnectionHandle ) {
-    inUseConnections.remove( hBaseConnectionHandle );
-    availableConnections.add( hBaseConnectionHandle );
+  protected synchronized void releaseConnection( HBaseConnectionWrapper hBaseConnection ) {
+    inUseConnections.remove( hBaseConnection );
+    availableConnections.add( hBaseConnection );
   }
 
   @Override public synchronized void close() throws IOException {
-    for ( HBaseConnectionHandle inUseConnection : inUseConnections ) {
+    for ( HBaseConnectionWrapper inUseConnection : inUseConnections ) {
       try {
-        inUseConnection.getConnection().close();
+        inUseConnection.close();
       } catch ( Exception e ) {
         logChannelInterface.logError( e.getMessage(), e );
       }
     }
-    for ( HBaseConnectionHandle inUseConnection : availableConnections ) {
+    for ( HBaseConnectionWrapper availableConnection : availableConnections ) {
       try {
-        inUseConnection.getConnection().close();
+        availableConnection.close();
       } catch ( Exception e ) {
         logChannelInterface.logError( e.getMessage(), e );
       }

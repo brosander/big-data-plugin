@@ -7,6 +7,7 @@ import org.pentaho.bigdata.api.hbase.HBaseConnection;
 import org.pentaho.bigdata.api.hbase.HBaseService;
 import org.pentaho.bigdata.api.hbase.table.HBaseTable;
 import org.pentaho.di.core.logging.LogChannelInterface;
+import org.pentaho.hbase.shim.spi.HBaseBytesUtilShim;
 import org.pentaho.hbase.shim.spi.HBaseShim;
 
 import java.io.IOException;
@@ -17,12 +18,14 @@ import java.util.Properties;
  * Created by bryan on 1/21/16.
  */
 public class HBaseConnectionImpl implements HBaseConnection {
-  private final HBaseService hBaseService;
+  private final HBaseServiceImpl hBaseService;
   private final HBaseConnectionPool hBaseConnectionPool;
+  private final HBaseBytesUtilShim hBaseBytesUtilShim;
 
-  public HBaseConnectionImpl( HBaseService hBaseService, HBaseShim hBaseShim, Properties connectionProps,
-                              LogChannelInterface logChannelInterface ) throws IOException {
+  public HBaseConnectionImpl( HBaseServiceImpl hBaseService, HBaseShim hBaseShim, HBaseBytesUtilShim hBaseBytesUtilShim,
+                              Properties connectionProps, LogChannelInterface logChannelInterface ) throws IOException {
     this.hBaseService = hBaseService;
+    this.hBaseBytesUtilShim = hBaseBytesUtilShim;
     this.hBaseConnectionPool = new HBaseConnectionPool( hBaseShim, connectionProps, logChannelInterface );
   }
 
@@ -31,7 +34,8 @@ public class HBaseConnectionImpl implements HBaseConnection {
   }
 
   @Override public HBaseTable getTable( String tableName ) throws IOException {
-    return new HBaseTableImpl( hBaseConnectionPool, tableName );
+    return new HBaseTableImpl( hBaseConnectionPool, hBaseService.getHBaseValueMetaInterfaceFactory(),
+      hBaseBytesUtilShim, tableName );
   }
 
   @Override public void checkHBaseAvailable() throws IOException {

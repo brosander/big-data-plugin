@@ -1,6 +1,7 @@
 package org.pentaho.bigdata.api.hbase.table;
 
 import org.pentaho.bigdata.api.hbase.mapping.Mapping;
+import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.logging.LogChannelInterface;
 import org.pentaho.di.core.variables.VariableSpace;
 
@@ -31,7 +32,8 @@ public interface HBaseTable extends Closeable {
 
   ResultScannerBuilder createScannerBuilder( Mapping tableMapping, String dateOrNumberConversionMaskForKey,
                                              String keyStartS, String keyStopS,
-                                             String scannerCacheSize, LogChannelInterface log, VariableSpace vars );
+                                             String scannerCacheSize, LogChannelInterface log, VariableSpace vars )
+    throws KettleException;
 
   void setWriteBufferSize( long value );
 

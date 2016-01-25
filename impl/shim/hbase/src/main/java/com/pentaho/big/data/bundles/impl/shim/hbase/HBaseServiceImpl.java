@@ -57,7 +57,7 @@ public class HBaseServiceImpl implements HBaseService {
     if ( !Const.isEmpty( defaultConfig ) ) {
       connProps.setProperty( org.pentaho.hbase.shim.spi.HBaseConnection.DEFAULTS_KEY, defaultConfig );
     }
-    return new HBaseConnectionImpl( this, hBaseShim, connProps, logChannelInterface );
+    return new HBaseConnectionImpl( this, hBaseShim, bytesUtil, connProps, logChannelInterface );
   }
 
   @Override public ColumnFilterFactory getColumnFilterFactory() {
