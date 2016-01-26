@@ -31,6 +31,7 @@ import org.pentaho.bigdata.api.hbase.meta.HBaseValueMetaInterface;
 import org.pentaho.bigdata.api.hbase.meta.HBaseValueMetaInterfaceFactory;
 import org.pentaho.bigdata.api.hbase.table.HBasePut;
 import org.pentaho.bigdata.api.hbase.table.HBaseTable;
+import org.pentaho.bigdata.api.hbase.table.HBaseTableWriteOperationManager;
 import org.pentaho.bigdata.api.hbase.table.Result;
 import org.pentaho.bigdata.api.hbase.table.ResultScanner;
 import org.pentaho.bigdata.api.hbase.table.ResultScannerBuilder;
@@ -299,11 +300,11 @@ public class MappingAdmin implements Closeable {
     colFamilies.add( "Family1" );
     colFamilies.add( "Family2" );
     marksTestTupleTable.create( colFamilies, null );
-    marksTestTupleTable.setWriteBufferSize( 1024 * 1024 * 12 );
-    marksTestTupleTable.setAutoFlush( false );
+    HBaseTableWriteOperationManager writeOperationManager =
+      marksTestTupleTable.createWriteOperationManager( (long) 1024 * 1024 * 12 );
 
     for ( long key = 1; key < 500; key++ ) {
-      HBasePut hBasePut = marksTestTupleTable.createPut( byteConversionUtil.encodeKeyValue( key, Mapping.KeyType.UNSIGNED_LONG ) );
+      HBasePut hBasePut = writeOperationManager.createPut( byteConversionUtil.encodeKeyValue( key, Mapping.KeyType.UNSIGNED_LONG ) );
       hBasePut.setWriteToWAL( false );
 
       // 20 columns every second row (all columns are string)
@@ -317,8 +318,8 @@ public class MappingAdmin implements Closeable {
         hBasePut.execute();
       }
     }
-    marksTestTupleTable.flushCommits();
-    marksTestTupleTable.close();
+    writeOperationManager.flushCommits();
+    writeOperationManager.close();
   }
 
   /**
@@ -343,8 +344,8 @@ public class MappingAdmin implements Closeable {
     colFamilies.add( "Family1" );
     colFamilies.add( "Family2" );
     marksTestTable.create( colFamilies, null );
-    marksTestTable.setWriteBufferSize( 1024 * 1024 * 12 );
-    marksTestTable.setAutoFlush( false );
+    HBaseTableWriteOperationManager writeOperationManager =
+      marksTestTable.createWriteOperationManager( (long) 1024 * 1024 * 12 );
 
     // insert 200 test rows of random stuff
     Random r = new Random();
@@ -355,7 +356,7 @@ public class MappingAdmin implements Closeable {
     Calendar c2 = new GregorianCalendar();
     c2.set( 1970, 2, 1 );
     for ( long key = -500; key < 20000; key++ ) {
-      HBasePut hBasePut = marksTestTable.createPut( byteConversionUtil.encodeKeyValue( key, Mapping.KeyType.LONG ) );
+      HBasePut hBasePut = writeOperationManager.createPut( byteConversionUtil.encodeKeyValue( key, Mapping.KeyType.LONG ) );
       hBasePut.setWriteToWAL( false );
 
       // unsigned (positive) integer column
@@ -445,8 +446,8 @@ public class MappingAdmin implements Closeable {
       hBasePut.execute();
     }
 
-    marksTestTable.flushCommits();
-    marksTestTable.close();
+    writeOperationManager.flushCommits();
+    writeOperationManager.close();
   }
 
   /**
@@ -570,23 +571,28 @@ public class MappingAdmin implements Closeable {
   public boolean deleteMapping( String tableName, String mappingName ) throws Exception {
     ByteConversionUtil byteConversionUtil = hBaseService.getByteConversionUtil();
     try ( HBaseTable hBaseTable = hBaseConnection.getTable( m_mappingTableName ) ) {
-      if ( !hBaseTable.exists() ) {
-        // create the mapping table
-        createMappingTable();
-        return false; // no mapping table so nothing to delete!
-      }
+      try ( HBaseTableWriteOperationManager hBaseTableWriteOperationManager = hBaseTable
+        .createWriteOperationManager( null ) ) {
 
-      if ( hBaseTable.disabled() ) {
-        hBaseTable.enable();
-      }
+        if ( !hBaseTable.exists() ) {
+          // create the mapping table
+          createMappingTable();
+          return false; // no mapping table so nothing to delete!
+        }
 
-      boolean mappingExists = mappingExists( tableName, mappingName );
-      if ( !mappingExists ) {
-        return false; // mapping doesn't seem to exist
-      }
+        if ( hBaseTable.disabled() ) {
+          hBaseTable.enable();
+        }
 
-      hBaseTable.createDelete( byteConversionUtil.compoundKey( tableName, mappingName ) ).execute();
-      return true;
+        boolean mappingExists = mappingExists( tableName, mappingName );
+        if ( !mappingExists ) {
+          return false; // mapping doesn't seem to exist
+        }
+
+        hBaseTableWriteOperationManager.createDelete( byteConversionUtil.compoundKey( tableName, mappingName ) )
+          .execute();
+        return true;
+      }
     }
   }
 
@@ -647,7 +653,8 @@ public class MappingAdmin implements Closeable {
         deleteMapping( tableName, mappingName );
       }
 
-      HBasePut hBasePut = hBaseTable.createPut( byteConversionUtil.compoundKey( tableName, mappingName ) );
+      HBaseTableWriteOperationManager writeOperationManager = hBaseTable.createWriteOperationManager( null );
+      HBasePut hBasePut = writeOperationManager.createPut( byteConversionUtil.compoundKey( tableName, mappingName ) );
       hBasePut.setWriteToWAL( true );
 
       String family = COLUMNS_FAMILY_NAME;
@@ -713,7 +720,7 @@ public class MappingAdmin implements Closeable {
 
       // add the row
       hBasePut.execute();
-      hBaseTable.flushCommits();
+      writeOperationManager.flushCommits();
     }
   }
 

@@ -7,10 +7,8 @@ import java.util.List;
 /**
  * Created by bryan on 1/26/16.
  */
-public interface HBaseTableOperations extends Closeable {
+public interface HBaseTableWriteOperationManager extends Closeable {
   HBasePut createPut( byte[] key );
-
-  boolean keyExists( byte[] key ) throws IOException;
 
   HBaseDelete createDelete( byte[] key );
 

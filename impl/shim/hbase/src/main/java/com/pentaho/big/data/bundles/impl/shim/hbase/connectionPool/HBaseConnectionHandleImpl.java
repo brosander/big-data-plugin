@@ -9,14 +9,14 @@ import java.io.IOException;
  */
 public class HBaseConnectionHandleImpl implements HBaseConnectionHandle {
   private final HBaseConnectionPool hBaseConnectionPool;
-  private HBaseConnectionWrapper hBaseConnection;
+  private HBaseConnectionPoolConnection hBaseConnection;
 
-  public HBaseConnectionHandleImpl( HBaseConnectionPool hBaseConnectionPool, HBaseConnectionWrapper hBaseConnection ) {
+  public HBaseConnectionHandleImpl( HBaseConnectionPool hBaseConnectionPool, HBaseConnectionPoolConnection hBaseConnection ) {
     this.hBaseConnectionPool = hBaseConnectionPool;
     this.hBaseConnection = hBaseConnection;
   }
 
-  @Override public HBaseConnectionWrapper getConnection() {
+  @Override public HBaseConnectionPoolConnection getConnection() {
     return hBaseConnection;
   }
 

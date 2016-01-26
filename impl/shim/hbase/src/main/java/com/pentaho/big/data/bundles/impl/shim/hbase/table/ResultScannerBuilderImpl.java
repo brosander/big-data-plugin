@@ -25,20 +25,21 @@ public class ResultScannerBuilderImpl implements ResultScannerBuilder {
   private final HBaseBytesUtilShim hBaseBytesUtilShim;
   private final BatchHBaseConnectionOperation batchHBaseConnectionOperation;
   private int caching = 0;
+  private String tableName;
 
   public ResultScannerBuilderImpl( HBaseConnectionPool hBaseConnectionPool,
                                    HBaseValueMetaInterfaceFactoryImpl hBaseValueMetaInterfaceFactory,
-                                   HBaseBytesUtilShim hBaseBytesUtilShim, final String tableName,
+                                   HBaseBytesUtilShim hBaseBytesUtilShim, String tableName,
                                    final byte[] keyLowerBound,
                                    final byte[] keyUpperBound ) {
     this.hBaseConnectionPool = hBaseConnectionPool;
     this.hBaseValueMetaInterfaceFactory = hBaseValueMetaInterfaceFactory;
     this.hBaseBytesUtilShim = hBaseBytesUtilShim;
     this.batchHBaseConnectionOperation = new BatchHBaseConnectionOperation();
+    this.tableName = tableName;
     batchHBaseConnectionOperation.addOperation( new HBaseConnectionOperation() {
       @Override public void perform( HBaseConnectionWrapper hBaseConnectionWrapper ) throws IOException {
         try {
-          hBaseConnectionWrapper.newSourceTable( tableName );
           hBaseConnectionWrapper.newSourceTableScan( keyLowerBound, keyUpperBound, caching );
         } catch ( Exception e ) {
           throw new IOException( e );
@@ -90,7 +91,7 @@ public class ResultScannerBuilderImpl implements ResultScannerBuilder {
   }
 
   @Override public ResultScanner build() throws IOException {
-    HBaseConnectionHandle connectionHandle = hBaseConnectionPool.getConnectionHandle();
+    HBaseConnectionHandle connectionHandle = hBaseConnectionPool.getConnectionHandle( tableName );
     batchHBaseConnectionOperation.perform( connectionHandle.getConnection() );
     return new ResultScannerImpl( connectionHandle, hBaseBytesUtilShim );
   }
