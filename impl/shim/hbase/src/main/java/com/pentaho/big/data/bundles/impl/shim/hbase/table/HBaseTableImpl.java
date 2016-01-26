@@ -4,10 +4,8 @@ import com.pentaho.big.data.bundles.impl.shim.hbase.connectionPool.HBaseConnecti
 import com.pentaho.big.data.bundles.impl.shim.hbase.connectionPool.HBaseConnectionPool;
 import com.pentaho.big.data.bundles.impl.shim.hbase.meta.HBaseValueMetaInterfaceFactoryImpl;
 import org.pentaho.bigdata.api.hbase.mapping.Mapping;
-import org.pentaho.bigdata.api.hbase.table.HBaseDelete;
-import org.pentaho.bigdata.api.hbase.table.HBaseGet;
-import org.pentaho.bigdata.api.hbase.table.HBasePut;
 import org.pentaho.bigdata.api.hbase.table.HBaseTable;
+import org.pentaho.bigdata.api.hbase.table.HBaseTableWriteOperationManager;
 import org.pentaho.bigdata.api.hbase.table.ResultScannerBuilder;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
@@ -245,6 +243,24 @@ public class HBaseTableImpl implements HBaseTable {
     } catch ( Exception e ) {
       throw new IOException( e );
     }
+  }
+
+  @Override public boolean keyExists( byte[] key ) throws IOException {
+    try ( HBaseConnectionHandle hBaseConnectionHandle = hBaseConnectionPool.getConnectionHandle( name ) ) {
+      return hBaseConnectionHandle.getConnection().sourceTableRowExists( key );
+    } catch ( Exception e ) {
+      throw new IOException( e );
+    }
+  }
+
+  @Override public HBaseTableWriteOperationManager createWriteOperationManager( Long writeBufferSize )
+    throws IOException {
+    Properties targetTableProps = new Properties();
+    if ( writeBufferSize != null ) {
+      targetTableProps.setProperty( org.pentaho.hbase.shim.spi.HBaseConnection.HTABLE_WRITE_BUFFER_SIZE_KEY,
+        writeBufferSize.toString() );
+    }
+    return new HBaseTableWriteOperationManagerImpl( hBaseConnectionPool.getConnectionHandle( name, targetTableProps ) );
   }
 
   @Override public void close() throws IOException {

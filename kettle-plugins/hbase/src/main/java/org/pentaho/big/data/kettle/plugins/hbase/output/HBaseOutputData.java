@@ -26,7 +26,7 @@ import org.pentaho.bigdata.api.hbase.ByteConversionUtil;
 import org.pentaho.bigdata.api.hbase.mapping.Mapping;
 import org.pentaho.bigdata.api.hbase.meta.HBaseValueMetaInterface;
 import org.pentaho.bigdata.api.hbase.table.HBasePut;
-import org.pentaho.bigdata.api.hbase.table.HBaseTable;
+import org.pentaho.bigdata.api.hbase.table.HBaseTableWriteOperationManager;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMetaInterface;
@@ -81,8 +81,9 @@ public class HBaseOutputData extends BaseStepData implements StepDataInterface {
    *           if a problem occurs when initializing the new put operation
    */
   public static HBasePut initializeNewPut( RowMetaInterface inRowMeta, int keyIndex, Object[] kettleRow,
-                                          Mapping tableMapping, ByteConversionUtil bu, HBaseTable hBaseTable, boolean writeToWAL ) throws Exception {
-
+                                           Mapping tableMapping, ByteConversionUtil bu,
+                                           HBaseTableWriteOperationManager hBaseTableWriteOperationManager,
+                                           boolean writeToWAL ) throws Exception {
     ValueMetaInterface keyvm = inRowMeta.getValueMeta( keyIndex );
 
     if ( keyvm.isNull( kettleRow[keyIndex] ) ) {
@@ -91,7 +92,8 @@ public class HBaseOutputData extends BaseStepData implements StepDataInterface {
 
     byte[] encodedKey = bu.encodeKeyValue( kettleRow[keyIndex], keyvm, tableMapping.getKeyType() );
 
-    HBasePut hBaseTablePut = hBaseTable.createPut( bu.encodeKeyValue( kettleRow[ keyIndex ], keyvm, tableMapping.getKeyType() ) );
+    HBasePut hBaseTablePut = hBaseTableWriteOperationManager
+      .createPut( bu.encodeKeyValue( kettleRow[ keyIndex ], keyvm, tableMapping.getKeyType() ) );
     hBaseTablePut.setWriteToWAL( writeToWAL );
     return hBaseTablePut;
   }

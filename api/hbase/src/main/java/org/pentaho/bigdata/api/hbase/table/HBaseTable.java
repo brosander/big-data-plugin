@@ -36,4 +36,8 @@ public interface HBaseTable extends Closeable {
     throws KettleException;
 
   List<String> getColumnFamilies() throws IOException;
+
+  boolean keyExists( byte[] key ) throws IOException;
+
+  HBaseTableWriteOperationManager createWriteOperationManager( Long writeBufferSize ) throws IOException;
 }
