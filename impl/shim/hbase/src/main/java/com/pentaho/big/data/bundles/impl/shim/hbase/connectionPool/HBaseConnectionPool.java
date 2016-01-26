@@ -31,7 +31,8 @@ public class HBaseConnectionPool implements Closeable {
     inUseConnections = new HashSet<>();
   }
 
-  public synchronized HBaseConnectionHandle getConnectionHandle() throws IOException {
+  private synchronized HBaseConnectionHandle getConnectionHandle( String sourceTable, String targetTable,
+                                                                 Properties targetTableProps ) throws IOException {
     if ( availableConnections.size() > 0 ) {
       final HBaseConnectionWrapper hBaseConnectionWrapper = availableConnections.iterator().next();
       availableConnections.remove( hBaseConnectionWrapper );
@@ -51,6 +52,10 @@ public class HBaseConnectionPool implements Closeable {
       new HBaseConnectionHandleImpl( this, hBaseConnectionPoolConnection );
     inUseConnections.add( hBaseConnectionPoolConnection );
     return hBaseConnectionHandle;
+  }
+
+  public HBaseConnectionHandle getConnectionHandle() throws IOException {
+    return getConnectionHandle( null, null, null );
   }
 
   protected synchronized void releaseConnection( HBaseConnectionWrapper hBaseConnection ) {

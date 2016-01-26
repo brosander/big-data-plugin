@@ -239,40 +239,12 @@ public class HBaseTableImpl implements HBaseTable {
       keyLowerBound, keyUpperBound );
   }
 
-  @Override public void setWriteBufferSize( long value ) {
-
-  }
-
-  @Override public boolean isAutoFlush() {
-    return false;
-  }
-
-  @Override public void setAutoFlush( boolean value ) {
-
-  }
-
-  @Override public HBasePut createPut( byte[] key ) {
-    return null;
-  }
-
-  @Override public HBaseGet createGet( byte[] key ) {
-    return null;
-  }
-
-  @Override public HBaseDelete createDelete( byte[] key ) {
-    return null;
-  }
-
   @Override public List<String> getColumnFamilies() throws IOException {
     try ( HBaseConnectionHandle hBaseConnectionHandle = hBaseConnectionPool.getConnectionHandle() ) {
       return hBaseConnectionHandle.getConnection().getTableFamiles( name );
     } catch ( Exception e ) {
       throw new IOException( e );
     }
-  }
-
-  @Override public void flushCommits() throws IOException {
-
   }
 
   @Override public void close() throws IOException {
