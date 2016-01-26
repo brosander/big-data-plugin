@@ -35,19 +35,5 @@ public interface HBaseTable extends Closeable {
                                              String scannerCacheSize, LogChannelInterface log, VariableSpace vars )
     throws KettleException;
 
-  void setWriteBufferSize( long value );
-
-  void setAutoFlush( boolean value );
-
-  boolean isAutoFlush();
-
-  HBasePut createPut( byte[] key );
-
-  HBaseGet createGet( byte[] key );
-
-  HBaseDelete createDelete( byte[] key );
-
   List<String> getColumnFamilies() throws IOException;
-
-  void flushCommits() throws IOException;
 }

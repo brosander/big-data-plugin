@@ -1,5 +1,7 @@
 package com.pentaho.big.data.bundles.impl.shim.hbase.table;
 
+import com.pentaho.big.data.bundles.impl.shim.hbase.BatchHBaseConnectionOperation;
+import com.pentaho.big.data.bundles.impl.shim.hbase.HBaseConnectionOperation;
 import com.pentaho.big.data.bundles.impl.shim.hbase.HBaseConnectionWrapper;
 import com.pentaho.big.data.bundles.impl.shim.hbase.connectionPool.HBaseConnectionHandle;
 import com.pentaho.big.data.bundles.impl.shim.hbase.connectionPool.HBaseConnectionPool;
@@ -13,8 +15,6 @@ import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.hbase.shim.spi.HBaseBytesUtilShim;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by bryan on 1/25/16.
@@ -23,7 +23,7 @@ public class ResultScannerBuilderImpl implements ResultScannerBuilder {
   private final HBaseConnectionPool hBaseConnectionPool;
   private final HBaseValueMetaInterfaceFactoryImpl hBaseValueMetaInterfaceFactory;
   private final HBaseBytesUtilShim hBaseBytesUtilShim;
-  private final List<Operation> operations;
+  private final BatchHBaseConnectionOperation batchHBaseConnectionOperation;
   private int caching = 0;
 
   public ResultScannerBuilderImpl( HBaseConnectionPool hBaseConnectionPool,
@@ -34,9 +34,9 @@ public class ResultScannerBuilderImpl implements ResultScannerBuilder {
     this.hBaseConnectionPool = hBaseConnectionPool;
     this.hBaseValueMetaInterfaceFactory = hBaseValueMetaInterfaceFactory;
     this.hBaseBytesUtilShim = hBaseBytesUtilShim;
-    this.operations = new ArrayList<>();
-    operations.add( new Operation() {
-      @Override public void add( HBaseConnectionWrapper hBaseConnectionWrapper ) throws IOException {
+    this.batchHBaseConnectionOperation = new BatchHBaseConnectionOperation();
+    batchHBaseConnectionOperation.addOperation( new HBaseConnectionOperation() {
+      @Override public void perform( HBaseConnectionWrapper hBaseConnectionWrapper ) throws IOException {
         try {
           hBaseConnectionWrapper.newSourceTable( tableName );
           hBaseConnectionWrapper.newSourceTableScan( keyLowerBound, keyUpperBound, caching );
@@ -50,8 +50,8 @@ public class ResultScannerBuilderImpl implements ResultScannerBuilder {
   @Override
   public void addColumnToScan( final String colFamilyName, final String colName, final boolean colNameIsBinary )
     throws IOException {
-    operations.add( new Operation() {
-      @Override public void add( HBaseConnectionWrapper hBaseConnectionWrapper ) throws IOException {
+    batchHBaseConnectionOperation.addOperation( new HBaseConnectionOperation() {
+      @Override public void perform( HBaseConnectionWrapper hBaseConnectionWrapper ) throws IOException {
         try {
           hBaseConnectionWrapper.addColumnToScan( colFamilyName, colName, colNameIsBinary );
         } catch ( Exception e ) {
@@ -73,8 +73,8 @@ public class ResultScannerBuilderImpl implements ResultScannerBuilder {
     columnFilter.setComparisonOperator(
       org.pentaho.hbase.shim.api.ColumnFilter.ComparisonType.valueOf( cf.getComparisonOperator().name() ) );
     final HBaseValueMetaInterfaceImpl hBaseValueMetaInterface = hBaseValueMetaInterfaceFactory.copy( columnMeta );
-    operations.add( new Operation() {
-      @Override public void add( HBaseConnectionWrapper hBaseConnectionWrapper ) throws IOException {
+    batchHBaseConnectionOperation.addOperation( new HBaseConnectionOperation() {
+      @Override public void perform( HBaseConnectionWrapper hBaseConnectionWrapper ) throws IOException {
         try {
           hBaseConnectionWrapper
             .addColumnFilterToScan( columnFilter, hBaseValueMetaInterface, vars, matchAny );
@@ -91,14 +91,7 @@ public class ResultScannerBuilderImpl implements ResultScannerBuilder {
 
   @Override public ResultScanner build() throws IOException {
     HBaseConnectionHandle connectionHandle = hBaseConnectionPool.getConnectionHandle();
-    HBaseConnectionWrapper connection = connectionHandle.getConnection();
-    for ( Operation operation : operations ) {
-      operation.add( connection );
-    }
+    batchHBaseConnectionOperation.perform( connectionHandle.getConnection() );
     return new ResultScannerImpl( connectionHandle, hBaseBytesUtilShim );
-  }
-
-  interface Operation {
-    void add( HBaseConnectionWrapper hBaseConnectionWrapper ) throws IOException;
   }
 }

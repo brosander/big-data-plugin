@@ -482,8 +482,7 @@ public class MappingAdmin implements Closeable {
   public boolean mappingExists( String tableName, String mappingName ) throws Exception {
     try ( HBaseTable hBaseTable = hBaseConnection.getTable( m_mappingTableName ) ) {
       if ( hBaseTable.exists() ) {
-        return hBaseTable.createGet( hBaseService.getByteConversionUtil().compoundKey( tableName, mappingName ) )
-          .execute().isEmpty();
+        return hBaseTable.keyExists( hBaseService.getByteConversionUtil().compoundKey( tableName, mappingName ) );
       }
       return false;
     }
@@ -886,7 +885,7 @@ public class MappingAdmin implements Closeable {
 
           Object[] labels = null;
           try {
-            labels = newMeta.stringIndexListToObjects( decodedType );
+            labels = byteConversionUtil.stringIndexListToObjects( decodedType );
           } catch ( IllegalArgumentException ex ) {
             throw new IOException( "Indexed/nominal type must have at least one " + "label declared" );
           }
