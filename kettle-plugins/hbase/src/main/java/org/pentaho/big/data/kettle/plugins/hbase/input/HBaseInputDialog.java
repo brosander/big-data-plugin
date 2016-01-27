@@ -168,10 +168,10 @@ public class HBaseInputDialog extends BaseStepDialog implements StepDialogInterf
 
   // lookup map for indexed columns
   private Map<String, String> m_indexedLookup = new HashMap<>();
-  private NamedClusterService namedClusterService;
-  private RuntimeTestActionService runtimeTestActionService;
-  private RuntimeTester runtimeTester;
-  private NamedClusterServiceLocator namedClusterServiceLocator;
+  private final NamedClusterService namedClusterService;
+  private final RuntimeTestActionService runtimeTestActionService;
+  private final RuntimeTester runtimeTester;
+  private final NamedClusterServiceLocator namedClusterServiceLocator;
 
   public HBaseInputDialog( Shell parent, Object in, TransMeta tr, String name ) {
 
@@ -180,6 +180,10 @@ public class HBaseInputDialog extends BaseStepDialog implements StepDialogInterf
     m_currentMeta = (HBaseInputMeta) in;
     m_originalMeta = (HBaseInputMeta) m_currentMeta.clone();
     m_configurationMeta = (HBaseInputMeta) m_currentMeta.clone();
+    namedClusterService = m_currentMeta.getNamedClusterService();
+    runtimeTestActionService = m_currentMeta.getRuntimeTestActionService();
+    runtimeTester = m_currentMeta.getRuntimeTester();
+    namedClusterServiceLocator = m_currentMeta.getNamedClusterServiceLocator();
   }
 
   public String open() {
