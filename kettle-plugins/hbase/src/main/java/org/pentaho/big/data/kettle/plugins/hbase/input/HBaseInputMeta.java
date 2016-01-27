@@ -60,6 +60,8 @@ import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 import org.pentaho.metastore.api.IMetaStore;
+import org.pentaho.runtime.test.RuntimeTester;
+import org.pentaho.runtime.test.action.RuntimeTestActionService;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
@@ -84,6 +86,8 @@ public class HBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   private final NamedClusterLoadSaveUtil namedClusterLoadSaveUtil;
   private final NamedClusterService namedClusterService;
   private final NamedClusterServiceLocator namedClusterServiceLocator;
+  private final RuntimeTestActionService runtimeTestActionService;
+  private final RuntimeTester runtimeTester;
 
   protected NamedCluster namedCluster;
 
@@ -132,9 +136,12 @@ public class HBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
   protected Mapping m_mapping;
 
   public HBaseInputMeta( NamedClusterService namedClusterService,
-                         NamedClusterServiceLocator namedClusterServiceLocator ) {
+                         NamedClusterServiceLocator namedClusterServiceLocator,
+                         RuntimeTestActionService runtimeTestActionService, RuntimeTester runtimeTester ) {
     this.namedClusterService = namedClusterService;
     this.namedClusterServiceLocator = namedClusterServiceLocator;
+    this.runtimeTestActionService = runtimeTestActionService;
+    this.runtimeTester = runtimeTester;
     namedClusterLoadSaveUtil = new NamedClusterLoadSaveUtil();
   }
 
@@ -697,21 +704,27 @@ public class HBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.pentaho.di.trans.step.BaseStepMeta#getDialogClassName()
-   */
-  @Override
-  public String getDialogClassName() {
-    return "org.pentaho.di.trans.steps.hbaseinput.HBaseInputDialog";
-  }
-
   public NamedCluster getNamedCluster() {
     return namedCluster;
   }
 
   public void setNamedCluster( NamedCluster namedCluster ) {
     this.namedCluster = namedCluster;
+  }
+
+  public NamedClusterService getNamedClusterService() {
+    return namedClusterService;
+  }
+
+  public NamedClusterServiceLocator getNamedClusterServiceLocator() {
+    return namedClusterServiceLocator;
+  }
+
+  public RuntimeTestActionService getRuntimeTestActionService() {
+    return runtimeTestActionService;
+  }
+
+  public RuntimeTester getRuntimeTester() {
+    return runtimeTester;
   }
 }

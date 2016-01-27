@@ -12,7 +12,6 @@ import org.pentaho.hbase.shim.api.HBaseValueMeta;
 import org.pentaho.hbase.shim.spi.HBaseBytesUtilShim;
 import org.w3c.dom.Node;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -108,7 +107,7 @@ public class MappingImpl implements Mapping {
     return Collections.unmodifiableMap( Maps.transformEntries( delegate.getMappedColumns(),
       new Maps.EntryTransformer<String, HBaseValueMeta, HBaseValueMetaInterface>() {
         @Override
-        public HBaseValueMetaInterface transformEntry( @Nullable String key, @Nullable HBaseValueMeta value ) {
+        public HBaseValueMetaInterface transformEntry( String key, HBaseValueMeta value ) {
           if ( value instanceof HBaseValueMetaInterface ) {
             return (HBaseValueMetaInterface) value;
           }
@@ -121,7 +120,7 @@ public class MappingImpl implements Mapping {
     delegate.setMappedColumns( new HashMap<String, HBaseValueMeta>( Maps.transformEntries( cols,
       new Maps.EntryTransformer<String, HBaseValueMetaInterface, HBaseValueMeta>() {
         @Override
-        public HBaseValueMeta transformEntry( @Nullable String key, @Nullable HBaseValueMetaInterface value ) {
+        public HBaseValueMeta transformEntry( String key, HBaseValueMetaInterface value ) {
           if ( value instanceof HBaseValueMeta ) {
             return (HBaseValueMeta) value;
           }
