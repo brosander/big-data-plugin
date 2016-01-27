@@ -141,6 +141,10 @@ public class HBaseOutputDialog extends BaseStepDialog implements StepDialogInter
     m_currentMeta = (HBaseOutputMeta) in;
     m_originalMeta = (HBaseOutputMeta) m_currentMeta.clone();
     m_configurationMeta = (HBaseOutputMeta) m_currentMeta.clone();
+    namedClusterService = m_currentMeta.getNamedClusterService();
+    runtimeTestActionService = m_currentMeta.getRuntimeTestActionService();
+    runtimeTester = m_currentMeta.getRuntimeTester();
+    namedClusterServiceLocator = m_currentMeta.getNamedClusterServiceLocator();
   }
 
   public String open() {
