@@ -366,6 +366,7 @@ public class HBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
     m_sourceMappingName = null;
     m_keyStart = null;
     m_keyStop = null;
+    namedCluster = namedClusterService.getClusterTemplate();
   }
 
   private String getIndexValues( HBaseValueMetaInterface vm ) {
