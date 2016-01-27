@@ -260,7 +260,8 @@ public class HBaseTableImpl implements HBaseTable {
       targetTableProps.setProperty( org.pentaho.hbase.shim.spi.HBaseConnection.HTABLE_WRITE_BUFFER_SIZE_KEY,
         writeBufferSize.toString() );
     }
-    return new HBaseTableWriteOperationManagerImpl( hBaseConnectionPool.getConnectionHandle( name, targetTableProps ) );
+    return new HBaseTableWriteOperationManagerImpl( hBaseConnectionPool.getConnectionHandle( name, targetTableProps ),
+      writeBufferSize != null );
   }
 
   @Override public void close() throws IOException {

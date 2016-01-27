@@ -12,9 +12,15 @@ import java.io.IOException;
  */
 public class HBaseTableWriteOperationManagerImpl implements HBaseTableWriteOperationManager {
   private final HBaseConnectionHandle hBaseConnectionHandle;
+  private final boolean autoFlush;
 
-  public HBaseTableWriteOperationManagerImpl( HBaseConnectionHandle hBaseConnectionHandle ) {
+  public HBaseTableWriteOperationManagerImpl( HBaseConnectionHandle hBaseConnectionHandle, boolean autoFlush ) {
     this.hBaseConnectionHandle = hBaseConnectionHandle;
+    this.autoFlush = autoFlush;
+  }
+
+  @Override public boolean isAutoFlush() {
+    return autoFlush;
   }
 
   @Override public HBasePut createPut( byte[] key ) {

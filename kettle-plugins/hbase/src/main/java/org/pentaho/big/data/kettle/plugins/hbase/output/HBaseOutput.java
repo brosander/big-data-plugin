@@ -31,6 +31,7 @@ import org.pentaho.bigdata.api.hbase.mapping.Mapping;
 import org.pentaho.bigdata.api.hbase.meta.HBaseValueMetaInterface;
 import org.pentaho.bigdata.api.hbase.table.HBasePut;
 import org.pentaho.bigdata.api.hbase.table.HBaseTable;
+import org.pentaho.bigdata.api.hbase.table.HBaseTableWriteOperationManager;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMetaInterface;
@@ -62,6 +63,7 @@ public class HBaseOutput extends BaseStep implements StepInterface {
   protected HBaseOutputData m_data;
   private NamedClusterServiceLocator namedClusterServiceLocator;
   private HBaseService hBaseService;
+  private HBaseTableWriteOperationManager targetTableWriteOperationManager;
 
   public HBaseOutput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
       Trans trans ) {
@@ -102,9 +104,9 @@ public class HBaseOutput extends BaseStep implements StepInterface {
       // target table will be null if we haven't seen any input
       if ( targetTable != null ) {
         try {
-          if ( !targetTable.isAutoFlush() ) {
+          if ( !targetTableWriteOperationManager.isAutoFlush() ) {
             logBasic( BaseMessages.getString( HBaseOutputMeta.PKG, "HBaseOutput.FlushingWriteBuffer" ) );
-            targetTable.flushCommits();
+            targetTableWriteOperationManager.flushCommits();
           }
         } catch ( Exception ex ) {
           throw new KettleException( BaseMessages.getString( HBaseOutputMeta.PKG,
@@ -243,17 +245,17 @@ public class HBaseOutput extends BaseStep implements StepInterface {
         logBasic( BaseMessages.getString( HBaseOutputMeta.PKG, "HBaseOutput.ConnectingToTargetTable" ) );
 
         // set a write buffer size (and disable auto flush)
+        Long writeBufferSize = null;
         if ( !Const.isEmpty( m_meta.getWriteBufferSize() ) ) {
-          long writeBuffer = Long.parseLong( environmentSubstitute( m_meta.getWriteBufferSize() ) );
+          writeBufferSize = Long.parseLong( environmentSubstitute( m_meta.getWriteBufferSize() ) );
 
-          logBasic( BaseMessages.getString( HBaseOutputMeta.PKG, "HBaseOutput.SettingWriteBuffer", writeBuffer ) );
-          targetTable.setWriteBufferSize( writeBuffer );
-          targetTable.setAutoFlush( false );
+          logBasic( BaseMessages.getString( HBaseOutputMeta.PKG, "HBaseOutput.SettingWriteBuffer", writeBufferSize ) );
 
           if ( m_meta.getDisableWriteToWAL() ) {
             logBasic( BaseMessages.getString( HBaseOutputMeta.PKG, "HBaseOutput.DisablingWriteToWAL" ) );
           }
         }
+        targetTableWriteOperationManager = targetTable.createWriteOperationManager( writeBufferSize );
       } catch ( Exception e ) {
         throw new KettleException( BaseMessages.getString( HBaseOutputMeta.PKG,
             "HBaseOutput.Error.ProblemConnectingToTargetTable", e.getMessage() ), e );
@@ -269,7 +271,7 @@ public class HBaseOutput extends BaseStep implements StepInterface {
       // key must not be null
       hBasePut =
         HBaseOutputData.initializeNewPut( getInputRowMeta(), m_incomingKeyIndex, r, m_tableMapping, m_bytesUtil,
-          targetTable, !m_meta.getDisableWriteToWAL() );
+          targetTableWriteOperationManager, !m_meta.getDisableWriteToWAL() );
       if ( hBasePut == null ) {
         String errorDescriptions =
             BaseMessages.getString( HBaseOutputMeta.PKG, "HBaseOutput.Error.IncomingRowHasNullKeyValue" );
@@ -329,9 +331,9 @@ public class HBaseOutput extends BaseStep implements StepInterface {
     if ( stopped ) {
       if ( targetTable != null ) {
         try {
-          if ( !targetTable.isAutoFlush() ) {
+          if ( !targetTableWriteOperationManager.isAutoFlush() ) {
             logBasic( BaseMessages.getString( HBaseOutputMeta.PKG, "HBaseOutput.FlushingWriteBuffer" ) );
-            targetTable.flushCommits();
+            targetTableWriteOperationManager.flushCommits();
           }
         } catch ( Exception ex ) {
           logError( BaseMessages.getString( HBaseOutputMeta.PKG, "HBaseOutput.Error.ProblemFlushingBufferedData", ex

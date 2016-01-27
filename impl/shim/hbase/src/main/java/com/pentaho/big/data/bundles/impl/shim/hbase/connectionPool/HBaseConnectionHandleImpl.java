@@ -21,7 +21,7 @@ public class HBaseConnectionHandleImpl implements HBaseConnectionHandle {
   }
 
   @Override public void close() throws IOException {
-    HBaseConnectionWrapper hBaseConnection = this.hBaseConnection;
+    HBaseConnectionPoolConnection hBaseConnection = this.hBaseConnection;
     this.hBaseConnection = null;
     hBaseConnectionPool.releaseConnection( hBaseConnection );
   }
