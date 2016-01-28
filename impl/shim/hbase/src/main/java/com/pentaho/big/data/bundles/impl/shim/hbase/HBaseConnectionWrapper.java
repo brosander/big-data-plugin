@@ -202,27 +202,36 @@ public class HBaseConnectionWrapper extends HBaseConnection {
   }
 
   private Field getResultSetRowField( Object o ) {
-    try {
-      return o.getClass().getDeclaredField( "m_currentResultSetRow" );
-    } catch ( NoSuchFieldException e ) {
-      return null;
+    return getField( o.getClass(), "m_currentResultSetRow" );
+  }
+
+  private Field getField( Class<?> clazz, String fieldName ) {
+    Class<?> current = clazz;
+    while ( current != null ) {
+      try {
+        return current.getDeclaredField( fieldName );
+      } catch ( NoSuchFieldException e ) {
+        // Ignore
+      }
+      current = current.getSuperclass();
     }
+    return null;
   }
 
   private HBaseConnection findRealImpl( Object hBaseConnection ) {
-    if ( Proxy.isProxyClass( hBaseConnection.getClass() ) ) {
-      return  unwrapProxy( hBaseConnection );
+    Class<?> hBaseConnectionClass = hBaseConnection.getClass();
+    if ( Proxy.isProxyClass( hBaseConnectionClass ) ) {
+      return unwrapProxy( hBaseConnection );
     } else if ( hBaseConnection instanceof HBaseConnection ) {
       if ( getResultSetRowField( hBaseConnection ) != null ) {
         return (HBaseConnection) hBaseConnection;
       }
-      try {
-        Object delegate = getFieldValue( hBaseConnection.getClass().getDeclaredField( "delegate" ), hBaseConnection );
+      Field delegateField = getField( hBaseConnectionClass, "delegate" );
+      if ( delegateField != null ) {
+        Object delegate = getFieldValue( delegateField, hBaseConnection );
         if ( delegate instanceof HBaseConnection ) {
           return findRealImpl( delegate );
         }
-      } catch ( NoSuchFieldException e ) {
-        e.printStackTrace();
       }
     }
     return null;
@@ -247,11 +256,15 @@ public class HBaseConnectionWrapper extends HBaseConnection {
 
   private HBaseConnection unwrapProxy( Object proxy ) {
     InvocationHandler invocationHandler = Proxy.getInvocationHandler( proxy );
-    for ( Field field : invocationHandler.getClass().getDeclaredFields() ) {
-      Object value = getFieldValue( field, proxy );
-      if ( value instanceof HBaseConnection ) {
-        return findRealImpl( value );
+    Class<?> clazz = invocationHandler.getClass();
+    while ( clazz != null ) {
+      for ( Field field : clazz.getDeclaredFields() ) {
+        Object value = getFieldValue( field, proxy );
+        if ( value instanceof HBaseConnection ) {
+          return findRealImpl( value );
+        }
       }
+      clazz = clazz.getSuperclass();
     }
     return null;
   }

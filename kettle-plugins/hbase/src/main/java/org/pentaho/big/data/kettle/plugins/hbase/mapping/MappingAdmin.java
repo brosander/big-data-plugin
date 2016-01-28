@@ -80,7 +80,6 @@ public class MappingAdmin implements Closeable {
    * same table
    */
   public static final String KEY_FAMILY_NAME = "key";
-  private HBaseConnection connection;
 
   /**
    * Constructor. No conneciton information configured.
@@ -785,7 +784,7 @@ public class MappingAdmin implements Closeable {
       ResultScanner resultScanner = scannerBuilder.build();
       Result result = resultScanner.next();
       if ( result == null ) {
-        throw new IOException( "Mapping \"" + compoundKey + "\" does not exist!" );
+        throw new IOException( "Mapping \"" + tableName + "," + mappingName + "\" does not exist!" );
       }
 
       NavigableMap<byte[], byte[]> colsInKeyFamily = result.getFamilyMap( KEY_FAMILY_NAME );
@@ -793,7 +792,7 @@ public class MappingAdmin implements Closeable {
       Set<byte[]> keyCols = colsInKeyFamily.keySet();
       // should only be one key defined!!
       if ( keyCols.size() != 1 ) {
-        throw new IOException( "Mapping \"" + compoundKey + "\" has more than one key defined!" );
+        throw new IOException( "Mapping \"" + tableName + "," + mappingName + "\" has more than one key defined!" );
       }
 
       byte[] keyNameB = keyCols.iterator().next();
@@ -926,6 +925,6 @@ public class MappingAdmin implements Closeable {
   }
 
   public HBaseConnection getConnection() {
-    return connection;
+    return hBaseConnection;
   }
 }

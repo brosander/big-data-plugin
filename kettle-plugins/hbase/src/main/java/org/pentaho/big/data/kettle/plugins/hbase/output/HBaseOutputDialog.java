@@ -50,6 +50,7 @@ import org.eclipse.swt.widgets.Text;
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
+import org.pentaho.big.data.api.initializer.ClusterInitializationException;
 import org.pentaho.big.data.kettle.plugins.hbase.mapping.ConfigurationProducer;
 import org.pentaho.big.data.kettle.plugins.hbase.mapping.FieldProducer;
 import org.pentaho.big.data.kettle.plugins.hbase.mapping.MappingAdmin;
@@ -74,6 +75,7 @@ import org.pentaho.di.ui.trans.step.BaseStepDialog;
 import org.pentaho.runtime.test.RuntimeTester;
 import org.pentaho.runtime.test.action.RuntimeTestActionService;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -782,6 +784,11 @@ public class HBaseOutputDialog extends BaseStepDialog implements StepDialogInter
     }
   }
 
+  @Override public HBaseService getHBaseService() throws ClusterInitializationException {
+    NamedCluster nc = namedClusterWidget.getSelectedNamedCluster();
+    return namedClusterServiceLocator.getService( nc, HBaseService.class );
+  }
+
   public HBaseConnection getHBaseConnection() throws Exception {
     /*
      * URL coreConf = null; URL defaultConf = null;
@@ -808,7 +815,7 @@ public class HBaseOutputDialog extends BaseStepDialog implements StepDialogInter
           "MappingDialog.Error.Message.CantConnectNoConnectionDetailsProvided" ) );
     }
 
-    return namedClusterServiceLocator.getService( nc, HBaseService.class ).getHBaseConnection( transMeta, coreConf, defaultConf, null );
+    return getHBaseService().getHBaseConnection( transMeta, coreConf, defaultConf, null );
   }
 
   private void setupMappedTableNames() {

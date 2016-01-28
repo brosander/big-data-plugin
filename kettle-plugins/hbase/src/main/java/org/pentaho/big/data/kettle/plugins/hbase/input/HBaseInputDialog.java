@@ -52,6 +52,7 @@ import org.eclipse.swt.widgets.Text;
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
+import org.pentaho.big.data.api.initializer.ClusterInitializationException;
 import org.pentaho.big.data.kettle.plugins.hbase.mapping.ConfigurationProducer;
 import org.pentaho.big.data.kettle.plugins.hbase.mapping.MappingAdmin;
 import org.pentaho.big.data.kettle.plugins.hbase.mapping.MappingEditor;
@@ -83,6 +84,7 @@ import org.pentaho.di.ui.trans.step.BaseStepDialog;
 import org.pentaho.runtime.test.RuntimeTester;
 import org.pentaho.runtime.test.action.RuntimeTestActionService;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1222,6 +1224,11 @@ public class HBaseInputDialog extends BaseStepDialog implements StepDialogInterf
     checkKeyInformation( true, false );
   }
 
+  @Override public HBaseService getHBaseService() throws ClusterInitializationException {
+    NamedCluster nc = namedClusterWidget.getSelectedNamedCluster();
+    return namedClusterServiceLocator.getService( nc, HBaseService.class );
+  }
+
   public HBaseConnection getHBaseConnection() throws Exception {
     HBaseConnection conf = null;
 
@@ -1230,7 +1237,7 @@ public class HBaseInputDialog extends BaseStepDialog implements StepDialogInterf
     String zookeeperHosts = "";
 
     NamedCluster nc = namedClusterWidget.getSelectedNamedCluster();
-    HBaseService hBaseService = namedClusterServiceLocator.getService( nc, HBaseService.class );
+    HBaseService hBaseService = getHBaseService();
     if ( nc != null ) {
       zookeeperHosts = transMeta.environmentSubstitute( nc.getZooKeeperHost() );
     }
