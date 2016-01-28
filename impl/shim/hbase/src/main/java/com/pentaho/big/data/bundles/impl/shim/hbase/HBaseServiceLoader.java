@@ -2,7 +2,7 @@ package com.pentaho.big.data.bundles.impl.shim.hbase;
 
 import com.pentaho.big.data.bundles.impl.shim.common.ShimBridgingServiceTracker;
 import org.osgi.framework.BundleContext;
-import org.pentaho.bigdata.api.hbase.HBaseService;
+import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceFactory;
 import org.pentaho.di.core.hadoop.HadoopConfigurationBootstrap;
 import org.pentaho.di.core.hadoop.HadoopConfigurationListener;
 import org.pentaho.hadoop.shim.ConfigurationException;
@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
  * Created by bryan on 1/27/16.
  */
 public class HBaseServiceLoader implements HadoopConfigurationListener {
-  private static final Logger LOGGER = LoggerFactory.getLogger( HBaseServiceLoader.class );
   public static final String HBASE_SERVICE_FACTORY_CANONICAL_NAME = HBaseServiceFactory.class.getCanonicalName();
+  private static final Logger LOGGER = LoggerFactory.getLogger( HBaseServiceLoader.class );
   private final BundleContext bundleContext;
   private final ShimBridgingServiceTracker shimBridgingServiceTracker;
 
@@ -36,7 +36,7 @@ public class HBaseServiceLoader implements HadoopConfigurationListener {
 
   @Override public void onConfigurationOpen( HadoopConfiguration hadoopConfiguration, boolean defaultConfiguration ) {
     try {
-      shimBridgingServiceTracker.registerWithClassloader( hadoopConfiguration, HBaseService.class,
+      shimBridgingServiceTracker.registerWithClassloader( hadoopConfiguration, NamedClusterServiceFactory.class,
         HBASE_SERVICE_FACTORY_CANONICAL_NAME,
         bundleContext, hadoopConfiguration.getHadoopShim().getClass().getClassLoader(),
         new Class<?>[] { boolean.class, HadoopConfiguration.class },
