@@ -159,8 +159,9 @@ public class HBaseValueMetaInterfaceFactoryImpl implements HBaseValueMetaInterfa
 
   @Override public HBaseValueMetaInterfaceImpl copy( HBaseValueMetaInterface hBaseValueMetaInterface ) {
     HBaseValueMetaInterfaceImpl result =
-      createHBaseValueMetaInterface( hBaseValueMetaInterface.getName(), hBaseValueMetaInterface.getType(),
-        hBaseValueMetaInterface.getLength(), hBaseValueMetaInterface.getPrecision() );
+      createHBaseValueMetaInterface( hBaseValueMetaInterface.getColumnFamily(), hBaseValueMetaInterface.getColumnName(),
+        hBaseValueMetaInterface.getName(), hBaseValueMetaInterface.getType(), hBaseValueMetaInterface.getLength(),
+        hBaseValueMetaInterface.getPrecision() );
     result.setTableName( hBaseValueMetaInterface.getTableName() );
     result.setMappingName( hBaseValueMetaInterface.getMappingName() );
     result.setKey( hBaseValueMetaInterface.isKey() );
@@ -172,8 +173,8 @@ public class HBaseValueMetaInterfaceFactoryImpl implements HBaseValueMetaInterfa
 
   public HBaseValueMetaInterfaceImpl copy( HBaseValueMeta hBaseValueMeta ) {
     HBaseValueMetaInterfaceImpl result =
-      createHBaseValueMetaInterface( hBaseValueMeta.getName(), hBaseValueMeta.getType(),
-        hBaseValueMeta.getLength(), hBaseValueMeta.getPrecision() );
+      createHBaseValueMetaInterface( hBaseValueMeta.getColumnFamily(), hBaseValueMeta.getColumnName(),
+        hBaseValueMeta.getName(), hBaseValueMeta.getType(), hBaseValueMeta.getLength(), hBaseValueMeta.getPrecision() );
     result.setTableName( hBaseValueMeta.getTableName() );
     result.setMappingName( hBaseValueMeta.getMappingName() );
     result.setKey( hBaseValueMeta.isKey() );

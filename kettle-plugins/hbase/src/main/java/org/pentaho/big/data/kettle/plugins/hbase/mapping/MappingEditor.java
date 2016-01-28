@@ -1187,7 +1187,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
   }
 
   public HBaseConnection getHBaseConnection() throws Exception {
-    return getHBaseService().getHBaseConnection( null, null, null, null );
+    return getHBaseService().getHBaseConnection( m_transMeta, null, null, null );
   }
 
   public String getCurrentConfiguration() {

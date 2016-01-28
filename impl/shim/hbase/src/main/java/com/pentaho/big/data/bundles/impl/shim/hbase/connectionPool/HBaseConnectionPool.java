@@ -110,8 +110,10 @@ public class HBaseConnectionPool implements Closeable {
     try {
       List<String> messages = new ArrayList<>();
       hBaseConnection.configureConnection( connectionProps, messages );
-      for ( String message : messages ) {
-        logChannelInterface.logBasic( message );
+      if ( logChannelInterface != null ) {
+        for ( String message : messages ) {
+          logChannelInterface.logBasic( message );
+        }
       }
     } catch ( Exception e ) {
       throw new IOException( e );
