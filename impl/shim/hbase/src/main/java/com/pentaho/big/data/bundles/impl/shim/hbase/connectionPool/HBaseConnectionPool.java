@@ -8,6 +8,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -107,7 +108,11 @@ public class HBaseConnectionPool implements Closeable {
   private HBaseConnectionPoolConnection create() throws IOException {
     HBaseConnection hBaseConnection = hBaseShim.getHBaseConnection();
     try {
-      hBaseConnection.configureConnection( connectionProps, new ArrayList<String>() );
+      List<String> messages = new ArrayList<>();
+      hBaseConnection.configureConnection( connectionProps, messages );
+      for ( String message : messages ) {
+        logChannelInterface.logBasic( message );
+      }
     } catch ( Exception e ) {
       throw new IOException( e );
     }

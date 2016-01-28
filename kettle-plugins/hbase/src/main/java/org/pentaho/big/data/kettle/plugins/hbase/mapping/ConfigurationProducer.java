@@ -35,6 +35,7 @@ import java.io.IOException;
  * 
  */
 public interface ConfigurationProducer {
+  HBaseService getHBaseService() throws IOException, Exception;
 
   /**
    * Get a configuration object encapsulating connection information for HBase

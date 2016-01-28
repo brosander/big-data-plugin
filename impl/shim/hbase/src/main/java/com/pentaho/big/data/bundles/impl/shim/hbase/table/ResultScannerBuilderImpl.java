@@ -93,6 +93,11 @@ public class ResultScannerBuilderImpl implements ResultScannerBuilder {
   @Override public ResultScanner build() throws IOException {
     HBaseConnectionHandle connectionHandle = hBaseConnectionPool.getConnectionHandle( tableName );
     batchHBaseConnectionOperation.perform( connectionHandle.getConnection() );
+    try {
+      connectionHandle.getConnection().executeSourceTableScan();
+    } catch ( Exception e ) {
+      throw new IOException( e );
+    }
     return new ResultScannerImpl( connectionHandle, hBaseBytesUtilShim );
   }
 }

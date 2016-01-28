@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.big.data.api.cluster.NamedClusterService;
 import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
+import org.pentaho.big.data.api.initializer.ClusterInitializationException;
 import org.pentaho.big.data.kettle.plugins.hbase.input.HBaseInput;
 import org.pentaho.big.data.kettle.plugins.hbase.input.Messages;
 import org.pentaho.big.data.plugins.common.ui.NamedClusterWidgetImpl;
@@ -724,7 +725,7 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
       return null;
     }
     // do we have a key defined in the table?
-    HBaseService hBaseService = m_configProducer.getHBaseConnection().getService();
+    HBaseService hBaseService = m_configProducer.getHBaseService();
     Mapping theMapping =
       hBaseService.getMappingFactory().createMapping( tableName, m_existingMappingNamesCombo.getText().trim() );
     boolean keyDefined = false;
@@ -1177,12 +1178,16 @@ public class MappingEditor extends Composite implements ConfigurationProducer {
     }
   }
 
-  public HBaseConnection getHBaseConnection() throws Exception {
+  @Override public HBaseService getHBaseService() throws ClusterInitializationException {
     NamedCluster nc = namedClusterWidget.getSelectedNamedCluster();
     if ( nc == null ) {
       return null;
     }
-    return namedClusterServiceLocator.getService( nc, HBaseService.class ).getHBaseConnection( null, null, null, null );
+    return namedClusterServiceLocator.getService( nc, HBaseService.class );
+  }
+
+  public HBaseConnection getHBaseConnection() throws Exception {
+    return getHBaseService().getHBaseConnection( null, null, null, null );
   }
 
   public String getCurrentConfiguration() {

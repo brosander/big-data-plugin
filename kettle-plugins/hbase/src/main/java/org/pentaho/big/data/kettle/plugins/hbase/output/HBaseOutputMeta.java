@@ -252,7 +252,7 @@ public class HBaseOutputMeta extends BaseStepMeta implements StepMetaInterface {
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
       TransMeta transMeta, Trans trans ) {
-    return new HBaseOutput( stepMeta, stepDataInterface, copyNr, transMeta, trans );
+    return new HBaseOutput( stepMeta, stepDataInterface, copyNr, transMeta, trans, namedClusterServiceLocator );
   }
 
   public StepDataInterface getStepData() {

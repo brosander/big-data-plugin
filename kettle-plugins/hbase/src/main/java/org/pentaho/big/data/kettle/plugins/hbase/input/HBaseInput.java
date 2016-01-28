@@ -248,7 +248,7 @@ public class HBaseInput extends BaseStep implements StepInterface {
 
         // set up the output fields (using the mapping)
         m_data.setOutputRowMeta( new RowMeta() );
-        m_meta.getFields( m_data.getOutputRowMeta(), getStepname(), null, null, this );
+        m_meta.getFields( m_data.getOutputRowMeta(), getStepname(), null, null, this, repository, metaStore );
       }
     }
 

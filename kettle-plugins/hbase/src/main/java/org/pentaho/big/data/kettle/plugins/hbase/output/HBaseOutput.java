@@ -61,14 +61,15 @@ public class HBaseOutput extends BaseStep implements StepInterface {
 
   protected HBaseOutputMeta m_meta;
   protected HBaseOutputData m_data;
-  private NamedClusterServiceLocator namedClusterServiceLocator;
+  private final NamedClusterServiceLocator namedClusterServiceLocator;
   private HBaseService hBaseService;
   private HBaseTableWriteOperationManager targetTableWriteOperationManager;
 
   public HBaseOutput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+                      Trans trans, NamedClusterServiceLocator namedClusterServiceLocator ) {
 
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
+    this.namedClusterServiceLocator = namedClusterServiceLocator;
   }
 
   /** Configuration object for connecting to HBase */

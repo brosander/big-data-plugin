@@ -578,12 +578,12 @@ public class HBaseInputMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-      String[] input, String[] output, RowMetaInterface info ) {
+  @Override public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
+      String[] input, String[] output, RowMetaInterface info, VariableSpace variableSpace, Repository repository, IMetaStore metaStore ) {
 
     RowMeta r = new RowMeta();
     try {
-      getFields( r, "testName", null, null, null );
+      getFields( r, "testName", null, null, null, repository, metaStore );
 
       CheckResult cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, "Step can connect to HBase. Named mapping exists", stepMeta );

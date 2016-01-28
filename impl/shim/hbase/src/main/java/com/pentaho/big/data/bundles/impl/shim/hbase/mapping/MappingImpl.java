@@ -152,4 +152,8 @@ public class MappingImpl implements Mapping {
   @Override public Object decodeKeyValue( byte[] rawval ) throws KettleException {
     return HBaseValueMeta.decodeKeyValue( rawval, delegate, hBaseBytesUtilShim );
   }
+
+  @Override public String toString() {
+    return delegate.toString();
+  }
 }
