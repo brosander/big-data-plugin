@@ -1,5 +1,7 @@
 package org.pentaho.bigdata.api.hbase.table;
 
+import org.pentaho.bigdata.api.hbase.Result;
+
 import java.io.IOException;
 
 /**
