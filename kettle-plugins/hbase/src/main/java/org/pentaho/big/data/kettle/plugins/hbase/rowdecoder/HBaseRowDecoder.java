@@ -25,11 +25,12 @@ package org.pentaho.big.data.kettle.plugins.hbase.rowdecoder;
 import org.pentaho.big.data.api.cluster.service.locator.NamedClusterServiceLocator;
 import org.pentaho.big.data.kettle.plugins.hbase.mapping.HBaseRowToKettleTuple;
 import org.pentaho.bigdata.api.hbase.ByteConversionUtil;
-import org.pentaho.bigdata.api.hbase.HBaseConnection;
 import org.pentaho.bigdata.api.hbase.HBaseService;
+import org.pentaho.bigdata.api.hbase.ResultFactory;
+import org.pentaho.bigdata.api.hbase.ResultFactoryException;
 import org.pentaho.bigdata.api.hbase.mapping.Mapping;
 import org.pentaho.bigdata.api.hbase.meta.HBaseValueMetaInterface;
-import org.pentaho.bigdata.api.hbase.table.Result;
+import org.pentaho.bigdata.api.hbase.Result;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowDataUtil;
@@ -43,6 +44,7 @@ import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -60,6 +62,7 @@ public class HBaseRowDecoder extends BaseStep implements StepInterface {
   protected HBaseRowDecoderMeta m_meta;
   protected HBaseRowDecoderData m_data;
   private HBaseService hBaseService;
+  private ResultFactory resultFactory;
 
   public HBaseRowDecoder( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
                           Trans trans, NamedClusterServiceLocator namedClusterServiceLocator ) {
@@ -84,11 +87,6 @@ public class HBaseRowDecoder extends BaseStep implements StepInterface {
    */
   protected HBaseRowToKettleTuple m_tupleHandler;
 
-  /**
-   * Administrative connection to HBase (used just for the utility routines for extracting info from HBase row objects)
-   */
-  protected HBaseConnection m_hbAdmin;
-
   /** Bytes util */
   protected ByteConversionUtil m_bytesUtil;
 
@@ -110,7 +108,7 @@ public class HBaseRowDecoder extends BaseStep implements StepInterface {
 
       try {
         hBaseService = namedClusterServiceLocator.getService( null, HBaseService.class );
-        m_hbAdmin = hBaseService.getHBaseConnection( this, null, null, null );
+        resultFactory = hBaseService.getResultFactory();
         m_bytesUtil = hBaseService.getByteConversionUtil();
 
         // no configuration needed here because we don't need access to the
@@ -159,15 +157,19 @@ public class HBaseRowDecoder extends BaseStep implements StepInterface {
             BaseMessages.getString( PKG, "HBaseRowDecoder.Error.UnableToFindHBaseRow", inResult ) );
       }
 
-      if ( inputRow[m_resultInIndex] instanceof Result ) {
+      if ( !resultFactory.canHandle( inputRow[m_resultInIndex] ) ) {
         throw new KettleException( BaseMessages.getString( PKG, "HBaseRowDecoder.Error.NotResult", m_meta
             .getIncomingResultField() ) );
       }
     }
 
-    Result hRow = (Result) inputRow[m_resultInIndex];
+    Result hRow = null;
+    try {
+      hRow = resultFactory.create( inputRow[m_resultInIndex] );
+    } catch ( ResultFactoryException e ) {
+      throw new KettleException( e.getMessage(), e );
+    }
     if ( inputRow[m_keyInIndex] != null && hRow != null ) {
-
       if ( m_tableMapping.isTupleMapping() ) {
         List<Object[]> hrowToKettleRow =
             m_tupleHandler.hbaseRowToKettleTupleMode( hBaseService.getHBaseValueMetaInterfaceFactory(), hRow, m_tableMapping, m_tableMapping
@@ -177,7 +179,6 @@ public class HBaseRowDecoder extends BaseStep implements StepInterface {
           putRow( m_data.getOutputRowMeta(), tuple );
         }
       } else {
-
         Object[] outputRowData = RowDataUtil.allocateRowData( m_outputColumns.length + 1 ); // + 1 for key
 
         byte[] rowKey = null;

@@ -23,11 +23,10 @@
 package org.pentaho.big.data.kettle.plugins.hbase.mapping;
 
 import org.pentaho.bigdata.api.hbase.ByteConversionUtil;
-import org.pentaho.bigdata.api.hbase.HBaseService;
 import org.pentaho.bigdata.api.hbase.meta.HBaseValueMetaInterface;
 import org.pentaho.bigdata.api.hbase.mapping.Mapping;
 import org.pentaho.bigdata.api.hbase.meta.HBaseValueMetaInterfaceFactory;
-import org.pentaho.bigdata.api.hbase.table.Result;
+import org.pentaho.bigdata.api.hbase.Result;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowDataUtil;

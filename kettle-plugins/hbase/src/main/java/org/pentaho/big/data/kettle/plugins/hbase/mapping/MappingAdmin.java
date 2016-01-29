@@ -32,7 +32,7 @@ import org.pentaho.bigdata.api.hbase.meta.HBaseValueMetaInterfaceFactory;
 import org.pentaho.bigdata.api.hbase.table.HBasePut;
 import org.pentaho.bigdata.api.hbase.table.HBaseTable;
 import org.pentaho.bigdata.api.hbase.table.HBaseTableWriteOperationManager;
-import org.pentaho.bigdata.api.hbase.table.Result;
+import org.pentaho.bigdata.api.hbase.Result;
 import org.pentaho.bigdata.api.hbase.table.ResultScanner;
 import org.pentaho.bigdata.api.hbase.table.ResultScannerBuilder;
 import org.pentaho.di.core.Const;

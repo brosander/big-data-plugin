@@ -1,4 +1,4 @@
-package org.pentaho.bigdata.api.hbase.table;
+package org.pentaho.bigdata.api.hbase;
 
 import java.util.NavigableMap;
 

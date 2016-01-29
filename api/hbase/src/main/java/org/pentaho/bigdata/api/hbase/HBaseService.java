@@ -23,4 +23,6 @@ public interface HBaseService {
   HBaseValueMetaInterfaceFactory getHBaseValueMetaInterfaceFactory();
 
   ByteConversionUtil getByteConversionUtil();
+
+  ResultFactory getResultFactory();
 }

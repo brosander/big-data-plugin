@@ -7,6 +7,7 @@ import org.pentaho.big.data.api.cluster.NamedCluster;
 import org.pentaho.bigdata.api.hbase.ByteConversionUtil;
 import org.pentaho.bigdata.api.hbase.HBaseConnection;
 import org.pentaho.bigdata.api.hbase.HBaseService;
+import org.pentaho.bigdata.api.hbase.ResultFactory;
 import org.pentaho.bigdata.api.hbase.mapping.ColumnFilterFactory;
 import org.pentaho.bigdata.api.hbase.mapping.MappingFactory;
 import org.pentaho.di.core.Const;
@@ -74,5 +75,9 @@ public class HBaseServiceImpl implements HBaseService {
 
   @Override public ByteConversionUtil getByteConversionUtil() {
     return new ByteConversionUtilImpl( bytesUtil );
+  }
+
+  @Override public ResultFactory getResultFactory() {
+    return new ResultFactoryImpl( bytesUtil );
   }
 }

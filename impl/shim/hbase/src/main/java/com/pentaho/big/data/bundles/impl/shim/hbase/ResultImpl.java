@@ -1,9 +1,8 @@
-package com.pentaho.big.data.bundles.impl.shim.hbase.table;
+package com.pentaho.big.data.bundles.impl.shim.hbase;
 
-import org.pentaho.bigdata.api.hbase.table.Result;
+import org.pentaho.bigdata.api.hbase.Result;
 import org.pentaho.hbase.shim.spi.HBaseBytesUtilShim;
 
-import java.io.IOException;
 import java.util.NavigableMap;
 
 /**
