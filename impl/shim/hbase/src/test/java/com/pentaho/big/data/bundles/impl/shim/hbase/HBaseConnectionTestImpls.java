@@ -28,6 +28,19 @@ import org.pentaho.hbase.shim.spi.HBaseConnection;
 /**
  * Created by bryan on 2/2/16.
  */
-public abstract class HBaseConnectionWithResultField extends HBaseConnection {
-  private Result m_currentResultSetRow;
+public interface HBaseConnectionTestImpls {
+  abstract class HBaseConnectionWithResultField extends HBaseConnection {
+    private Result m_currentResultSetRow;
+
+    public static abstract class Subclass extends HBaseConnectionWithResultField {
+    }
+  }
+
+  abstract class HBaseConnectionWithMismatchedDelegate extends HBaseConnection {
+    private Object delegate;
+  }
+
+  abstract class HBaseConnectionWithPublicDelegate extends HBaseConnection {
+    public Object delegate;
+  }
 }
