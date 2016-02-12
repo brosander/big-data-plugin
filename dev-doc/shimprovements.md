@@ -2,7 +2,9 @@ Big Data Plugin in 6.1
 ======================
 OSGi
 ----
-As of 6.1, all the main Hadoop functionality (HDFS, MapReduce, PMR, HBase, Sqoop, Oozie, YARN) is accesible via OSGi services.
+As of 6.1, all the main Hadoop functionality (HDFS, MapReduce, PMR, HBase, Pig, Sqoop, Oozie, YARN) is accesible via OSGi services.
+
+HDFS, Pig, and YARN were moved over as part of the 6.0 release so this doesn't introduce a new paradigm so much as complete the migration.
 
 This should not currently impact the user experience (shims, config files are in the same place, it is just the steps and services themselves that are now in OSGi)
 
