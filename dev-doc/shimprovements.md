@@ -28,4 +28,4 @@ Deployment Impact
 -----------------
 Updates to the legacy Big Data Plugin should be the same as before, drop a new plugins/big-data-plugin folder in and configure it (or just unzip a new shim into the hadoop-configurations directory)
 
-Updates to the OSGi bundles TODO
+Updates to the OSGi bundles can be accomplished most easily by building the same version as the release and overwriting the bundle in the Karaf system repository.  After this, stop the tool, remove the Karaf cache, and start the tool back up.
