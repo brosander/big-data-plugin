@@ -2,13 +2,13 @@ Big Data Plugin in 6.1
 ======================
 OSGi
 ----
-As of 6.1, all the main Hadoop functionality (HDFS, MapReduce, PMR, HBase, Pig, Sqoop, Oozie, YARN) is accesible via OSGi services.
+As of 6.1, all the main Hadoop functionality (HDFS, MapReduce, PMR, HBase, Pig, Sqoop, Oozie, YARN) is accessible via OSGi services.
 
-HDFS, Pig, and YARN were moved over as part of the 6.0 release so this doesn't introduce a new paradigm so much as complete the migration.
+HDFS, Pig, and YARN were moved to OSGi services in the 6.0 version of the software.  For 6.1, MapReduce, PMR, HBase, Oozie, and Sqoop were moved to OSGi services. This doesn't introduce a new paradigm, it just completes the migration of the functionality to OSGi.
 
-This won't impact the user experience (shims, config files are in the same place and all saved jobs and transformations will continue to work, it is just the steps and services themselves that are now in OSGi)
+This won't impact the user experience.  Shims, configuration files are in the same place and all saved jobs and transformations will continue to work.  However, the steps and services themselves are now in OSGi.
 
-This does allow for any OSGi plugin to leverage OSGi services in the future (no longer limited to the Big Data Plugin)
+This change allows any OSGi plugin to leverage OSGi services in the future; these services are no longer limited to the Big Data Plugin.
 
 It also paves the way for the eventual addition of more advanced authentication/authorization as well as multi-shim support.
 
@@ -30,6 +30,6 @@ There should be no change in licensing driven by these changes
 
 Deployment Impact
 -----------------
-Updates to the legacy Big Data Plugin should be the same as before, drop a new plugins/big-data-plugin folder in and configure it (or just unzip a new shim into the hadoop-configurations directory)
+Updates to the legacy Big Data Plugin should be the same as before; either drop a new big-data-plugin folder into plugins and configure it or unzip a new shim in the hadoop-configurations directory.
 
-Updates to the OSGi bundles currently can be accomplished most easily by building the same version as the release and overwriting the bundle in the Karaf system repository.  After this, stop the tool, remove the Karaf cache, and start the tool back up. (The bundle updating process will be improved after 6.1 and we will be aiming for a much easier deployment scenario.)
+Updates to the OSGi bundles currently can be accomplished most easily by building the same version as the release and overwriting the bundle in the Karaf system repository.  After this, stop the tool, remove the Karaf cache, and restart the tool. The bundle updating process will be improved after 6.1 and we will be aiming for a much easier deployment scenario.
