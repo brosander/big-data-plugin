@@ -12,6 +12,8 @@ This does allow for any OSGi plugin to leverage OSGi services in the future (no 
 
 It also paves the way for the eventual addition of more advanced authentication/authorization as well as multi-shim support.
 
+JDBC
+----
 Hive and Impala Drivers have not been migrated to OSGi, and are still part of the Big Data Plugin.
 
 Files Being Moved/Modified
