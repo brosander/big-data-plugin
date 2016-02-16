@@ -4,8 +4,6 @@ OSGi
 ----
 As of 6.1, all the main Hadoop functionality (HDFS, MapReduce, PMR, HBase, Pig, Sqoop, Oozie, YARN) is accesible via OSGi services.
 
-Hive and Impala Drivers have not been migrated to OSGi, and are still part of the Big Data Plugin.
-
 HDFS, Pig, and YARN were moved over as part of the 6.0 release so this doesn't introduce a new paradigm so much as complete the migration.
 
 This won't impact the user experience (shims, config files are in the same place, it is just the steps and services themselves that are now in OSGi)
@@ -13,6 +11,8 @@ This won't impact the user experience (shims, config files are in the same place
 This does allow for any OSGi plugin to leverage OSGi services in the future (no longer limited to the Big Data Plugin)
 
 It also paves the way for the eventual addition of more advanced authentication/authorization as well as multi-shim support.
+
+Hive and Impala Drivers have not been migrated to OSGi, and are still part of the Big Data Plugin.
 
 Files Being Moved/Modified
 --------------------------
