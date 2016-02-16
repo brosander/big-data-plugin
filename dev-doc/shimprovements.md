@@ -6,7 +6,7 @@ As of 6.1, all the main Hadoop functionality (HDFS, MapReduce, PMR, HBase, Pig, 
 
 HDFS, Pig, and YARN were moved over as part of the 6.0 release so this doesn't introduce a new paradigm so much as complete the migration.
 
-This won't impact the user experience (shims, config files are in the same place, it is just the steps and services themselves that are now in OSGi)
+This won't impact the user experience (shims, config files are in the same place and all saved jobs and transformations will continue to work, it is just the steps and services themselves that are now in OSGi)
 
 This does allow for any OSGi plugin to leverage OSGi services in the future (no longer limited to the Big Data Plugin)
 
